@@ -28,6 +28,11 @@ switch ExtFct
         InputData = GenerateInputData(Data,OxList,InputVariables);
         [OutputData,OutputVariables] = Monazite_Age_M96(InputData,InputVariables,AddParameters,ElOxDataDef);
         
+    case 'Phengite_P_All'
+        InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O'};
+        InputData = GenerateInputData(Data,OxList,InputVariables);
+        [OutputData,OutputVariables] = Phengite_P_All(InputData,InputVariables,AddParameters,ElOxDataDef);
+        
     case 'Rutile_T_All'
         InputVariables = {'ZrO2'};
         InputData = GenerateInputData(Data,OxList,InputVariables);

@@ -14,7 +14,7 @@ OutputVariables = {'T_H05','Ti','XMg'};
 
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
-% General structural formula function for 11 oxygen
+% General structural formula function for 22 oxygen
 WhereMin = find(sum(InputData,2) > 50);
 [MatrixSF,ElementsList] = SF_OxNorm(InputData(WhereMin,:),InputVariables,22,ElOxDataDef);
 

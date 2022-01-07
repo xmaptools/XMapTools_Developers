@@ -731,6 +731,11 @@ Functions.Min(Min).SF.FileName{Fct} = 'StructFctWhiteMica';
 % Thermobarometry
 Functions.Min(Min).TB = [];
 
+Fct = length(Functions.Min(Min).TB)+1;
+Functions.Min(Min).TB.Name{Fct} = 'P.Phg (all calibrations)';
+Functions.Min(Min).TB.FileName{Fct} = 'Phengite_P_All';
+Functions.Min(Min).TB.Details(Fct).AddVar = {'T_C'};
+Functions.Min(Min).TB.Details(Fct).Def = [550];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
