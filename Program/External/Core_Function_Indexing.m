@@ -447,7 +447,19 @@ Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Ilm'};
 Functions.Min(Min).ME.Details(Fct).AddVar = {};
 Functions.Min(Min).ME.Details(Fct).Def = [];
 
+Fct = length(Functions.Min(Min).ME.Names)+1;
+Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Opx (all calibrations)';
+Functions.Min(Min).ME.FileName{Fct} = 'GrtOpx_T_All';
+Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Opx'};
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).ME.Details(Fct).Def = [5];
 
+Fct = length(Functions.Min(Min).ME.Names)+1;
+Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Ph (all calibrations)';
+Functions.Min(Min).ME.FileName{Fct} = 'GrtPh_T_All';
+Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Ph'};
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).ME.Details(Fct).Def = [5];
 
 
 %% ILMENITE
@@ -554,6 +566,14 @@ Functions.Min(Min).TB = [];
 % Multi-equilibrium thermobarometry
 Functions.Min(Min).ME = []; 
 Functions.Min(Min).ME.Names = {}; 
+
+Fct = length(Functions.Min(Min).ME.Names)+1;
+Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Opx (all calibrations)';
+Functions.Min(Min).ME.FileName{Fct} = 'GrtOpx_T_All';
+Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Opx'};
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).ME.Details(Fct).Def = [5];
+
 
 
 
@@ -743,6 +763,12 @@ Functions.Min(Min).ME = [];
 Functions.Min(Min).ME.Names = {}; 
 
 
+Fct = length(Functions.Min(Min).ME.Names)+1;
+Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Ph (all calibrations)';
+Functions.Min(Min).ME.FileName{Fct} = 'GrtPh_T_All';
+Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Ph'};
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).ME.Details(Fct).Def = [5];
 
 
 
