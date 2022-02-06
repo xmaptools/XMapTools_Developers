@@ -16,7 +16,7 @@
   - Add an option to select a primary standard if the name of the integration is not automatically recognised
   - Add a functionality to import manually a standard file 
 - External functions:
-  - Add therrmobarometry functions: Phengite\_P\_All
+  - Add thermobarometry functions: Phengite\_P\_All
   - Add multi-equilibrium functions: GrtOpx\_T\_All; GrtPh\_T\_All
 - Other:
   - Fix an issue in the EPMA calibration assistant resulting the program to crash when no standard is available for the first phase in the list
