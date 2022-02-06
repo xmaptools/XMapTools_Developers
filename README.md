@@ -1,4 +1,6 @@
-# Developer Repository for XMapTools 4
+![XMapTools_Github_developer](https://user-images.githubusercontent.com/54409312/152673005-7bb96f00-b365-427c-9964-17820e6edb73.jpg)
+
+# Welcome to the Developer Repository for XMapTools 4
 
 This repository contains the most recent version of the MATLAB source code of XMapTools not released in a public version yet. All changes compared to the current public version are listed in the <a href="https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md">Changelog</a>. 
 
@@ -13,5 +15,6 @@ Public repository: https://github.com/xmaptools/XMapTools_Public
 ## How to join the developer team?
 
 Contact pierre.lanari@geo.unibe.ch
+
 
 
