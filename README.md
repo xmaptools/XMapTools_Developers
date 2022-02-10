@@ -4,6 +4,7 @@
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/xmaptools/XMapTools_Developers/graphs/commit-activity)
 [![Website xmaptools.ch](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://xmaptools.ch)
+[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 
 This repository contains the most recent version of the MATLAB source code of XMapTools not released in a public version yet. All changes compared to the current public version are listed in the <a href="https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md">Changelog</a>. 
 
