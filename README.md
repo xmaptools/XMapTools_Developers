@@ -2,7 +2,7 @@
 
 # Welcome to the Developer Repository for XMapTools 4
 
-[macOS](https://svgshare.com/i/ZjP.svg)
+[![macOS]](https://svgshare.com/i/ZjP.svg)
 
 This repository contains the most recent version of the MATLAB source code of XMapTools not released in a public version yet. All changes compared to the current public version are listed in the <a href="https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md">Changelog</a>. 
 
