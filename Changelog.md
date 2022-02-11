@@ -18,6 +18,7 @@
 - External functions:
   - Add thermobarometry functions: Phengite\_P\_All
   - Add multi-equilibrium functions: GrtOpx\_T\_All; GrtPh\_T\_All
+  - Add Ti-in-biotite thermometer of Wu & Chen (2015)
 - Other:
   - Fix an issue in the EPMA calibration assistant resulting the program to crash when no standard is available for the first phase in the list
   - Fix an issue preventing a function description to be displayed for external function with the standalone versions  

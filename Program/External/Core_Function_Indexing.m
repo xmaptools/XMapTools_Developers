@@ -106,10 +106,10 @@ Functions.Min(Min).SF.FileName{Fct} = 'StructFctBiotite';
 Functions.Min(Min).TB = [];
 
 Fct = length(Functions.Min(Min).TB)+1;
-Functions.Min(Min).TB.Name{Fct} = 'T.Bt (Henry et al. 2005)';
-Functions.Min(Min).TB.FileName{Fct} = 'Biotite_T_H05';
-Functions.Min(Min).TB.Details(Fct).AddVar = {};
-Functions.Min(Min).TB.Details(Fct).Def = [];
+Functions.Min(Min).TB.Name{Fct} = 'T.Bt (all calibrations)';
+Functions.Min(Min).TB.FileName{Fct} = 'Biotite_T_All';
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).TB.Details(Fct).Def = [7];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry

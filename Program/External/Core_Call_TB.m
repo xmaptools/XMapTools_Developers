@@ -8,10 +8,10 @@ switch ExtFct
         InputData = GenerateInputData(Data,OxList,InputVariables);
         [OutputData,OutputVariables] = Amphibole_T_All(InputData,InputVariables,AddParameters,ElOxDataDef);
         
-    case 'Biotite_T_H05'
+    case 'Biotite_T_All'
         InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O'};
         InputData = GenerateInputData(Data,OxList,InputVariables);
-        [OutputData,OutputVariables] = Biotite_T_H05(InputData,InputVariables,AddParameters,ElOxDataDef);
+        [OutputData,OutputVariables] = Biotite_T_All(InputData,InputVariables,AddParameters,ElOxDataDef);
         
     case 'Chlorite_T_All'
         InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O'};
