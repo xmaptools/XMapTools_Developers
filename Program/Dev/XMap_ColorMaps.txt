@@ -183,6 +183,8 @@
 0.306	0.024	0.506
 
 
+! The following color palette is from Nils Gils
+
 > Nils OH 
 0         0    0.8824
 0         0    0.9118
