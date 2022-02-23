@@ -8,6 +8,7 @@
   - Add an option to inverse the color sequence of the selected color palette
   - Improvements concerning ROI: calculations and plots are only performed/updated once the ROI has been moved and not while it is moving as it was before. This change improves the overal performance of the program. 
   - Add the VIRIDISLITE color palettes from Stéfan van der Walt and Nathaniel Smit
+  - Add a new color palette from Nils Gies (Nils OH)
 - Import Tool:
   - Add an option to change the type of data. To speed up the importation of LA-ICP-MS maps, this change can be applied to all maps when "isotope" is selected for the first time
   - Add an option to change the destination of all maps at once when one is changed for the first time.  
@@ -29,6 +30,7 @@
   - Add multi-equilibrium functions: GrtOpx\_T\_All; GrtPh\_T\_All
   - Add Ti-in-biotite thermometer of Wu & Chen (2015)
 - Other:
+  - The same color palette is used for the pie chart when exporting the mineral modes
   - Fix an issue in the EPMA calibration assistant resulting the program to crash when no standard is available for the first phase in the list
   - Fix an issue preventing a function description to be displayed for external function with the standalone versions  
   - Resolve a problem in the internal configuration file that could prevent XMapTools to start 
