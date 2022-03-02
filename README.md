@@ -20,5 +20,17 @@ Public repository: https://github.com/xmaptools/XMapTools_Public
 
 Contact pierre.lanari@geo.unibe.ch
 
+## How to get started
+You can pull the current developer version of XMapTools from this directory using the main branch. As changes are not all pushed at the same time, some functionalities of the git version could not work due to compatibility issues. Check the <a href="https://github.com/xmaptools/XMapTools_Public">public repository</a> if you are looking for a stable version of XMapTools. 
+
+### Requirements
+- MATLAB R2020b with the Statistics Toolbox, Image Processing Toolbox, Mapping Toolbox. Compatibility with more recent version of MATLAB is not checked. 
+- For compatibility reasons, you must use MATLAB R2020b if you wish to share modifications made with the MATLAB App Designer. 
+
+### Warnings
+- Never overwrite the main branch if you're not invited to do so; create your own branch if you want to push changes to the server!  
+- We recommend you to copy the files to a separate folder and to work there in order to avoid any modification of the main branch. 
+
+
 
 
