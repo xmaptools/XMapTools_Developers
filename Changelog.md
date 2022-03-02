@@ -19,8 +19,9 @@
   - Improved user experience and plotting performances
   - Add an option to generate a calibration check matrix (CCM) for the secondary standard
   - Add an option to export data in a new directory if a folder Maps\_cps already exists
-  - Add an option to select a primary standard if the name of the integration is not automatically recognised
+  - Add an option to select data for primary/secondary standards if the name of the integration is not automatically recognised
   - Add a functionality to import manually a standard file 
+  - Add the possibility to process several maps from the same dataset in case multiple areas were analysed during the same session
 - Classification:
   - Improve the selection of input data for classification
   - Add an option to select the method used for data scaling
