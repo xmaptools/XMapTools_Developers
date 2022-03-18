@@ -11,6 +11,7 @@ addpath([Where,'/Core']);
 addpath([Where,'/Dev']);
 addpath([Where,'/Dev/Data_Std_LAICPMS']);
 addpath([Where,'/Dev/help']);
+addpath([Where,'/Dev/help/img']);
 addpath([Where,'/Dev/icons']);
 addpath([Where,'/Dev/logo']);
 addpath([Where,'/Dev/splash']);
