@@ -39,6 +39,6 @@ You can pull the current developer version of XMapTools from this directory usin
 - Type in the MATLAB Command Window >> install_MATLAB
 - Type in the MATLAB Command Window >> RESET_CONFIG
 - Change the Current Path in MATLAB to a directory containing data
-- Launch XMapTools using the command: >> XMapTools
-- To open the app designer, type from any directory: >> start XMapTools
+- To launch XMapTools use the command: >> XMapTools
+- To open the app designer, use the command: >> start XMapTools
 
