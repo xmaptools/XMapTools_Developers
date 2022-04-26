@@ -6,6 +6,7 @@
   - Add a new data category "Images" available in the primary menu in which specific images with their settings (color palette and range, etc.) can be stored. Three types are available: (1) Multi-plot image for plotting several images and generating a gif, (2) Multi-layer Image (shared scale) to combine several maps with a shared scale, (3) Multi-layer Image (multi-scale) to combine several maps but with different color palettes.
   - Add new features to save data obtained with the sampling functions either for the selected map (single map) or all maps in the same data category (multiple map)  
   - Add an option to inverse the color sequence of the selected color palette
+  - Improve significantly the plotting engine for single and multi maps. This update should solve most of the display issues reported with beta 1
   - Improve the ROI (general): calculations and plots are only performed/updated once the ROI has been moved and not while it is moving as it was before. This change improves the overal performance of the program. 
   - The position of spots (internal standards) can be edited manually for the spot selected in the secondary menu; data and plots are automatically updated after a spot position is changed 
   - Add the VIRIDISLITE color palettes from Stéfan van der Walt and Nathaniel Smit
