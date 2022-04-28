@@ -41,4 +41,5 @@
   - Fix an issue in the plot function for filtering infinite data out (e.g. in ratio maps)
   - Fix an issue that the filter value for the 3D surface was not saved in the project
   - Fix an issue in the merging function when some pixel values are NaN 
+  - Fix an issue preventing a single map file to be imported
 	 
