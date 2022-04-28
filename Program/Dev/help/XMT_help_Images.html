@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<style>
+body {background-color: transparent;}
+th, td {vertical-align: top;}
+a    {color: blue;}
+p.ex {color: red;}
+h2,h3,h4,h5 {margin-top: 2em; }
+</style>
+<TITLE>Help XMapTools</TITLE>
+</HEAD>
+
+<BODY>
+<h1> Help > Images </h1>    	
+<p><i>Help file version 03.03.2022 by P. Lanari</i></p>
+<p><a href="https://resources.xmaptools.ch" target="_blank">Access XMapTools resources online</a></p>
+<p class="ex">This part of XMapTools 4 is currently at <b>level 2</b> of development (<i>1, largely untested; 2, tested for a few cases; 3, tested and benchmarked; 4, publication quality</i>). </p> 
+<br \> 
+<hr>
+<p><b>Table of content</b><br \><br \>
+<a href="#Intro">What are "image-data" in XMapTools?</a><br \>
+<a href="#Intro2">How to generate and edit images?</a><br \>
+&nbsp;&nbsp;- <a href="#Single">Single-plot image</a><br \>
+&nbsp;&nbsp;- <a href="#Multi">Multi-plot image</a><br \>
+&nbsp;&nbsp;- <a href="#GIF">Multi-plot image & GIF</a><br \>
+</p>
+<hr>
+
+<h2><a name="Intro"></a>What are "image-data" in XMapTools?</h2> 
+
+<p>Images are plots which are stored in the project file and can be accessed via the primary menu under the category <i>Images</i>. These plots can be generated using the tools available in the menu <i>Image</i>. They can be edited anytime and changes are stored. </p>
+
+<p>Four types of images can be generated including:</p> 
+<ul>
+<li><b>Single-plot image</b> containing a single map (e.g. Ca_apfu in garnet)</li>
+<li><b>Multi-plot image</b> consisting of a a mosaic of maps (e.g. SiO2, Al2O3, FeO, Na2O); these maps can also be combined together to create a GIF</li>
+<li><b>Multi-layer image (shared color scale)</b> consisting of a single image containing several layers but plotted with the same color bar (e.g. XMg in biotite and XMg in garnet)</li>
+<li><b>Multi-layer image (multiple color scales)</b> consisting of a single image containing several layers each of them plotted with their own color scale and color palette (e.g. Ti in biotite with the color palette <i>Blues</i> and XMg in garnet with the color palette <i>Reds</i>)</li>
+</ul>
+
+<h2><a name="Intro2"></a>How to generate and edit images?</h2> 
+
+<h3><a name="Single"></a>Single-plot image</h3> 
+
+<p>Display a map using the primary menu and eventually adjust the color contrast, for example using the live histogram. In the main menu, select <i>Image >> Add Current Image</i>. A new image object is generated and stored in the category <i>Images</i> at the bottom of the primary menu.</p>
+
+<p>You can display this image at any time by selecting the item <i>Img (single-layer) #X</i> (with X the number of the image) in the primary menu.</p>
+
+<p>To edit the image, unfold the image item and select the map. You can adjust the color settings (limits, color palette, etc.); changes are saved within the image object.</p>
+
+<p>To export the image, select the image item in the primary menu and select in the menu <i>File > Save Image</i> or <i>Edit > Copy Image</i>.
+
+<center>
+<p><img src="./img/Images_Result1.png" width="500"></p>
+<i><b>Figure 1</b>: Example of image generated with XMapTools for Ca (apfu) in garnet.</i> 
+</center>
+
+<h3><a name="Multi"></a>Multi-plot image</h3> 
+
+<p>Activate first the multi-selection mode via the menu <i>Image > Multi-Selection Mode</i>. The names in the primary menu are displayed in blue when this mode is active: multiple maps can be selected and data manipulation is not possible. It is not recommanded to use XMapTools with the multi-selection mode on, this mode should only be used to generate images.</p>
+
+<p>Once the mode is activated, select several maps using the primary menu. A mosaic is generated and displayed in the main window. After selecting the maps, select in the menu <i>Image > Add Multi-Plot Image</i> and a new image object is added to the category <i>Images</i>.</p>
+
+<p>You can unfold the item <i>Img (multi-plot) #X</i> (with X the number of the image object) in the primary menu and select the maps one by one to adjust the color contrast. You can also change the color palette in the panel <i>Options</i>. </p>
+
+<p>Select the main item to display the mosaic and save the image.</p>
+
+<center>
+<p><img src="./img/Images_Result2.png" width="500"></p>
+<i><b>Figure 2</b>: Example of multi-plot image generated with XMapTools. Maps are expressed in oxide wt%. Note that each map is plotted with a different color palette.</i> 
+</center>
+
+<h3><a name="GIF"></a>Multi-plot image & GIF</h3> 
+
+A GIF can be created from a multi-plot image. Select a multi-plot object and right-click on the name and select <i>Save As GIF</i>.
+
+<center>
+<p><img src="./img/Images_Result3.gif" width="500"></p>
+<i><b>Figure 3</b>: Example of GIF generated with the images shown in Figure 2.</i>
+</center>
+
+
+
+
+<br \> <br \> <br \>
+<br \> <br \> <br \>
+<br \> <br \> <br \>
+
+
+
+
+
+
+<p>This help file contains a description of the <i>Sampling Tools</i>. These tools are available at any stage of the data procedure and apply to the map plotted in the main figure.</p>
+
+<p>The following sampling functions are available vial the menu <i>Sampling</i> or in the section sampling of the live output display located below the live histogram:</p> 
+<ul>
+<li><img src="./img/icon_Shaded_Circle.png" width="20"> <b>Circle</b>, obtain the average value and standard deviation of selected pixels</li>
+<li><img src="./img/icon_Shaded_Square.png" width="20"> <b>Area (polygon)</b>, obtain the average value and standard deviation of selected pixels</li>
+<li><img src="./img/icon_path4sampling.png" width="20"> <b>Transect</b>, display compositional changes along a path</li>
+<li><img src="./img/icon_FocusHorizontal.png" width="20"> <b>Strip</b>, display averaged compositional changes along a strip.</li>
+</ul>
+
+
+
+Each sampling function is described below. 
+
+<h2><a name="Circle"></a>Circle</h2> 
+<p>In the main menu, select <i> Sampling > Circle</i> and draw a circle on the map by clicking on a position, holding and dragging the mouse over an area. Note that a cross cursor becomes available when the mouse pointer is over the map and the sampling option has been activated. </p>
+
+<p>After drawing the circle, click and hold one of the four filled dots located in the circle to change its size. In the inner area of the circle, a cross cursor may be used to move the circle's position. <u>If it is not possible to edit or move the ROI, select XMapTools, press ctr (control) and try editing the ROI again</u>.</p>
+
+<p>The result of the data extraction is exhibited by the green bar in the graphic on the top right of the main window and its correspondent numbers located immediately below. In addition an histogram is plotted using all pixel data contained within the ROI.</p>
+
+
+<p><img src="./img/Sampling_Circle.png" width="700"></p>
+
+<i><b>Figure 1</b>: Example sampling of an intensity map (Ca) using the circle shape. Note that in this example, the average value of the selected pixels (Nb = 774) is 1028 ± 35.24 (stdev).</i> 
+
+
+<h2><a name="Area"></a>Area (Polygon)</h2>
+<p>In the main menu, select <i> Sampling > Area (Polygon)</i> and draw a polygon on the map by clicking on several positions. Click on the first point to close the polygon (a circle pointer mouse appears).</p>
+
+<p>The polygon shape can be edited. <u>If it is not possible to edit or move the ROI, select XMapTools, press ctr (control) and try editing the ROI again</u>.</p>
+
+
+<p><img src="./img/Sampling_Polygon.png" width="700"></p>
+
+<i><b>Figure 2</b>: Example sampling of an intensity map (Ca) using the polygon shape. Note that in this example, the average value of the selected pixels (Nb = 774) is 999.8 ± 63.9 (stdev) nut two plagioclase compositions are visible on the histogram (at 900 and 1030 counts).</i> 
+
+
+<h2><a name="Transect"></a>Transect</h2> 
+<p>In the main menu, select <i> Sampling > Transect</i> and draw a polygon on the map by clicking on several positions. Right-clicking ends the selection. You need two select at least two positions to obtain a valid transect.</p>
+
+<p>The resulting profile is shown in the live display, in category sampling (Fig 3).</p>
+
+<p>The transect position can be edited and the plot is automatically updated. Note that changing the color bar limits changes the profile as colors from the color bar are used to plot the spots. <u>If it is not possible to edit or move the ROI, select XMapTools, press ctr (control) and try editing the ROI again</u>.</p>
+
+
+<p><img src="./img/Sampling_Transect.png" width="700"></p>
+
+<i><b>Figure 3</b>: Example sampling of an intensity map (Ca) using a transect starting at the point located to-left.</i> 
+
+
+<h2><a name="Strip"></a>Strip</h2> 
+<p>This tools is used to extract the mean and median profile from a strip with a rectangular shape using the composition of each transect. For a given pixel on the central transect, the value is calculated as the mean and median of the pixel compositions perpendicular to the reference transect. </p>
+
+<p>In the main menu, select <i> Sampling > Strip</i> and draw an horizontal rectangle on the map by clicking on the corner position (top-left), holding and dragging the mouse over an area. Note that a cross cursor becomes available when the mouse pointer is over the map and the sampling option has been activated. </p>
+
+<p>To move the rectangle, position the cursor on the central part of the rectangle, left-click, hold and move it, droping it in the new position.  </p> 
+
+<p>Note: The retangle must be delineated with its elongation horizontally positioned. However, it can be later rotated by positioning the cursor on the rectangle's perimeter, nearby one of its edges and then rotation cursor is activated. </p>
+
+<p>Once the rectangle is created (or edited), plots are updated in the live display sampling category. Two plots are available: (top) two curves, in red, the median, and in blue, the mean; (bottom) all profiles used to generated the plot above are plotted in grey.</p>
+
+
+<p><img src="./img/Sampling_Strip.png" width="700"></p>
+
+<i><b>Figure 3</b>: Example sampling of an intensity map (Ca) using a strip from bottom left to top right.</i> 
+
+
+
+<br \> <br \> <br \>
+<br \> <br \> <br \>
+<br \> <br \> <br \>
+</BODY>
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
