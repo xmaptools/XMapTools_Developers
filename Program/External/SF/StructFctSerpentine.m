@@ -2,21 +2,23 @@ function [OutputData,OutputVariables] = StructFctSerpentine(InputData,InputVaria
 % -
 % XMapTools External Function: structural formula of serpentine 
 %  
+%  ++05.2022 Bug fix
+%       - number of oxygen changed from 14.5 to 14
 %  ++09.2021 Compatibility with XMapTools 4
 %       - version without loop & Fe2O3 as possible input
 %
-% 14.5 Oxygen-basis
+% 14 Oxygen-basis
 %
-% P. Lanari - Last update 16.09.2021
+% P. Lanari - Last update 09.05.2022
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'Si','Al','Fe','Mg','XFe','XMg','Mn','Cr','Ni','SumCat'};
 
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
-% General structural formula function for 14.5 oxygen
+% General structural formula function for 14 oxygen
 WhereMin = find(sum(InputData,2) > 70);
-[MatrixSF,ElementsList] = SF_OxNorm(InputData(WhereMin,:),InputVariables,14.5,ElOxDataDef);
+[MatrixSF,ElementsList] = SF_OxNorm(InputData(WhereMin,:),InputVariables,14,ElOxDataDef);
 
 Si = MatrixSF(:,1);
 Ti = MatrixSF(:,2);
