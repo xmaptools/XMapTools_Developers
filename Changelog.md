@@ -8,6 +8,7 @@
   - Add an option to inverse the color sequence of the selected color palette
   - Improve significantly the plotting engine for single and multi maps. This update should solve most of the display issues reported with beta 1
   - Improve the ROI (general): calculations and plots are only performed/updated once the ROI has been moved and not while it is moving as it was before. This change improves the overal performance of the program. 
+  - Improve the conversion of CAMECA data and resolve several issues. The compatible formats are described at: https://resources.xmaptools.ch/converting-cameca-data/
   - The position of spots (internal standards) can be edited manually for the spot selected in the secondary menu; data and plots are automatically updated after a spot position is changed 
   - Add the VIRIDISLITE color palettes from Stéfan van der Walt and Nathaniel Smit
   - Add a new color palette from Nils Gies (Nils OH)
@@ -32,6 +33,7 @@
   - Add thermobarometry functions: Phengite\_P\_All
   - Add multi-equilibrium functions: GrtOpx\_T\_All; GrtPh\_T\_All
   - Add Ti-in-biotite thermometer of Wu & Chen (2015)
+  - Number of oxygen for normalisation in function StructFctSerpentine changed to 14 (was 14.5) and add the output variable Si_ratio = Si./(Si+Fe+Mg)
 - Other:
   - The same color palette is used for the pie chart when exporting the mineral modes
   - Fix an issue in the EPMA calibration assistant resulting the program to crash when no standard is available for the first phase in the list
