@@ -4,6 +4,7 @@ function [OutputData,OutputVariables] = StructFctSerpentine(InputData,InputVaria
 %  
 %  ++05.2022 Bug fix
 %       - number of oxygen changed from 14.5 to 14
+%       - add ratio_Si_SiFeMg
 %  ++09.2021 Compatibility with XMapTools 4
 %       - version without loop & Fe2O3 as possible input
 %
@@ -12,7 +13,7 @@ function [OutputData,OutputVariables] = StructFctSerpentine(InputData,InputVaria
 % P. Lanari - Last update 09.05.2022
 % Find out more at https://xmaptools.ch
 
-OutputVariables = {'Si','Al','Fe','Mg','XFe','XMg','Mn','Cr','Ni','SumCat'};
+OutputVariables = {'Si','Al','Fe','Mg','XFe','XMg','Mn','Cr','Ni','ratio_Si_SiFeMg','SumCat'};
 
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
@@ -37,7 +38,9 @@ SumCat = Si+Ti+Al+Fe+Mn+Mg+Ca+Na+K+Cr+Ni;
 XMg = Mg./(Mg+Fe);
 XFe = Fe./(Mg+Fe);
 
-OutputData(WhereMin,:) = [Si,Al,Fe,Mg,XFe,XMg,Mn,Cr,Ni,SumCat];
+ratio_Si_SiFeMg = Si./(Si+Fe+Mg);
+
+OutputData(WhereMin,:) = [Si,Al,Fe,Mg,XFe,XMg,Mn,Cr,Ni,ratio_Si_SiFeMg,SumCat];
  
 end
 

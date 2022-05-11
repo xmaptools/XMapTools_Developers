@@ -644,7 +644,7 @@ Functions.Mineral{Min} = 'Serpentine';
 Functions.Min(Min).SF = [];
 
 Fct = length(Functions.Min(Min).SF)+1;
-Functions.Min(Min).SF.Name{Fct} = 'Srp (SF, 14.5-Ox. basis)';
+Functions.Min(Min).SF.Name{Fct} = 'Srp (SF, 14-Ox. basis)';
 Functions.Min(Min).SF.FileName{Fct} = 'StructFctSerpentine'; 
 
 % -------------------------------------------------------------------------
