@@ -35,4 +35,6 @@ addpath([Where,'/Addons/XThermoTools/XTT_Modules']);
 
 savepath
 
+disp('Installation completed')
+
 end
