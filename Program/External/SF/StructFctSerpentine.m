@@ -7,7 +7,7 @@ function [OutputData,OutputVariables] = StructFctSerpentine(InputData,InputVaria
 %       - add ratio_Si_SiFeMg
 %  ++09.2021 Compatibility with XMapTools 4
 %       - version without loop & Fe2O3 as possible input
-%
+% 
 % 14 Oxygen-basis
 %
 % P. Lanari - Last update 09.05.2022
