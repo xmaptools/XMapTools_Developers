@@ -2,6 +2,7 @@
 
 ## XMapTools 4 beta 3 (no public release yet)
 - Release notes:
+  - Add the old function to run XMapTools and open immediately a project in the MATLAB version using the command: _XMapTools open ProjectName_
   - ...
 - Data Visualisation Module:
   - Add a dropdown menu to select a phase from a maskfile to plot only the pixel compositions of this phase
