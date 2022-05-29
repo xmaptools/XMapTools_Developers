@@ -11,4 +11,6 @@
 - Other:
   -	Improve the plot behaviour of the Tree menu: if a category/dataset from Quanti, Merged, Result, Other, the first element in the list is automatically displayed
   - Export a file Last_LBCsim.txt in the main directory containing each local bulk compositions simulated by XMapTools for estimating the LBC uncertainty. 
+  - Fix several minor issues in the Converter for LA-ICP-MS; reported by Nils Gies 
+  - Fix several minor issues in the behaviour of ROI for training sets; reported by Nils Gies 
 	 
