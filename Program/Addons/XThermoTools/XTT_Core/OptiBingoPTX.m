@@ -1,4 +1,4 @@
-function [Res,Evaluation,WorkVariMod] = OptiBingoPTX(X,NORM,LIMS,BinSet,WorkVariXMap,MinimOptions,TempBinBulk,ElementB,Bypass,IsHOptimized,handles)
+function [Res,Evaluation,WorkVariMod] = OptiBingoPTX(X,NORM,LIMS,BinSet,WorkVariXMap,MinimOptions,TempBinBulk,ElementB,Bypass,IsHOptimized,app)
 %
 
 Res = [];
@@ -13,7 +13,7 @@ else
     % TESTED again in July 2019 and the rounding is critical for the
     % convergence of PTX problems. 
     T = round(X(1)*NORM(1));
-    P = round(X(2)*NORM(2));
+    P = round(X(2)*NORM(2) * 1e4);
 end
 
 X_Vari = X(3:end).*NORM(3:end);
@@ -23,7 +23,7 @@ X_Vari = X(3:end).*NORM(3:end);
 
 VectTest = [T;P;X_Vari'];  
 
-if sum(VectTest < LIMS(:,1)) || sum(VectTest > LIMS(:,2))
+if sum(VectTest < LIMS(:,1)) || sum(VectTest > LIMS(:,2) * 1e4)
     Res = 1e19;
     return
 end
@@ -57,7 +57,7 @@ end
 
 DoWePrint = 0;
 
-[Emin,Evaluation] = Opti_EpsiMinimCalc(WorkVariMod,WorkVariXMap,MinimOptions,DoWePrint,handles);
+[Emin,Evaluation] = Opti_EpsiMinimCalc(WorkVariMod,WorkVariXMap,MinimOptions,DoWePrint,app);
 
 % disp(' ')
 % disp('-- OBJECTIVE FUNCTION --')

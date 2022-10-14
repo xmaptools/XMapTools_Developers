@@ -1,6 +1,24 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4 beta 3 (no public release yet)
+## XMapTools 4 beta 4 Developer (no public release yet)
+- Release notes:
+  - Add tools for single-mask classification and the creation of sub-masks. At the moment, it is recommended to use the Random Algorithm forest for creating sub-masks. 
+  - Add a point counting tool to evaluate pseudo-modes; XMapTools selects randomly 300 pixels on the map and estimates the modal abundances (in %). A version with uncertainty estimation using Monte-Carlo can be activated in the developer version.
+  - Add a functionality to calibrate pixels of a selection of masks for standardisation of EPMA data. Note that merged maps are only generated when the option "Apply to all maps" is selected.  
+  - Add entropic filters to the classification (TEXTF)
+  - Activate map re-sampling and orientation correction to all data types in the import tools. This resolves an issue when LA-ICPMS data are imported from Iolite. It is not recommended to use these tools for other data types. 
+ - Improve compatibility of the EPMA Converter to import data from JEOL microprobes (Windows) 
+- Other:
+  - Improve interface behavior for button availability, tooltips and error messages
+  - Add an option to unfreeze the interface after an error by simply requesting to close the app. This  option does not require to have unsaved data as in previous versions
+  - Add a check of the selected training set before classification
+  - Solve an issue in the classification function when part of the selected maps have been deleted
+  - Solve a minor issue in the variable initialisation for mask files
+  - GUI size adjusted for screens with low resolution
+  - Add a mask file signature to ensure data compatibility throughout XMapTools and add-ons  
+
+
+## XMapTools 4 beta 3 Developer (no public release yet)
 - Release notes:
   - Add the old function to run XMapTools and open immediately a project in the MATLAB version using the command: _XMapTools open ProjectName_
   - ...

@@ -33,6 +33,17 @@ addpath([Where,'/Addons/XThermoTools/XTT_Dev']);
 addpath([Where,'/Addons/XThermoTools/XTT_Functions']);
 addpath([Where,'/Addons/XThermoTools/XTT_Modules']);
 
+% Bingo Antidote (2022.1)
+addpath([Where,'/Addons/BingoAntidote']);
+addpath([Where,'/Addons/BingoAntidote/Dev']);
+addpath([Where,'/Addons/BingoAntidote/Dev/icons']);
+addpath([Where,'/Addons/BingoAntidote/Dev/media']);
+addpath([Where,'/Addons/BingoAntidote/Core']);
+addpath([Where,'/Addons/BingoAntidote/Databases']);
+addpath([Where,'/Addons/BingoAntidote/Functions']);
+addpath([Where,'/Addons/BingoAntidote/Modules']);
+
+
 savepath
 
 disp('Installation completed')

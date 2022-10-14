@@ -419,7 +419,6 @@ disp('Check-Point_16')
 % Create the variable BinPhaseDef 
 %                                 
 % 
-
 for i=1:length(handles.MapWindow.Mask.ListMin)
     BinPhaseDef(i).name = handles.MapWindow.Mask.ListMin{i};
     BinPhaseDef(i).IsPhaseIn = 0;

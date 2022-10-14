@@ -6,6 +6,7 @@ close all
 config.xmaptools.setup_path = '';
 config.xmaptools.last_path = '';
 config.xthermotools.theriak_path = '';
+config.bingoantidote.theriak_path = '';
 
 save('config_xmaptools.mat','config');
 
