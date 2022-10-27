@@ -1,13 +1,13 @@
-function [A1,V1,C1,TOTAL2,Report,Text2Disp] = BingoCall(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,Text2Disp,app)
+function [A1,V1,C1,TOTAL2,Report] = BingoCall(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,app)
 
 % Step 1 - Assemblage
-[Evaluation.assemblage,Link,Report,Text2Disp] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,Text2Disp,app);
+[Evaluation.assemblage,Link,Report] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,app);
 
 % Step 2 - Volume
-[Evaluation,Report,Text2Disp] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,Text2Disp,app);
+[Evaluation,Report] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,app);
 
 % Step 3 - Compositions
-[Evaluation,Report,Text2Disp] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,Text2Disp,app);
+[Evaluation,Report] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,app);
 
 
 % eduester: new total output
@@ -24,13 +24,14 @@ TOTAL2= (Evaluation.assemblage+Evaluation.assemblage/100*Evaluation.Volume + Eva
 %TOTAL2= (Evaluation.assemblage+Evaluation.assemblage/100*Evaluation.Volume + Evaluation.assemblage/100*Evaluation.Volume/100*Evaluation.Compositions)/3;
 
 if UpdateText2Disp
-    Text2Disp = [Text2Disp,['##### CHEMICAL POTENTIAL OF COMPONENTS ##### '],'<br /><br />'];
+    app.Report_Bingo{end+1} = '##### CHEMICAL POTENTIAL OF COMPONENTS ##### ';
     
     for i = 1:length(WorkVariMod.ChemComp)
-        Text2Disp = [Text2Disp,['',WorkVariMod.ChemComp{i},' = ',num2str(round(WorkVariMod.ChemPot(i),4)),' J'],'<br />'];
+        app.Report_Bingo{end+1} = [WorkVariMod.ChemComp{i},' = ',num2str(round(WorkVariMod.ChemPot(i),4)),' J'];
     end
     
-    Text2Disp = [Text2Disp,[],'<br /><br />'];
+    app.Report_Bingo{end+1} = ' ';
+    app.Text_Report.Value = app.Report_Bingo;
 end
 
 if DoWePrint

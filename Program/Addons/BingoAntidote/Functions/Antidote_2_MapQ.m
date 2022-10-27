@@ -102,7 +102,7 @@ for iTC = 1:length(Ti)
     imagesc(app.UIAxes_LiveAntidote1,Ti,Pi,abs(E4));
     app.UIAxes_LiveAntidote1.YDir = 'normal';
     axis(app.UIAxes_LiveAntidote1,Axis_Maps)
-    colormap(app.UIAxes_LiveAntidote1,[0,0,0;parula(128)]);
+    colormap(app.UIAxes_LiveAntidote1,[0,0,0;RdYlBu(128)]);
     colorbar(app.UIAxes_LiveAntidote1)
     caxis(app.UIAxes_LiveAntidote1,[0 100]);
     xlabel(app.UIAxes_LiveAntidote1,'Temperature (°C)');
@@ -112,7 +112,7 @@ for iTC = 1:length(Ti)
     imagesc(app.UIAxes_LiveAntidote2,Ti,Pi,abs(E1));
     app.UIAxes_LiveAntidote2.YDir = 'normal';
     axis(app.UIAxes_LiveAntidote2,Axis_Maps)
-    colormap(app.UIAxes_LiveAntidote2,[0,0,0;parula(128)]);
+    colormap(app.UIAxes_LiveAntidote2,[0,0,0;RdYlBu(128)]);
     colorbar(app.UIAxes_LiveAntidote2)
     caxis(app.UIAxes_LiveAntidote2,[0 100]);
     xlabel(app.UIAxes_LiveAntidote2,'Temperature (°C)');
@@ -122,7 +122,7 @@ for iTC = 1:length(Ti)
     imagesc(app.UIAxes_LiveAntidote3,Ti,Pi,abs(E2));
     app.UIAxes_LiveAntidote3.YDir = 'normal';
     axis(app.UIAxes_LiveAntidote3,Axis_Maps)
-    colormap(app.UIAxes_LiveAntidote3,[0,0,0;parula(128)]);
+    colormap(app.UIAxes_LiveAntidote3,[0,0,0;RdYlBu(128)]);
     colorbar(app.UIAxes_LiveAntidote3)
     caxis(app.UIAxes_LiveAntidote3,[0 100]);
     xlabel(app.UIAxes_LiveAntidote3,'Temperature (°C)');
@@ -132,7 +132,7 @@ for iTC = 1:length(Ti)
     imagesc(app.UIAxes_LiveAntidote4,Ti,Pi,abs(E3));
     app.UIAxes_LiveAntidote4.YDir = 'normal';
     axis(app.UIAxes_LiveAntidote4,Axis_Maps)
-    colormap(app.UIAxes_LiveAntidote4,[0,0,0;parula(128)]);
+    colormap(app.UIAxes_LiveAntidote4,[0,0,0;RdYlBu(128)]);
     colorbar(app.UIAxes_LiveAntidote4)
     caxis(app.UIAxes_LiveAntidote4,[0 100]);
     xlabel(app.UIAxes_LiveAntidote4,'Temperature (°C)');

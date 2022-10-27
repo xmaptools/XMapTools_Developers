@@ -1,5 +1,18 @@
 # CHANGELOG for XMapTools developer
 
+## Work in progress (no compiled version yet)
+
+Data visualisation module:
+- Improve the global performances of this module by implementing the low ressource mode to all plots. Only 20 % of the data points are plotted when this mode is active; this threshold can be adjusted in the option tab 
+- Add an option to select a range of data (using the fields Xmin and Xmax) when plotting an histogram
+- Add a plotting report generated while plotting a ternary diagram
+- Add an option to create a single-mask maskfile from he pixels selected by the Identify Pixel Tool.  
+
+
+
+
+
+
 ## XMapTools 4 beta 4 Developer (no public release yet)
 - Release notes:
   - Add tools for single-mask classification and the creation of sub-masks. At the moment, it is recommended to use the Random Algorithm forest for creating sub-masks. 

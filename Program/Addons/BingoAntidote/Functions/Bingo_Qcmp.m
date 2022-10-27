@@ -1,4 +1,4 @@
-function [Evaluation,Report,Text2Disp] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,Text2Disp,app)
+function [Evaluation,Report] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,app)
 % ComputeQualityCompositions is a function to estimate the Evaluation of the  
 % model for the composition of stable phases.
 %
@@ -27,7 +27,8 @@ WorkVariXMap.UNCok = zeros(WorkVariXMap.NbPhases,NbElemsTher);
 WorkVariXMap.UNCok(:,find(Ok)) = WorkVariXMap.UNC(:,WhereIsMem(find(Ok)));
 
 if UpdateText2Disp
-    Text2Disp = [Text2Disp,['##### Evaluation criterion (3) PHASE COMPOSITIONS ##### '],'<br /><br />'];
+    app.Report_Bingo{end+1} = '##### Evaluation criterion (3) PHASE COMPOSITIONS ##### ';
+    app.Report_Bingo{end+1} = ' ';
 end
 
 if DoWePrint
@@ -257,7 +258,7 @@ for i=1:size(CompTherMatch,1)
         
         
         if UpdateText2Disp
-            Text2Disp = [Text2Disp,['> ',char(Link.PhasesNames{i})],'<br />'];
+            app.Report_Bingo{end+1} = ['> ',char(Link.PhasesNames{i})];
             
             CompObs = 'OBS: ';
             CompMod = 'MOD: ';
@@ -294,9 +295,9 @@ for i=1:size(CompTherMatch,1)
                 end
             end
             
-            Text2Disp = [Text2Disp,[CompObs],'<br />'];
-            Text2Disp = [Text2Disp,[CompMod],'<br /><br />'];
-            
+            app.Report_Bingo{end+1} = CompObs;
+            app.Report_Bingo{end+1} = CompMod;
+            app.Report_Bingo{end+1} = ' ';
             
             CompObs = 'OBS: ';
             CompMod = 'MOD: ';
@@ -365,14 +366,15 @@ for i=1:size(CompTherMatch,1)
                 end
             end
             
-            Text2Disp = [Text2Disp,[CompObs],'<br />'];
-            Text2Disp = [Text2Disp,[CompSig],'<br />'];
-            Text2Disp = [Text2Disp,[CompMod],'<br />'];
-            Text2Disp = [Text2Disp,[CompQUA],'<br /><br />'];
-            
-            Text2Disp = [Text2Disp,['Qcmp = ',num2str(Qual(i)),' %'],'<br /><br />'];
-            
-            
+            app.Report_Bingo{end+1} = CompObs;
+            app.Report_Bingo{end+1} = CompSig;
+            app.Report_Bingo{end+1} = CompMod;
+            app.Report_Bingo{end+1} = CompQUA;
+            app.Report_Bingo{end+1} = ' ';
+
+            app.Report_Bingo{end+1} = ['Qcmp = ',num2str(Qual(i)),' %'];
+            app.Report_Bingo{end+1} = ' ';
+
         end
         
         if DoWePrint
@@ -415,8 +417,10 @@ for i=1:size(CompTherMatch,1)
     else
         
         if UpdateText2Disp
-            Text2Disp = [Text2Disp,['> ',char(Link.PhasesNames{i})],'<br />'];
-            Text2Disp = [Text2Disp,[' - - - Phase skipped by BINGO - - - '],'<br /><br />'];
+
+            app.Report_Bingo{end+1} = ['> ',char(Link.PhasesNames{i})];
+            app.Report_Bingo{end+1} = ' - - - Phase skipped by BINGO - - - ';
+            app.Report_Bingo{end+1} = ' ';
         end
         
         if DoWePrint
@@ -466,7 +470,9 @@ else
     Evaluation.MinUnc1s_TEMP = 0;
 end
 
-
+if UpdateText2Disp
+    app.Text_Report.Value = app.Report_Bingo;
+end
 
 if DoWePrint
     fprintf('\n%s\n%s\t\t','-------------','Phase');

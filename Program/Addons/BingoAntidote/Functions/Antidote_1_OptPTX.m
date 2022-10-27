@@ -80,7 +80,7 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1)
         imagesc(app.UIAxes_LiveAntidote1,Ti,Pi,E4);
         app.UIAxes_LiveAntidote1.YDir = 'normal';
         axis(app.UIAxes_LiveAntidote1,Axis_Maps)
-        colormap(app.UIAxes_LiveAntidote1,[0,0,0;parula(128)]);
+        colormap(app.UIAxes_LiveAntidote1,[0,0,0;RdYlBu(64)]);
         colorbar(app.UIAxes_LiveAntidote1)
         xlabel(app.UIAxes_LiveAntidote1,'Temperature (°C)');
         ylabel(app.UIAxes_LiveAntidote1,'Pressure (GPa)');
@@ -675,13 +675,12 @@ Output.WeCallBingo = 1;
 Output.WeSaveWorkspace = 1;
 Output.Message = 'Success';
 
-
-% w = whos;
-% for a = 1:length(w)
-%     if ~isequal(w(a).name,'eventdata') && ~isequal(w(a).name,'hObject') && ~isequal(w(a).name,'handles')
-%         Antidote_VARIABLES.(w(a).name) = eval(w(a).name); 
-%     end
-% end
+w = whos;
+for a = 1:length(w)
+    if ~isequal(w(a).name,'eventdata') && ~isequal(w(a).name,'hObject') && ~isequal(w(a).name,'handles')
+        Antidote_VARIABLES.(w(a).name) = eval(w(a).name); 
+    end
+end
 
 
 return

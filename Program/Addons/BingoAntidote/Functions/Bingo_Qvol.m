@@ -1,4 +1,4 @@
-function [Evaluation,Report,Text2Disp] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,Text2Disp,app)
+function [Evaluation,Report] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,UpdateText2Disp,app)
 % ComputeVolumeAssemblage is a function to estimate the Evaluation of the  
 % model for the volume of stable phases.
 %
@@ -13,7 +13,6 @@ VolXMapMatch = zeros(size(Link.PhasesNames));
 VolTherMatch(find(Link.TherIsIn)) = WorkVariMod.VolFrac(Link.TherIndices(find(Link.TherIndices)));
 VolXMapMatch(find(Link.XMapIsIn)) = WorkVariXMap.VolFrac(Link.XMapIndices(find(Link.XMapIndices)));
 
-
 % -------------------------------------------------------------------------
 % Qvol - Eqation (2) in Duesterhoeft & Lanari (in prep)
 
@@ -23,10 +22,12 @@ Evaluation.Volume = 100.*sqrt(sum((VolTherMatch+VolXMapMatch)/2.*(1-abs(VolTherM
 
 if UpdateText2Disp
     
-    Text2Disp = [Text2Disp,['##### Evaluation criterion (2) VOLUME FRACTIONS ##### '],'<br /><br />'];
-    Text2Disp = [Text2Disp,['---------------------------'],'<br />'];
-    Text2Disp = [Text2Disp,['OBS.. | MOD.. | Mineral '],'<br />'];
-    Text2Disp = [Text2Disp,['---------------------------'],'<br />'];
+    app.Report_Bingo{end+1} = '##### Evaluation criterion (2) VOLUME FRACTIONS ##### ';
+    app.Report_Bingo{end+1} = ' ';
+    app.Report_Bingo{end+1} = '---------------------------';
+    app.Report_Bingo{end+1} = 'OBS.. | MOD.. | Mineral ';
+    app.Report_Bingo{end+1} = '---------------------------';
+    
     for i =1:length(Link.PhasesNames)
         if VolXMapMatch(i) > 0
             DispVolXMap = num2str(round(VolXMapMatch(i),3));
@@ -38,11 +39,13 @@ if UpdateText2Disp
         else
             DispVolTer = '0.000';
         end
-        Text2Disp = [Text2Disp,[DispVolXMap,' | ',DispVolTer,' | ',Link.PhasesNames{i},'<br />']];
+        app.Report_Bingo{end+1} = [DispVolXMap,' | ',DispVolTer,' | ',Link.PhasesNames{i}];
     end
-    Text2Disp = [Text2Disp,['---------------------------'],'<br /><br />'];
-    Text2Disp = [Text2Disp,['Qvol = 100 * sqrt(',num2str(sum((VolTherMatch+VolXMapMatch)/2.*(1-abs(VolTherMatch-VolXMapMatch)./(VolTherMatch+VolXMapMatch)).^2)),') =  ',num2str(round(Evaluation.Volume,2)),'%'],'<br />'];
-    Text2Disp = [Text2Disp,['<br />']];
+    app.Report_Bingo{end+1} = '---------------------------';
+    app.Report_Bingo{end+1} = ' ';
+    app.Report_Bingo{end+1} = ['Qvol = 100 * sqrt(',num2str(sum((VolTherMatch+VolXMapMatch)/2.*(1-abs(VolTherMatch-VolXMapMatch)./(VolTherMatch+VolXMapMatch)).^2)),') =  ',num2str(round(Evaluation.Volume,2)),'%'];
+
+    app.Text_Report.Value = app.Report_Bingo;
 end
 
 

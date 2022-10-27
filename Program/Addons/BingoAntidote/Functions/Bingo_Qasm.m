@@ -1,4 +1,4 @@
-function [Result,Link,Report,Text2Disp] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,Text2Disp,app)
+function [Result,Link,Report] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,UpdateText2Disp,app)
 % Bingo_Qasm is the function calculating Qasm
 %
 % To be described later once the strategy is set.
@@ -44,7 +44,6 @@ Result =  NbMatches/NbPhasesInvolved*100;
 % -------------------------------------------------------------------------
 
 if UpdateText2Disp
-    
     for i = 1:length(Link.XMapIsIn)
         if Link.XMapIsIn(i)
             Obs{i} = '+++';
@@ -58,16 +57,19 @@ if UpdateText2Disp
         end
     end
     
-    Text2Disp = [Text2Disp,['##### Evaluation criterion (1) ASSEMBLAGE ##### '],'<br /><br />'];
-    Text2Disp = [Text2Disp,['---------------------------'],'<br />'];
-    Text2Disp = [Text2Disp,['OBS | MOD | Mineral '],'<br />'];
-    Text2Disp = [Text2Disp,['---------------------------'],'<br />'];
+    app.Report_Bingo{end+1} = '##### Evaluation criterion (1) ASSEMBLAGE ##### ';
+    app.Report_Bingo{end+1} = ' ';
+    app.Report_Bingo{end+1} = '---------------------------';
+    app.Report_Bingo{end+1} = 'OBS | MOD | Mineral ';
+    app.Report_Bingo{end+1} = '---------------------------';
     for i =1:length(Link.PhasesNames)
-        Text2Disp = [Text2Disp,[Obs{i},' | ',Mod{i},' | ',Link.PhasesNames{i},'<br />']];
+        app.Report_Bingo{end+1} = [Obs{i},' | ',Mod{i},' | ',Link.PhasesNames{i}];
     end
-    Text2Disp = [Text2Disp,['---------------------------'],'<br /><br />'];
-    Text2Disp = [Text2Disp,['Qasm = ',num2str(NbMatches),' / ',num2str(NbPhasesInvolved),' * 100 = ',num2str(round(Result,2)),'%'],'<br />'];
-    Text2Disp = [Text2Disp,['<br />']];
+    app.Report_Bingo{end+1} = '---------------------------';
+    app.Report_Bingo{end+1} = ['Qasm = ',num2str(NbMatches),' / ',num2str(NbPhasesInvolved),' * 100 = ',num2str(round(Result,2)),'%'];
+    app.Report_Bingo{end+1} = ' ';
+    
+    app.Text_Report.Value = app.Report_Bingo;
 end
 
 
