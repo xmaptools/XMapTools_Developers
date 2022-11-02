@@ -2,11 +2,11 @@ function [Emin,Evaluation] = Opti_EpsiMinimCalc(WorkVariMod,WorkVariXMap,MinimOp
 
 Report = [];
 
-[Evaluation.assemblage,Link] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,0,'',app);
+[Evaluation.assemblage,Link] = Bingo_Qasm(WorkVariMod,WorkVariXMap,Report,DoWePrint,0,app);
 
-[Evaluation] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,0,'',app);
+[Evaluation] = Bingo_Qvol(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,0,app);
 
-[Evaluation] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,0,'',app);
+[Evaluation] = Bingo_Qcmp(WorkVariMod,WorkVariXMap,Link,Evaluation,Report,DoWePrint,0,app);
 
 
 % Here we can propose both strategies of optimization

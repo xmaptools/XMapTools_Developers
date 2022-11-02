@@ -8,6 +8,9 @@ Data visualisation module:
 - Add a plotting report generated while plotting a ternary diagram
 - Add an option to create a single-mask maskfile from he pixels selected by the Identify Pixel Tool.  
 
+LA-ICPMS Mapping:
+- Add a multi-standard calibration option which required several major changes in both the import tool and the calibration module for LA-ICPMS data. This update also includes several improvements and minor corrections. Compatibility with data generated using previous versions is maintained. 
+- Add an option to read the sweep time values for each element from an xml file. Note that the file name should be method.xml at the moment.   
 
 
 
