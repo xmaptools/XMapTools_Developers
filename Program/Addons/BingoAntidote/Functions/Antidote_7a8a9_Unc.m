@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES,handles] = Antidote_7a8a9_Unc(Mode,WorkVariXMap,MinimOptions,app)
+function [Output,Antidote_VARIABLES] = Antidote_7a8a9_Unc(Mode,WorkVariXMap,MinimOptions,app)
 %
 %
 %
@@ -8,89 +8,79 @@ function [Output,Antidote_VARIABLES,handles] = Antidote_7a8a9_Unc(Mode,WorkVariX
 %   - PT            Recipe 8
 %   - Bulk+PT       Recipe 9
 
+Tmin = app.TminEditField.Value;
+Tmax = app.TmaxEditField.Value;
+Pmin = app.PminEditField.Value;
+Pmax = app.PmaxEditField.Value;
 
-% Update the live display:
-eval(['TCi = [',get(handles.BinTextBinTCminmax,'String'),'];']);
-eval(['Pi = [',get(handles.BinTextBinPminmax,'String'),'];']);
+Tstep = app.TstepEditField.Value;
+Pstep = app.PstepEditField.Value;
 
-LIMS = [TCi(1)-1,TCi(end)+1,Pi(1)-1,Pi(end)+1];
+Ti = [Tmin:Tstep:Tmax];
+Pi = [Pmin:Pstep:Pmax];
+
+UncPos = app.AntidoteNbPerm1EditField_2.Value;
+UncT = app.AntidoteNbPerm1EditField_3.Value;
+UncP = app.AntidoteNbPerm1EditField_4.Value;
+
+NbPerm = app.AntidoteNbPerm1EditField.Value;
+
+LIMS = [Ti(1),Ti(end),Pi(1),Pi(end)];
 
 ShapeMode = 1;
 TPMode = 1;
-if isequal(AntidoteMode,10)
+if isequal(Mode,'Bulk')
     TPMode = 0;
-elseif isequal(AntidoteMode,11)
+elseif isequal(Mode,'PT')
     ShapeMode = 0;
 end
 
+Temp = app.BingoTemperatureEditField.Value;
+D_Temp = num2str(Temp);
+
+Press = app.BingoPressureEditField.Value;
+D_Press = num2str(Press*1e4);
+
 if ShapeMode && ~TPMode
-    InitPanelDisp(1,handles); % RESULTS
+    %
+    app.TabGroup2.SelectedTab = app.MapTab;
 else
-    set(handles.axes_Live_PLOT5,'Visible','On');
-    axes(handles.axes_Live_PLOT5), cla,
-    xlabel('Temperature (C)'), ylabel('Pressure (Kbar)')
-    axis(LIMS)
-    drawnow
+    %
+    
 end
 
+cla(app.UIAxes_LiveAntidote1,'reset')
+plot(app.UIAxes_LiveAntidote1,Temp,Press,'ok');
+xlabel(app.UIAxes_LiveAntidote1,'Temperature (°C)');
+ylabel(app.UIAxes_LiveAntidote1,'Pressure (GPa)');
+app.UIAxes_LiveAntidote1.XLim = [Tmin,Tmax];
+app.UIAxes_LiveAntidote1.YLim = [Pmin,Pmax];
+drawnow
 
-% -------------------------------------------------------------------------
-% (1) SET initial variables for Theriak (BinSet)
+[BinSet] = SetBin(app);
 
-switch handles.BingoDefault.SelectedProgram
-    case 1
-        ProgPath = handles.BingoDefault.Theriak.Path;
-        DefMin = handles.BingoDefault.Theriak.Database(get(handles.BinPopUpDatabase,'Value')).DefMin;
-    case 2
-        ProgPath = handles.BingoDefault.PerpleX.Path;
-        DefMin = handles.BingoDefault.PerpleX.Database(get(handles.BinPopUpDatabase,'Value')).DefMin;
-end
-
-Databases = get(handles.BinPopUpDatabase,'String');
-TheSelDatabase = Databases{get(handles.BinPopUpDatabase,'Value')};
-
-
-% -------------------------------------------------------------------------
-% Options (to be integrated to the interface later)
-
-NbPerm = str2num(get(handles.BinTextAnt1,'String'));
-PerturbShape = str2num(get(handles.BinTextAnt2,'String'));
-eval(['PerturbTP = [',get(handles.BinTextAnt3,'String'),'];']);
-
-% -------------------------------------------------------------------------
-% (2) T & P from Bingo
-
-D_Temp = get(handles.BinTextBinTC,'String');
-Temp = str2num(D_Temp);
-D_Press = get(handles.BinTextBinP,'String');
-Press = str2num(D_Press);
-
-axes(handles.axes_Live_PLOT5), hold on
-plot(Temp,Press,'or','MarkerEdgeColor','k','MarkerFaceColor','r');
-axis(LIMS)
-xlabel('Temperature');
-ylabel('Pressure');
-
-% NB: The printed bulk is not used here ...
-%OriginalBulk = get(handles.BinTextBulkCompo,'String');
+ProgPath = BinSet.Path;
+TheSelDatabase = BinSet.Database;
+iDB = find(ismember(app.DatabaseListBox.Items,TheSelDatabase));
+DefMin = app.BingoDefault.Theriak.Database(iDB).DefMin;
 
 % -------------------------------------------------------------------------
 % (3) Perturbation of the shape
-SelectedBinBulk = get(handles.BinPopUpBulkCompoList,'Value');
-BinBulkOri = handles.BinBulk(SelectedBinBulk);
+SelectedBinBulk = app.ROITree.SelectedNodes.NodeData;
+BinBulkOri = app.BinBulk(SelectedBinBulk);
 
 TempBinBulk = BinBulkOri;
 CoorOri = BinBulkOri.DomainXrefYref;
 
 % First call for reference ...
 Bulk = BinBulkOri.CompositionOriginal;
-[BinSet] = SetBinFAST(ProgPath,DefMin,TheSelDatabase,Bulk,handles.BinGfDef);
+[BinSet] = SetBinFAST(ProgPath,DefMin,TheSelDatabase,Bulk,app.BinGfDef);
 WorkVariModRef = TheriakCall(BinSet,D_Temp,D_Press);
 
 VolFrac = zeros(NbPerm,length(WorkVariModRef.Names));
 COMP = zeros(NbPerm,length(WorkVariModRef.Names),length(WorkVariModRef.Els));
 
-[Result,LinkRef] = Bingo_Qasm(WorkVariModRef,WorkVariXMap,0,0,handles);
+[Result,LinkRef] = Bingo_Qasm(WorkVariModRef,WorkVariXMap,0,0,'',app);
 
 NbElemsTher = WorkVariModRef.NbEl;
 ElemsListTher = WorkVariModRef.Els;
@@ -106,44 +96,38 @@ ElemsList = ElemsListTher;
 WorkVariXMap.COMPok = zeros(WorkVariXMap.NbPhases,NbElemsTher);
 WorkVariXMap.COMPok(:,find(Ok)) = WorkVariXMap.COMP(:,WhereIsMem(find(Ok)));
 
-Tsimul = Temp+randn(1,NbPerm).*PerturbTP(1);
-Psimul = Press+randn(1,NbPerm).*PerturbTP(2);
-%keyboard
+Tsimul = Temp+randn(1,NbPerm).*UncT;
+Psimul = Press+randn(1,NbPerm).*UncP;
+
 for i=1:NbPerm
     
     if ShapeMode
-        CoorSim = CoorOri + randn(size(CoorOri)).*PerturbShape;
+        CoorSim = CoorOri + randn(size(CoorOri)).*UncPos;
         TempBinBulk.DomainXrefYref = CoorSim;
-        [TempBinBulk] = BinUpdateBulkComposition(TempBinBulk,1,handles);
+        TempBinBulk = BinUpdateBulkComposition(app,TempBinBulk,1);
     end
     Bulk = TempBinBulk.CompositionOriginal;
     
     if NbPerm<=100
-        if ShapeMode && ~TPMode
-            axes(handles.axes1), hold on
+        if ShapeMode
+            hold(app.UIAxes,'on');
             CoorOriForPlot = [CoorSim;CoorSim(1,:)];
-            plot(CoorOriForPlot(:,1),CoorOriForPlot(:,2),'-k');
-            %axis(ValuesAxis);
+            plot(app.UIAxes,CoorOriForPlot(:,1),CoorOriForPlot(:,2),'-k');
             drawnow
         end
         if TPMode
-            axes(handles.axes_Live_PLOT5), hold on
-            plot(Tsimul(i),Psimul(i),'ok');
-            %plot(Temp,Press,'or','MarkerEdgeColor','k','MarkerFaceColor','r');
-            axis(LIMS)
-            xlabel('Temperature');
-            ylabel('Pressure');
-            
+            hold(app.UIAxes_LiveAntidote1,'on');
+            plot(app.UIAxes_LiveAntidote1,Tsimul(i),Psimul(i),'ok');
             drawnow
         end
     end
     
     if ShapeMode
-        [BinSet] = SetBinFAST(ProgPath,DefMin,TheSelDatabase,Bulk,handles.BinGfDef);
+        [BinSet] = SetBinFAST(ProgPath,DefMin,TheSelDatabase,Bulk,app.BinGfDef);
     end
     if TPMode
         D_Temp = num2str(Tsimul(i));
-        D_Press = num2str(Psimul(i));
+        D_Press = num2str(Psimul(i) * 1e4);
     end
     
     WorkVariMod = TheriakCall(BinSet,D_Temp,D_Press);
@@ -191,7 +175,6 @@ for i=1:NbPerm
     
 end
 
-% Display ....
 for i=1:length(WorkVariModRef.Names)
     disp(' ')
     disp(' ')
@@ -215,10 +198,6 @@ end
 disp(' ')
 
 
-
-
-
-
 Output.WeCallBingo = 0;
 Output.WeSaveWorkspace = 0;
 Output.Message = 'Success';
@@ -226,7 +205,7 @@ Output.Message = 'Success';
 Antidote_VARIABLES = [];
 
 
-return
+end
 
 
 

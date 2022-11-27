@@ -1,18 +1,19 @@
 # CHANGELOG for XMapTools developer
 
-## Work in progress (no compiled version yet)
-
-Data visualisation module:
-- Improve the global performances of this module by implementing the low ressource mode to all plots. Only 20 % of the data points are plotted when this mode is active; this threshold can be adjusted in the option tab 
-- Add an option to select a range of data (using the fields Xmin and Xmax) when plotting an histogram
-- Add a plotting report generated while plotting a ternary diagram
-- Add an option to create a single-mask maskfile from he pixels selected by the Identify Pixel Tool.  
-
-LA-ICPMS Mapping:
-- Add a multi-standard calibration option which required several major changes in both the import tool and the calibration module for LA-ICPMS data. This update also includes several improvements and minor corrections. Compatibility with data generated using previous versions is maintained. 
-- Add an option to read the sweep time values for each element from an xml file. Note that the file name should be method.xml at the moment.   
-
-
+## XMapTools 4.1 Release Candidate (no public release yet)
+- Release notes:
+  - Improve stability of XMapTools when a ROI is drawn or edited
+  - Add a multi-standard calibration option which required several major changes in both the import tool and the calibration module for LA-ICPMS data. This update also includes several improvements and minor corrections. Compatibility with data generated using previous versions is not fully maintained. 
+  - Add an option to read the sweep time values for each element from an xml file. Note that the file name should be AcqMethod.xml.   
+  - Improve performances for plotting and ROI interaction of the Spider module
+- Data visualisation module:
+  - Improve the global performances of this module by implementing the low ressource mode to all plots. Only 20 % of the data points are plotted when this mode is active; this threshold can be adjusted in the option tab 
+  - Add an option to select a range of data (using the fields Xmin and Xmax) when plotting an histogram
+  - Add a plotting report generated while plotting a ternary diagram
+  - Add an option to create a single-mask maskfile from he pixels selected by the Identify Pixel Tool.  
+- Other:
+  - Fix an issue in the project loading function
+  - Other minor bug and fixes
 
 
 

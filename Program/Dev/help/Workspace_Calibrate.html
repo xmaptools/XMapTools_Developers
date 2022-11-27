@@ -12,17 +12,16 @@ h2,h3,h4,h5 {margin-top: 2em; }
 </HEAD>
 
 <BODY>
-<h1> Help > Tabs > Calibrate </h1>    	
-<p><i>Help file version 20.11.2020 by M. Tedeschi & P. Lanari</i></p>
+<h1> Help > Workspace > Calibrate </h1>    	
+<p><i>Help file version 14.11.2022 by M. Tedeschi & P. Lanari</i></p>
 <p><a href="https://resources.xmaptools.ch" target="_blank">Access XMapTools resources online</a></p>
-<p class="ex">This part of XMapTools 4 is currently at <b>level 3</b> of development (<i>1, largely untested; 2, tested for a few cases; 3, tested and benchmarked; 4, publication quality</i>). </p> 
 <br \> 
 <hr>
 <p><b>Table of content</b><br \><br \>
 <b><a href="#EPMA">EPMA</a></b><br \>
 - <a href="#EPMA_Std">Standard data</a>: <a href="#Std.txt">File Standards.txt</a> | <a href="#ImportStd">Import standards</a> | <a href="#AdjustStd">Adjusting standard positions</a> | <a href="#AddStd">Adding new standard point(s)</a> <br \>
 - <a href="#EPMA_Calibration">Map calibration</a><br \>
-- <a href="#LBC">Local bulk compositions</a><br \>
+- <a href="#LBC">Local bulk compositions</a><br \><br \> 
 <b><a href="#LAICPMS">LA-ICPMS</a></b><br \>
 - <a href="#LA_ImportStd">Import standards</a><br \>
 - <a href="#LA_Calibrate">Calibrate intensity data</a><br \>
@@ -44,9 +43,9 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <h3><a name="EPMA_Std"></a>Standard Data</h3> 
 
-<p>The spot analyses used as internal standard in the calibration of EPMA data are referred to as "standards" in the following as they permit to define a calibration curve that correlates X-ray intensities to composition (e.g. expressed in oxide/element wt-%). </p> 
+<p>The spot analyses used as internal standard in the calibration of EPMA data are referred to as "standards" in the following as they permit to define a calibration curve that correlates X-ray intensities to composition (e.g. expressed in oxide/element wt%). </p> 
 
-<p>It is necessary to import the standards from a standard file, check their positions and eventually correct, check the chemical compositions and eventually create new standards. All these steps can be achieved in XMapTools 4.</p>
+<p>It is necessary to import the standards from a standard file, check their positions and eventually correct them, check the chemical compositions and eventually create new standards. All these steps can be achieved in XMapTools 4.</p>
 
 
 <h4><a name="Std.txt"></a>File Standards.txt</h4>
@@ -77,7 +76,7 @@ SiO2 MgO FeO Al2O3 X Y<br \>
 
 <p><img src="./img/SS_Standards.png" height="20"> The box <i>Import from Standards.txt</i> is selected by default allowing the file 'standards.txt' to be read automatically. If the file containing the standard data has a different name, unselect the box and it will be possible to select a file in the <i>Pick a file</i> pop-up window.</p>
 
-<p class="ex">At the moment all standards need to be stored within a single file. It is not possible to import standards from different files as existing standards will be eliminated when a new file is loaded.</p> 
+<p class="ex">At the moment all standards need to be stored within a single file. It is not possible to import standards from different files as existing standards are eliminated when a new file is loaded.</p> 
 
 <p>Once loaded, standards are displayed on the main map with a label including the spot number and several plots are produced and shown in the category "Standards" of the live display module. You can get this global visualisation at any stage by selecting <i>Standards (Spots)</i> in the Secondary Menu. Three plots are produced if an element is selected in the primary menu, from top to bottom: a plot showing <b>intensity/composition versus sequence of standard</b> to visualise if there is a good match between the standard compositions and the intensity values of the matching pixels; two correlations maps, one for the selected element in the primary menu and a second one considering all elements.<p> 
 

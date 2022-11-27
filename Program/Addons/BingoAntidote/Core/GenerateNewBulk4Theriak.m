@@ -14,7 +14,7 @@ for i = 1:length(Elem4Bulk)
 end
 
 if ~AddOxy
-    NewBulk = [NewBulk,'O(?)'];
+    NewBulk = [NewBulk,'O(?)O(0)'];
 end
 NewBulk = [NewBulk,'   *',Extras4Bulks{2}];
 

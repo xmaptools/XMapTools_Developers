@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_4_OptPTX(WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+function [Output,Antidote_VARIABLES] = Antidote_4_OptPTX(WorkVariXMap,MinimOptions,app)
 %
 %
 %
@@ -28,15 +28,17 @@ LIMS = [Ti(1),Ti(end),Pi(1),Pi(end)];
 
 [BinSet] = SetBin(app);
 
-Text2Disp = [Text2Disp,['Antidote: Recipe [4] - Find Optimal P-T (single phase)'],'<br />'];
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['Antidote: Recipe [4] - Find Optimal P-T (single phase)'];
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database];
+app.Report_Antidote{end+1} = '';
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 
 if isequal(MinimOptions.Search.Symplex.FirstOpt,1) % Preliminary P-T input
-    Text2Disp = [Text2Disp,['##### Exploratory P-T scanning (',num2str(Res),' x ',num2str(Res),') #####'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['##### Exploratory P-T scanning (',num2str(Res),' x ',num2str(Res),') #####'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     Compt = 0;
     Compt2 = 0; LimDisp = 5;
@@ -78,12 +80,13 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1) % Preliminary P-T input
     
     if length(sP) > 1 && length(sTC) >1 && ValueMin <= -100
         
-        Text2Disp = [Text2Disp,[' ** WARNING **'],'<br />'];
-        Text2Disp = [Text2Disp,[' The minimum is NON-UNIQUE as the bottom of the objective function is flat'],'<br />'];
-        Text2Disp = [Text2Disp,[' with ',num2str(length(sP)),' pixels having a value of ',num2str(ValueMin)],'<br />'];
-        Text2Disp = [Text2Disp,[' -> a random selection has been made and Antidote will not converge'],'<br />'];
-        Text2Disp = [Text2Disp,[' in this flat region (non-unique minimum)'],'<br /><br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = [' ** WARNING **'];
+        app.Report_Antidote{end+1} = [' The minimum is NON-UNIQUE as the bottom of the objective function is flat'];
+        app.Report_Antidote{end+1} = [' with ',num2str(length(sP)),' pixels having a value of ',num2str(ValueMin)];
+        app.Report_Antidote{end+1} = [' -> a random selection has been made and Antidote will not converge'];
+        app.Report_Antidote{end+1} = [' in this flat region (non-unique minimum)'];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
         
         WeTake = floor(1+rand(1)*length(sTC));
         
@@ -97,17 +100,19 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1) % Preliminary P-T input
     elseif length(sP) > 1 && length(sTC)>1
         % Starting point from Bingo...
         
-        Text2Disp = [Text2Disp,['THE SELECTED PHASE IS NOT STABLE in the PT range -> Let''s try with P-T from Bingo '],'<br /><br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = ['THE SELECTED PHASE IS NOT STABLE in the PT range -> Let''s try with P-T from Bingo '];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
         
         X0 = [app.BingoTemperatureEditField.Value,app.BingoPressureEditField.Value];
         
     else
         
-        Text2Disp = [Text2Disp,['RESULTS (Exploratory P-T scanning)'],'<br />'];
-        Text2Disp = [Text2Disp,['X0(1) = ',num2str(Pi(sP)),' (P,GPa)'],'<br />'];
-        Text2Disp = [Text2Disp,['X0(2) = ',num2str(Ti(sTC)),' (T,°C)'],'<br /><br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = ['RESULTS (Exploratory P-T scanning)'];
+        app.Report_Antidote{end+1} = ['X0(1) = ',num2str(Pi(sP)),' (P,GPa)'];
+        app.Report_Antidote{end+1} = ['X0(2) = ',num2str(Ti(sTC)),' (T,°C)'];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
        
         plot(app.UIAxes_LiveAntidote1,Ti(sTC),Pi(sP),'*m')
         drawnow
@@ -115,8 +120,9 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1) % Preliminary P-T input
         X0 = [Ti(sTC),Pi(sP)];
     end
     
-    Text2Disp = [Text2Disp,['CPU time: ',num2str(ht1),' s'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['CPU time: ',num2str(ht1),' s'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
 else
     X0 = [app.BingoTemperatureEditField.Value,app.BingoPressureEditField.Value];
@@ -127,8 +133,12 @@ options = optimset('fminsearch'); options=optimset(options,'TolX',0.0001,'TolFun
 NORM = X0;
 X0 = X0./NORM;
 
-Text2Disp = [Text2Disp,['##### P-T Optimization (from: ',num2str(NORM(2)),' GPa; ',num2str(NORM(1)),' C) #####'],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['##### P-T Optimization (from: ',num2str(NORM(2)),' GPa; ',num2str(NORM(1)),' C) #####'];
+app.Report_Antidote{end+1} = '';
+app.Text_Report_Antidote.Value = app.Report_Antidote;
+
+pause(0.1)
+scroll(app.Text_Report_Antidote,'bottom');
 
 tic
 f = @OptiBingoPTSinglePhase;
@@ -138,10 +148,12 @@ ht2 = toc;
 TCf = Result(1)*NORM(1);
 Pf = Result(2)*NORM(2);
 
-Text2Disp = [Text2Disp,['P = ',num2str(Pf),' GPa'],'<br />'];
-Text2Disp = [Text2Disp,['T = ',num2str(TCf),' °C'],'<br /><br />'];
-Text2Disp = [Text2Disp,['CPU time: ',num2str(ht2),' s'],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['P = ',num2str(Pf),' GPa'];
+app.Report_Antidote{end+1} = ['T = ',num2str(TCf),' °C'];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['CPU time: ',num2str(ht2),' s'];
+app.Report_Antidote{end+1} = '';
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 ESP = Res;
 
@@ -151,6 +163,9 @@ app.BingoPressureEditField.Value = Pf;
 Output.WeCallBingo = 1;
 Output.WeSaveWorkspace = 1;
 Output.Message = 'Success';
+
+pause(0.1)
+scroll(app.Text_Report_Antidote,'bottom');
 
 w = whos;
 for a = 1:length(w)

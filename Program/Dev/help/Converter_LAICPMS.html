@@ -15,8 +15,6 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <h1> Help > Tools > Converter For LA-ICPMS Data </h1>    	
 <p><i>Help file version 03.12.2021 by M. Tedeschi & P. Lanari</i></p>
 <p><a href="https://resources.xmaptools.ch" target="_blank">Access XMapTools resources online</a></p>
-<p class="ex">This part of XMapTools 4 is currently at <b>level 3</b> of development (<i>1, largely untested; 2, tested for a few cases; 3, tested and benchmarked; 4, publication quality</i>). </p> 
-<p class="ex"><b><u>Warning</u>: the algorithm used to generate the maps from LA-ICPMS data is not yet published and evolves on a weekly basis. Therefore, it is strongly recommended to contact us if you want to publish trace element data generated with any beta version of XMapTools 4.</b> </p> 
 <br \>
 <hr>
 <p><b>Table of content</b><br \><br \>
@@ -58,7 +56,7 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <h2><a name="Description"></a>Detailed description</h2> 
 
-The following steps must be followed. The procedure is quick, so if something goes wrong during import, close the module and start over again. 
+The data processing steps are described bellow. The process is fast, so if something goes wrong during import, it is recommended to close the module and start over again. 
 
 <h3><a name="Step1"></a>Step 1: Load datafiles</h3> 
 <p>Press the button <i>Load Datafiles</i> <img src="./img/SS_ConverterLAICPMS_Loadfiles.png" height="30"> to select: (1) a data file from the mass spectrometer (AGILENT only) containing timestamps an intensity data (e.g. Data.csv), and immediately after (2) a corresponding log file (e.g. Log.csv) from the laser system (RESONETICS only).</p>
@@ -67,7 +65,7 @@ The following steps must be followed. The procedure is quick, so if something go
 
 <h3><a name="Step2"></a>Step 2: Adjust time shift</h3> 
 
-<p>The value of the time shift can be adjusted to synchronise the data file and the log file. In the main figure, the total signal is plotted together with the laser on/off signals given in the log file. </p>
+<p>The value of the time shift can be adjusted to synchronise the data file and the log file. In the main figure, the total signal is plotted together with the laser on/off signals given in the log file (vertical red lines). </p>
 
 <p>The shift value is automatically adjusted by XMapTools when the data are imported. If necessary, adjust the value until both signals are synchronised (see example in Figure 1 bellow).</p>
 
@@ -100,15 +98,13 @@ Note that the following categories are available in this tree menu:
 
 <h4>Display/edit integrations for background</h4>
 
-<p>To visualise and edit integrations, select the first measurement in the tree menu. Zoom in on the first background signal using the zoom button available in the toolbar that is displayed on the top-right of the figure while the mouse is over it. If you pick an other measurement in the tree menu, the integration will be displayed in the center of the plot.</p> 
+<p>To visualise and edit integrations, select the first measurement in the tree menu. The display is adjusted automatically to zoom on the selected integration. If you pick an other measurement in the tree menu, the integration will be displayed in the center of the figure.</p> 
 
-<p>The program automatically excludes a fraction at the beginning and at the end of each background measurement (default filter value is 10 %). This value can be changed manually if needed. It is also possible to edit manually the duration of an integration by changing the boundary values available as <i>Position</i> (min and max), below the menu: <img src="./img/SS_LAICPMS_Position.png" height="25"></p>
-
-<p>Once all integrations have been checked, you can press the restore view button of available in the plot toolbar (hold the mouse pointer on the plot and check in the upper right corner). </p>
+<p>The program automatically excludes a fraction at the beginning and at the end of each background measurement (default value is 10 %). This value can be changed manually if needed. It is also possible to edit manually the duration of an integration by changing the boundary values available as <i>Position</i> (min and max), below the menu: <img src="./img/SS_LAICPMS_Position.png" height="25"></p>
 
 <p>Note that you can press at any stage the button extract information to restore the auto integration intervals for background. Any change will be lost.</p>
 
-<h4><a name="Step4"></a>Background approximation</h4>
+<h4><a name="Step4"></a>Background interpolation</h4>
 
 <p>Select a method for fitting the background in the BACKGROUND section below the plot. It is recommended to display the signal <i>Raw_Sum</i> and to adjust the display to show the entire background signal.</p>
 
@@ -120,7 +116,7 @@ Note that the following categories are available in this tree menu:
 <li>Spline</li>
 </ul>
 
-<p>Due to the compositional variability of each material analysed, an optimal background correction is usually obtained using a <b>step function</b>. 
+<p>Due to the compositional variability of each material analysed, an optimal background correction is usually obtained using a <b>step function</b> or a <b>spline</b>. 
 
 <p>Press the button <i>Apply</i> to apply the background correction.</p>
 
@@ -134,15 +130,15 @@ Note that the following categories are available in this tree menu:
 
 <p>The background-corrected (BackCorr) signal is displayed once a background correction has been applied. Corrected data are available via the plot menu. </p>
 
-<p>Select using the drop-down menu located in PRIMARY STANDARD, what measurement should be used as primary standart.</p>
-
-<p>Warning: at the moment, the name of the measurement should match the name of a standard file containing the composition of this standard (NIST612 or GSD-1g). Additional standard files will be added in the future.</p>
+<p>Select using the drop-down menu located in PRIMARY STANDARD, what measurement should be used as primary standart. The integration name should match the name of a standard file containing the composition of this standard (e.g. NIST612 or GSD-1g). Additional standard files can be added in future releases upon request. It is also possible to add his own files using the options available in the bottom-right pannel, but this operation must be repeated each time the converter is used.</p>
 
 <p>Integrations can be edited following the same strategy as for background integration (see above).</p>
 
-<p>Select then a fitting method. A spline function is usually the best method to approximate instrument drift during measurement, especially for reconstructing maps. Step function can also be used in some cases, but it can result in sharp transition between lines in the final map.</p>
+<p>Select then an interpolation method. A spline function is usually the best method to approximate instrument drift during measurement, especially for reconstructing maps. Step function can also be used in some cases, but it might result in sharp transition between lines in the final map.</p>
 
-<p>Press the button <i>Apply</i> to validate and fit the primary standard signal. The program generates standard data such as shown in the second image of Figure 1. If the standard is not recognised automatically a window containing a list of all available standards will be opened. Note that it is possible to add additional standards using the option pannel available at the bottom left of the interface. </p>
+<p>Press the button <i>Apply</i> to validate and interpolate the primary standard signal. The program generates standard data such as shown in the second image of Figure 1. If the standard is not recognised automatically a window containing a list of all available standards will be opened. Note that it is possible to add additional standard definitions using the option pannel available at the bottom left of the interface. </p>
+
+<p>It is possible to define additional interpolations to be used as primary standards. Once the button <i>Apply</i> is pressed, it is possible to define a new interpolation for the same material or a different material by selecting the option <i>>Yes</i>. If you do not want to define additional interpolations to be used as primary standards, select the option <i>No (Continue)</i>.</p>
 
 
 <p><img src="./img/Converter_LAICPMS_2.png" width="700"></p>

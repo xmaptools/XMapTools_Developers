@@ -1,4 +1,4 @@
-function [BulkFinal,BinBulk] = SuperFast_X_Update(BinBulk,ElList,XVals)
+ function [BulkFinal,BinBulk] = SuperFast_X_Update(BinBulk,ElList,XVals)
 %
 
 

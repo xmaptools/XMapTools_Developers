@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_14a15a16_ScanX(AntidoteMode,WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+function [Output,Antidote_VARIABLES] = Antidote_14a15a16_ScanX(AntidoteMode,WorkVariXMap,MinimOptions,app)
 %
 %
 
@@ -59,7 +59,7 @@ switch AntidoteMode
             Min = Min_H;
             Max = Max_H;
             ElementB = 'H';
-            Text2Disp = [Text2Disp,['Antidote: Recipe [14] - Scanning H (fixed P-T)'],'<br />'];
+            app.Report_Antidote{end+1} = ['Antidote: Recipe [14] - Scanning H (fixed P-T)'];
         end
     case 'C'
         if ~(Max_C -Min_C) > 0
@@ -69,12 +69,12 @@ switch AntidoteMode
             Min = Min_C;
             Max = Max_C;
             ElementB = 'C';
-            Text2Disp = [Text2Disp,['Antidote: Recipe [14] - Scanning C (fixed P-T)'],'<br />'];
+            app.Report_Antidote{end+1} = ['Antidote: Recipe [14] - Scanning C (fixed P-T)'];
         end
     case 'O'
         
-        Min = handles.BinGfDef.Oxygen.ExtraO.Lower;
-        Max = handles.BinGfDef.Oxygen.ExtraO.Upper;
+         Min = app.OxMin_EditField.Value;
+         Max = app.OxMax_EditField.Value;
         
         if ~(Max - Min) > 0
             uialert(app.BingoAntidote_GUI,'Max(O) must be greater than Min(O)!','Error Antidote')
@@ -82,14 +82,15 @@ switch AntidoteMode
         end
         
         ElementB = 'O'; 
-        Text2Disp = [Text2Disp,['Antidote: Recipe [14] - Scanning O (fixed P-T)'],'<br />'];
+        app.Report_Antidote{end+1} = ['Antidote: Recipe [14] - Scanning O (fixed P-T)'];
 end
 
 [BinSet] = SetBin(app);
 
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database];
+app.Report_Antidote{end+1} = '';
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 
 xlabel(app.UIAxes_LiveAntidote1,ElementB)
@@ -112,12 +113,12 @@ D_Temp = num2str(Temp);
 Press = app.BingoPressureEditField.Value;
 D_Press = num2str(Press * 1e4);
 
+app.Report_Antidote{end+1} = ['Temperature: ',D_Temp,' (°C)'];
+app.Report_Antidote{end+1} = ['Pressure: ',D_Press,' (GPa)'];
+app.Report_Antidote{end+1} = ['Binary for ',ElementB,' in range: ',num2str(Min),'-',num2str(Max)];
+app.Report_Antidote{end+1} = '';
 
-Text2Disp = [Text2Disp,['Temperature: ',D_Temp,' (°C)'],'<br />'];
-Text2Disp = [Text2Disp,['Pressure: ',D_Press,' (GPa)'],'<br />'];
-Text2Disp = [Text2Disp,['Binary for ',ElementB,' in range: ',num2str(Min),'-',num2str(Max)],'<br /><br />'];
-
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 Name4SaveResults = ['Results_',num2str(Temp),'-',num2str(Press),'.txt'];
 
@@ -150,13 +151,13 @@ ProData2.MinComp.MinQw = zeros(1,NbSteps);
 tic
 for i = 1:length(X_Vari)
     
-    Text2Disp = [Text2Disp,[' -->  LOOP: ',num2str(i),'/',num2str(NbSteps)],'<br />'];
+    app.Report_Antidote{end+1} = [' -->  LOOP: ',num2str(i),'/',num2str(NbSteps)];
     
     [Bulk,TempBinBulk] = SuperFast_X_Update(TempBinBulk,{ElementB},X_Vari(i));
     %[Bulk_TEST,TempBinBulk_TEST] = SuperFast_H_Update(TempBinBulk,X_Vari(i));
     
-    Text2Disp = [Text2Disp,[Bulk],'<br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = [Bulk];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     [BinSet] = SetBinFAST(ProgPath,DefMin,TheSelDatabase,Bulk,app.BinGfDef);
     
@@ -177,6 +178,9 @@ for i = 1:length(X_Vari)
         legend(app.UIAxes_LiveAntidote1,{'Qass','Qvol','Qcmp','Qtotal'},'Location','Best')
         title(app.UIAxes_LiveAntidote1,'Quality factors (%)')
         drawnow
+        
+        pause(0.1)
+        scroll(app.Text_Report_Antidote,'bottom');
     end
     
 end
@@ -186,10 +190,11 @@ FinalPlotProData2(ProData2,14,ElementB,X_Vari,Name4SaveResults);
 
 ht1=toc;
 
-Text2Disp = [Text2Disp,[''],'<br />'];
-Text2Disp = [Text2Disp,['CPU time ',num2str(ht1)],'<br /><br />'];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['CPU time ',num2str(ht1)];
+app.Report_Antidote{end+1} = '';
 
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 Output.WeCallBingo = 0;
 Output.WeSaveWorkspace = 0;

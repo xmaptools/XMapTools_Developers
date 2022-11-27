@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_2_MapQ(WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+function [Output,Antidote_VARIABLES] = Antidote_2_MapQ(WorkVariXMap,MinimOptions,app)
 %
 %
 
@@ -22,16 +22,20 @@ Axis_Maps = [LIMS(1)-dT4Plot LIMS(2)+dT4Plot (LIMS(3)-dP4Plot) (LIMS(4)+dP4Plot)
 
 [BinSet] = SetBin(app);
 
-Text2Disp = [Text2Disp,['Antidote: Recipe [2] - P–T map of Q factors'],'<br />'];
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br />'];
+app.Report_Antidote{end+1} = ['Antidote: Recipe [2] - P–T map of Q factors'];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database];
+app.Report_Antidote{end+1} = '';
 if MinimOptions.Weights.Use
-    Text2Disp = [Text2Disp,['Equation: Other',['[E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]']],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['Equation: Other',['[E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]']];
+    app.Report_Antidote{end+1} = '';
 else
-    Text2Disp = [Text2Disp,['Equation: Classic [E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['Equation: Classic [E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'];
+    app.Report_Antidote{end+1} = '';
 end
     
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 tic
 

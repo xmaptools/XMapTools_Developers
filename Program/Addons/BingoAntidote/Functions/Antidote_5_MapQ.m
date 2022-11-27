@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_5_MapQ(WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+function [Output,Antidote_VARIABLES] = Antidote_5_MapQ(WorkVariXMap,MinimOptions,app)
 %
 %
 
@@ -22,10 +22,10 @@ BinPhaseDef = app.BinPhaseDef(app.SelectedPhaseOptiDropDown.Value);
 
 [BinSet] = SetBin(app);
 
-Text2Disp = [Text2Disp,['Antidote: RECIPE 5 – P–T map of Q factors (single phase)'],'<br />'];
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['Antidote: RECIPE 5 – P–T map of Q factors (single phase)'];
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 cla(app.UIAxes_LiveAntidote1,'reset')
 xlabel(app.UIAxes_LiveAntidote1,'Temperature (°C)');

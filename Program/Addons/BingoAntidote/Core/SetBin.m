@@ -11,13 +11,13 @@ for i=1:length(DefMin(:,1))
 end
 
 % Melt Model to be added to the solids?
-if isfield(app,'BinGfDef')    % With that Bingo does not require BinGfDef to be defined
-    if handles.BinGfDef.Melt.Include
+%if isfield(app,'BinGfDef')    % With that Bingo does not require BinGfDef to be defined
+    if app.BinGfDef.Melt.Include
         i = i+1;
-        BinSet.ListRefMiner{i} = handles.BinGfDef.Melt.DBName;
+        BinSet.ListRefMiner{i} = app.BinGfDef.Melt.DBName;
         %keyboard
     end
-end
+%end
 
 Databases = app.DatabaseListBox.Items;
 BinSet.Database = Databases{iDB};

@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_3a6_PTunc(Mode,WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+function [Output,Antidote_VARIABLES] = Antidote_3a6_PTunc(Mode,WorkVariXMap,MinimOptions,app)
 %
 %
 %
@@ -55,18 +55,23 @@ app.TabGroup2.SelectedTab = app.ResultsTab;
 % variables for single phase computations:
 % BinPhaseDef = handles.BinPhaseDef(get(handles.BinPopUpVarPhaseList,'Value'));
 
-Text2Disp = [Text2Disp,['Antidote: Recipe [3] - P–T uncertainty'],'<br />'];
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br /><br />'];
-Text2Disp = [Text2Disp,['Temp. P: ',num2str(Tinit)],'<br />'];
-Text2Disp = [Text2Disp,['Temp. TC: ',num2str(Pinit)],'<br /><br />'];
+app.Report_Antidote{end+1} = ['Antidote: Recipe [3] - P–T uncertainty'];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['Temp. P: ',num2str(Tinit)];
+app.Report_Antidote{end+1} = ['Temp. TC: ',num2str(Pinit)];
+app.Report_Antidote{end+1} = '';
 if MinimOptions.Weights.Use
-    Text2Disp = [Text2Disp,['Equation: Other',['[E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]']],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['Equation: Other',['[E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]']];
+    app.Report_Antidote{end+1} = '';
 else
-    Text2Disp = [Text2Disp,['Equation: Classic [E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['Equation: Classic [E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'];
+    app.Report_Antidote{end+1} = '';
 end
     
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 % PART 1 - AUTO-REFINEMENT as in GRTMOD (Lanari et al., 2017), EJM.
 app.WaitBar.Message = ['Auto-refinement stage (',num2str(Tinit),' °C & ',num2str(Pinit),' GPa)'];
@@ -74,14 +79,17 @@ app.WaitBar.Message = ['Auto-refinement stage (',num2str(Tinit),' °C & ',num2st
 tic
 for iUnc=1:length(UncInt)
     if length(UncInt) > 1
-        Text2Disp = [Text2Disp,[' -->  LOOP: ',num2str(iUnc),'/',num2str(length(UncInt)),' [Tol(%) = ',num2str(UncInt(iUnc)),']'],'<br /><br />'];
+        app.Report_Antidote{end+1} = [' -->  LOOP: ',num2str(iUnc),'/',num2str(length(UncInt)),' [Tol(%) = ',num2str(UncInt(iUnc)),']'];
+        app.Report_Antidote{end+1} = '';
     else
-        Text2Disp = [Text2Disp,['Tol(%): ',num2str(UncInt(iUnc))],'<br /><br />'];
+        app.Report_Antidote{end+1} = ['Tol(%): ',num2str(UncInt(iUnc))];
+        app.Report_Antidote{end+1} = '';
     end
     
-    Text2Disp = [Text2Disp,['##### Auto-refinement stage (',num2str(Tinit),' C & ',num2str(Pinit),' GPa) #####'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['##### Auto-refinement stage (',num2str(Tinit),' C & ',num2str(Pinit),' GPa) #####'];
+    app.Report_Antidote{end+1} = '';
     
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     switch Mode
         case {'all','All'}
@@ -144,8 +152,8 @@ for iUnc=1:length(UncInt)
         
         TheExitTest = sum(DirectionsToTest);
         
-        Text2Disp = [Text2Disp,['  --> Loop [',num2str(Loops),'] - (',num2str(TheExitTest),')'],'<br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = ['  --> Loop [',num2str(Loops),'] - (',num2str(TheExitTest),')'];
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
         
         if ~TheExitTest
             disp(' ');
@@ -172,8 +180,10 @@ for iUnc=1:length(UncInt)
     NbPerm = app.AntidoteNbPerm1EditField.Value;
     NbPermRef = app.AntidoteNbPerm2EditField.Value;
     
-    Text2Disp = [Text2Disp,'<br />',['##### Uncertainty enveloppe stage (',num2str(Tinit),' C & ',num2str(Pinit),' GPa) #####'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = '';
+    app.Report_Antidote{end+1} = ['##### Uncertainty enveloppe stage (',num2str(Tinit),' C & ',num2str(Pinit),' GPa) #####'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     MaxTdiff = max(abs(Tinit-ErrorsT));
     if isequal(MaxTdiff,0)
@@ -187,8 +197,8 @@ for iUnc=1:length(UncInt)
     
     % OPTIMIZATION 1:
     %app.WaitBar.Message = 'Optimization [1/3]';
-    Text2Disp = [Text2Disp,['  --> Optimization [1/3] '],'<br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['  --> Optimization [1/3] '];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     Tinv = Tinit + randn(floor(NbPerm),1)*MaxTdiff/1.4;
     Pinv = Pinit + randn(floor(NbPerm),1)*MaxPdiff/1.4;
@@ -221,8 +231,12 @@ for iUnc=1:length(UncInt)
     Tsimul(length(TPinside)+1:length(TPinside)+NbPermAugm) = LIMS(1) + (LIMS(2)-LIMS(1))*rand(NbPermAugm,1);
     Psimul(length(TPinside)+1:length(TPinside)+NbPermAugm) = LIMS(3) + (LIMS(4)-LIMS(3))*rand(NbPermAugm,1);
     
-    Text2Disp = [Text2Disp,['      ... ',num2str(NbPerm),' + ',num2str(NbPermAugm),' = ',num2str(numel(Tsimul)),' minimizations'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['      ... ',num2str(NbPerm),' + ',num2str(NbPermAugm),' = ',num2str(numel(Tsimul)),' minimizations'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
+    
+    pause(0.1)
+    scroll(app.Text_Report_Antidote,'bottom');
     
     plot(app.UIAxes2,Tsimul(length(TPinside)+1:length(TPinside)+NbPermAugm),Psimul(length(TPinside)+1:length(TPinside)+NbPermAugm),'.k');
     drawnow
@@ -255,14 +269,18 @@ for iUnc=1:length(UncInt)
     
     % OPTIMIZATION 2:
     %app.WaitBar.Message = 'Optimization [2/3]';
-    Text2Disp = [Text2Disp,['  --> Optimization [2/3] '],'<br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['  --> Optimization [2/3] '];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     dT = (max(PTcoord1(:,1))- min(PTcoord1(:,1)))/3;
     dP = (max(PTcoord1(:,2))- min(PTcoord1(:,2)))/3;
     
-    Text2Disp = [Text2Disp,['      ... ',num2str(NbPermRef),' * ',num2str(numel(PTcoord1)),' = ',num2str(NbPermRef*numel(PTcoord1)),' minimizations'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['      ... ',num2str(NbPermRef),' * ',num2str(numel(PTcoord1)),' = ',num2str(NbPermRef*numel(PTcoord1)),' minimizations'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
+    
+    pause(0.1)
+    scroll(app.Text_Report_Antidote,'bottom');
     
     ComptInd = 1;
     for i=1:size(PTcoord1,1)
@@ -310,14 +328,18 @@ for iUnc=1:length(UncInt)
     
     % OPTIMIZATION 3:
     %app.WaitBar.Message = 'Optimization [3/3]';
-    Text2Disp = [Text2Disp,['  --> Optimization [3/3] '],'<br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['  --> Optimization [3/3] '];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     dT = (max(PTcoord2(:,1))- min(PTcoord2(:,1)))/6;
     dP = (max(PTcoord2(:,2))- min(PTcoord2(:,2)))/6;
     
-    Text2Disp = [Text2Disp,['      ... ',num2str(NbPermRef),' * ',num2str(numel(PTcoord2)),' = ',num2str(NbPermRef*numel(PTcoord2)),' minimizations'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['      ... ',num2str(NbPermRef),' * ',num2str(numel(PTcoord2)),' = ',num2str(NbPermRef*numel(PTcoord2)),' minimizations'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
+    
+    pause(0.1)
+    scroll(app.Text_Report_Antidote,'bottom');
     
     ComptInd = 1;
     for i=1:size(PTcoord2,1)
@@ -365,7 +387,6 @@ for iUnc=1:length(UncInt)
     Results(iUnc).PTcoord = PTcoord3;
     drawnow
     
-    
 end
 
 
@@ -382,9 +403,11 @@ title(['P-T uncertainty (',num2str(UncInt(iUnc)),' %)']);
 
 ht1=toc;
 
-Text2Disp = [Text2Disp,['CPU time: ',num2str(ht1), 's'],'<br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['CPU time: ',num2str(ht1), 's'];
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
+pause(0.1)
+scroll(app.Text_Report_Antidote,'bottom');
 
 Output.WeCallBingo = 0;
 Output.WeSaveWorkspace = 0;

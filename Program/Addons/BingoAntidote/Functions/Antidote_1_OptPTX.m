@@ -1,4 +1,4 @@
-function [Output,Antidote_VARIABLES] = Antidote_1_OptPTX(WorkVariXMap,MinimOptions,Text2Disp,HTML_1,HTML_2,app)
+ function [Output,Antidote_VARIABLES] = Antidote_1_OptPTX(WorkVariXMap,MinimOptions,app)
 %
 %
 %
@@ -24,10 +24,12 @@ Axis_Maps = [LIMS(1)-dT4Plot LIMS(2)+dT4Plot (LIMS(3)-dP4Plot) (LIMS(4)+dP4Plot)
 
 [BinSet] = SetBin(app);
 
-Text2Disp = [Text2Disp,['Antidote: Recipe [1] - Find Optimal P-T(-X)'],'<br />'];
-Text2Disp = [Text2Disp,['Bulk: ',BinSet.Bulk2Display],'<br />'];
-Text2Disp = [Text2Disp,['Database: ',BinSet.Database],'<br /><br />'];
-app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+app.Report_Antidote{end+1} = ['Antidote: Recipe [1] - Find Optimal P-T(-X)'];
+app.Report_Antidote{end+1} = '';
+app.Report_Antidote{end+1} = ['Bulk: ',BinSet.Bulk2Display,''];
+app.Report_Antidote{end+1} = ['Database: ',BinSet.Database,''];
+app.Report_Antidote{end+1} = '';
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 if isequal(MinimOptions.Search.Symplex.FirstOpt,1)
     
@@ -37,8 +39,9 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1)
     %                 ** P-T scanning ** starts here...
     % -------------------------------------------------------------
     
-    Text2Disp = [Text2Disp,['##### Exploratory P-T scanning (',num2str(Res),' x ',num2str(Res),') #####'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['##### Exploratory P-T scanning (',num2str(Res),' x ',num2str(Res),') #####'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     E1 = nan(length(Pi),length(Ti));
     E2 = nan(length(Pi),length(Ti));
@@ -93,11 +96,12 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1)
     WhereSaturation  = find(IsHSat);
     if length(WhereSaturation)
         
-        Text2Disp = [Text2Disp,[' ** WARNING **'],'<br />'];
-        Text2Disp = [Text2Disp,[' The component H2O is "saturated" for ',num2str(length(WhereSaturation)),'/',num2str(length(IsHSat(:))),' P-T couples'],'<br />'];
-        Text2Disp = [Text2Disp,[' This may cause convergence to local minima if H is part of the optimization'],'<br />'];
-        Text2Disp = [Text2Disp,[' Further warning messages related to this issue will be displayed below'],'<br /><br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = [' ** WARNING **'];
+        app.Report_Antidote{end+1} = [' The component H2O is "saturated" for ',num2str(length(WhereSaturation)),'/',num2str(length(IsHSat(:))),' P-T couples'];
+        app.Report_Antidote{end+1} = [' This may cause convergence to local minima if H is part of the optimization'];
+        app.Report_Antidote{end+1} = [' Further warning messages related to this issue will be displayed below'];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
         
         TGrid4Plot = repmat(Ti,length(Pi),1);
         PGrid4Plot = repmat(Pi',1,length(Ti));
@@ -117,13 +121,15 @@ if isequal(MinimOptions.Search.Symplex.FirstOpt,1)
     
     X0 = [Ti(sTC),Pi(sP)];
     
-    Text2Disp = [Text2Disp,['RESULTS (Exploratory P-T scanning)'],'<br />'];
-    Text2Disp = [Text2Disp,['X0(1) = ',num2str(Pi(sP)),' (P,GPa)'],'<br />'];
-    Text2Disp = [Text2Disp,['X0(2) = ',num2str(Ti(sTC)),' (T,°C)'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['RESULTS (Exploratory P-T scanning)'];
+    app.Report_Antidote{end+1} = ['X0(1) = ',num2str(Pi(sP)),' (P,GPa)'];
+    app.Report_Antidote{end+1} = ['X0(2) = ',num2str(Ti(sTC)),' (T,°C)'];
+    app.Report_Antidote{end+1} = '';
     
     ht1 = toc;
-    Text2Disp = [Text2Disp,['CPU time ',num2str(ht1),' s'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['CPU time ',num2str(ht1),' s'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     plot(app.UIAxes_LiveAntidote1,Ti(sTC),Pi(sP),'pw','markerfacecolor','w','markersize',10);
     
@@ -179,11 +185,12 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     WhereMaxQ1 = find(E1 == MaxQ1);
     NbMaxQ1 = length(WhereMaxQ1);
     
-    Text2Disp = [Text2Disp,[' ++ Diagnostic before Exploratory P-T-X scanning ++ '],'<br />'];
-    Text2Disp = [Text2Disp,['Min(-Qass) = ',num2str(-MaxQ1)],'<br />'];
-    Text2Disp = [Text2Disp,['Nb pixels = ',num2str(NbMaxQ1)],'<br /><br />'];
+    app.Report_Antidote{end+1} = [' ++ Diagnostic before Exploratory P-T-X scanning ++ '];
+    app.Report_Antidote{end+1} = ['Min(-Qass) = ',num2str(-MaxQ1)];
+    app.Report_Antidote{end+1} = ['Nb pixels = ',num2str(NbMaxQ1)];
+    app.Report_Antidote{end+1} = '';
     
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     if isequal(MinimOptions.TestMode,1)     % TEST mode 
         LimitMax = 1e5;                     % i.e. no limit
@@ -204,13 +211,14 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
         WhereMaxQ1 = WhereMaxQ1(Perm);
         NbMaxQ1 = length(WhereMaxQ1);
         
-        Text2Disp = [Text2Disp,['** WARNING ** '],'<br />'];
-        Text2Disp = [Text2Disp,['the number of P-T initial guesses for stage 2 exceeded the limit of ',num2str(LimitMax)],'<br />'];
-        Text2Disp = [Text2Disp,['A random selection has been made to reduce the size of the problem '],'<br />'];
-        Text2Disp = [Text2Disp,['Min(-Qass) = ',num2str(-MaxQ1)],'<br />'];
-        Text2Disp = [Text2Disp,['Nb pixels = ',num2str(NbMaxQ1)],'<br /><br />'];
+        app.Report_Antidote{end+1} = ['** WARNING ** '];
+        app.Report_Antidote{end+1} = ['the number of P-T initial guesses for stage 2 exceeded the limit of ',num2str(LimitMax)];
+        app.Report_Antidote{end+1} = ['A random selection has been made to reduce the size of the problem '];
+        app.Report_Antidote{end+1} = ['Min(-Qass) = ',num2str(-MaxQ1)];
+        app.Report_Antidote{end+1} = ['Nb pixels = ',num2str(NbMaxQ1)];
+        app.Report_Antidote{end+1} = '';
         
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
     end
     
     TGrid = repmat(Ti,length(Pi),1);
@@ -242,8 +250,11 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
                 Answ = inputdlg('X scan resolution','TEST mode',1,{'100'});
                 ScanRes = str2num(Answ{1});
                 %ScanRes = 10;
-                disp([' <> TEST MODE   ##   Scan resolution (X) increased to: ',num2str(10)])
-                disp(' ')
+                
+                app.Report_Antidote{end+1} = [' <> TEST MODE   ##   Scan resolution (X) increased to: ',num2str(10)];
+                app.Report_Antidote{end+1} = '';
+                app.Text_Report_Antidote.Value = app.Report_Antidote;
+                
             else
                 ScanRes = 10;
             end
@@ -255,14 +266,14 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     
     ScanNb = NbMaxQ1*ScanRes^ScanDim;
     
-    Text2Disp = [Text2Disp,['##### Exploratory P-T-X scanning (',num2str(ScanNb),') #####'],'<br />'];
-    Text2Disp = [Text2Disp,['* X(1) P-T: ',num2str(length(ScanT))],'<br />'];
+    app.Report_Antidote{end+1} = ['##### Exploratory P-T-X scanning (',num2str(ScanNb),') #####'];
+    app.Report_Antidote{end+1} = ['* X(1) P-T: ',num2str(length(ScanT))];
     if IsHOptimized
         if sum(IsSatScanPT) > 0
-            Text2Disp = [Text2Disp,['  ... Warning',sum(IsSatScanPT)/length(IsSatScanPT)*100,' % of initial P-T couples are saturated (H)'],'<br />'];
+            app.Report_Antidote{end+1} = ['  ... Warning',sum(IsSatScanPT)/length(IsSatScanPT)*100,' % of initial P-T couples are saturated (H)'];
         end
     end
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     drawnow
     
@@ -278,10 +289,10 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     for i = 1:length(Min)
         X0(end+1) = Min(i)+(Max(i)-Min(i))/2;
         LIMSx(end+1,:) = [Min(i);Max(i)];
-        Text2Disp = [Text2Disp,['* X(',num2str(i+1),') ',char(ElementB{i}),': ',num2str(ScanRes)],'<br />'];
+        app.Report_Antidote{end+1} = ['* X(',num2str(i+1),') ',char(ElementB{i}),': ',num2str(ScanRes)];
+        app.Report_Antidote{end+1} = '';
     end
-    Text2Disp = [Text2Disp,[''],'<br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     ScanX = X0(3:end);    % size: ScanDim
     ScandX = (Max-Min)/(ScanRes+1);
@@ -382,16 +393,18 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     PerSat = sum(IsHSat2)/length(IsHSat2)*100;
     %fprintf('\t%s\t%.0f%s\n','  ... Warning',PerSat,' % of them saturated (H)');
     if IsHOptimized && PerSat > 25
-        Text2Disp = [Text2Disp,['** WARNING ** '],'<br />'];
-        Text2Disp = [Text2Disp,['There are too many P-T-X points with H2O saturation (',num2str(PerSat),' %)'],'<br />'];
-        Text2Disp = [Text2Disp,['It is strongly recommended to restrict the range of possible H values for better efficency of the exploratory scans'],'<br />'];
-        Text2Disp = [Text2Disp,['Further warning messages related to this issue will be displayed below'],'<br /><br />'];
-        app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+        app.Report_Antidote{end+1} = ['** WARNING ** '];
+        app.Report_Antidote{end+1} = ['There are too many P-T-X points with H2O saturation (',num2str(PerSat),' %)'];
+        app.Report_Antidote{end+1} = ['It is strongly recommended to restrict the range of possible H values for better efficency of the exploratory scans'];
+        app.Report_Antidote{end+1} = ['Further warning messages related to this issue will be displayed below'];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
     end
     
     if isequal(MinimOptions.TestMode,1)  % TEST mode
-        disp([' <> TEST MODE   ##   Results of P-T-X explanatory ']);
-        disp(' ');
+        app.Report_Antidote{end+1} = [' <> TEST MODE   ##   Results of P-T-X explanatory '];
+        app.Report_Antidote{end+1} = '';
+        app.Text_Report_Antidote.Value = app.Report_Antidote;
         
         E4Map = reshape(E4,size(TMtx));
         for i = 1:size(E4Map,2)
@@ -484,14 +497,16 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
         
         if ~length(WhereUnsat)
             
-            Text2Disp = [Text2Disp,['** FATAL ERROR ** '],'<br />'];
-            Text2Disp = [Text2Disp,['Sorry fellas but the objective function seems to be flat in H and further optimization is not possible!'],'<br />'];
-            Text2Disp = [Text2Disp,['You can try to reduce the upper limit of H values'],'<br />'];
-            Text2Disp = [Text2Disp,['Scanning H at fixed PT might help to fix this issue'],'<br /><br />'];
+            app.Report_Antidote{end+1} = ['** FATAL ERROR ** '];
+            app.Report_Antidote{end+1} = ['Sorry fellas but the objective function seems to be flat in H and further optimization is not possible!'];
+            app.Report_Antidote{end+1} = ['You can try to reduce the upper limit of H values'];
+            app.Report_Antidote{end+1} = ['Scanning H at fixed PT might help to fix this issue'];
+            app.Report_Antidote{end+1} = '';
             
-            Text2Disp = [Text2Disp,[' >>> End ANTIDOTE job: ',datestr(now),'  <<<'],'<br />'];
-            Text2Disp = [Text2Disp,['- - - - - - - - - - - - - - - - - - - - - - - - - - -'],'<br /><br />'];
-            app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+            app.Report_Antidote{end+1} = [' >>> End ANTIDOTE job: ',datestr(now),'  <<<'];
+            app.Report_Antidote{end+1} = ['- - - - - - - - - - - - - - - - - - - - - - - - - - -'];
+            app.Report_Antidote{end+1} = '';
+            app.Text_Report_Antidote.Value = app.Report_Antidote;
             
             Output.WeCallBingo = 0;
             Output.WeSaveWorkspace = 0;
@@ -509,20 +524,21 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
         
         if ~isequal(WhereBestStep2,WhereBestStep2_UnSat)
             
-            Text2Disp = [Text2Disp,['** WARNING **'],'<br />'];
-            Text2Disp = [Text2Disp,['The following minimum was skipped because of H saturation:'],'<br />'];
-            Text2Disp = [Text2Disp,['T = ',num2str(ScanTsteps(WhereBestStep2))],'<br />'];
-            Text2Disp = [Text2Disp,['P = ',num2str(ScanPsteps(WhereBestStep2))],'<br />'];
-            Text2Disp = [Text2Disp,['X = ',num2str(ScanXsteps(WhereBestStep2))],'<br />'];
-            Text2Disp = [Text2Disp,['-Qtot = ',num2str(E4(WhereBestStep2))],'<br />'];
-            Text2Disp = [Text2Disp,[' ... and replaced by: '],'<br />'];
-            Text2Disp = [Text2Disp,['T = ',num2str(ScanTsteps(WhereBestStep2_UnSat))],'<br />'];
-            Text2Disp = [Text2Disp,['P = ',num2str(ScanPsteps(WhereBestStep2_UnSat))],'<br />'];
-            Text2Disp = [Text2Disp,['X = ',num2str(ScanXsteps(WhereBestStep2_UnSat))],'<br />'];
-            Text2Disp = [Text2Disp,['-Qtot = ',num2str(E4(WhereBestStep2_UnSat))],'<br />'];
-            Text2Disp = [Text2Disp,['Note: If P and T are different, the result of the optimization is probably not robust... '],'<br />'];
-            Text2Disp = [Text2Disp,['-> You can try to set the upper H limit to the saturation point at: ',num2str(ScanTsteps(WhereBestStep2)),' - ',num2str(ScanPsteps(WhereBestStep2))],'<br /><br />'];
-            app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+            app.Report_Antidote{end+1} = ['** WARNING **'];
+            app.Report_Antidote{end+1} = ['The following minimum was skipped because of H saturation:'];
+            app.Report_Antidote{end+1} = ['T = ',num2str(ScanTsteps(WhereBestStep2))];
+            app.Report_Antidote{end+1} = ['P = ',num2str(ScanPsteps(WhereBestStep2))];
+            app.Report_Antidote{end+1} = ['X = ',num2str(ScanXsteps(WhereBestStep2))];
+            app.Report_Antidote{end+1} = ['-Qtot = ',num2str(E4(WhereBestStep2))];
+            app.Report_Antidote{end+1} = [' ... and replaced by: '];
+            app.Report_Antidote{end+1} = ['T = ',num2str(ScanTsteps(WhereBestStep2_UnSat))];
+            app.Report_Antidote{end+1} = ['P = ',num2str(ScanPsteps(WhereBestStep2_UnSat))];
+            app.Report_Antidote{end+1} = ['X = ',num2str(ScanXsteps(WhereBestStep2_UnSat))];
+            app.Report_Antidote{end+1} = ['-Qtot = ',num2str(E4(WhereBestStep2_UnSat))];
+            app.Report_Antidote{end+1} = ['Note: If P and T are different, the result of the optimization is probably not robust... '];
+            app.Report_Antidote{end+1} = ['-> You can try to set the upper H limit to the saturation point at: ',num2str(ScanTsteps(WhereBestStep2)),' - ',num2str(ScanPsteps(WhereBestStep2))];
+            app.Report_Antidote{end+1} = '';
+            app.Text_Report_Antidote.Value = app.Report_Antidote;
             
             WhereBestStep2 = WhereBestStep2_UnSat;
         end
@@ -534,19 +550,21 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     plot(app.UIAxes_LiveAntidote1,X0(1),X0(2),'o','MarkerEdgeColor','k','MarkerFaceColor','r');
     
     %disp(' '), disp(' ')
-    Text2Disp = [Text2Disp,['RESULTS (Exploratory P-T-X scanning)'],'<br />'];
-    Text2Disp = [Text2Disp,['T = ',num2str(ScanTsteps(WhereBestStep2))],'<br />'];
-    Text2Disp = [Text2Disp,['P = ',num2str(ScanPsteps(WhereBestStep2))],'<br />'];
+    app.Report_Antidote{end+1} = ['RESULTS (Exploratory P-T-X scanning)'];
+    app.Report_Antidote{end+1} = ['T = ',num2str(ScanTsteps(WhereBestStep2))];
+    app.Report_Antidote{end+1} = ['P = ',num2str(ScanPsteps(WhereBestStep2))];
     for i = 1:length(ElementB)
-        Text2Disp = [Text2Disp,[char(ElementB{i}),' = ',num2str(ScanXsteps(WhereBestStep2,i))],'<br />'];
+        app.Report_Antidote{end+1} = [char(ElementB{i}),' = ',num2str(ScanXsteps(WhereBestStep2,i))];
         X0(2+i) = ScanXsteps(WhereBestStep2,i);
     end
-    Text2Disp = [Text2Disp,['Minimum: ',num2str(E4(WhereBestStep2)),' (real minimum: ',num2str(min(E4)),')'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['Minimum: ',num2str(E4(WhereBestStep2)),' (real minimum: ',num2str(min(E4)),')'];
+    app.Report_Antidote{end+1} = '';
     
     ht1 = toc;
-    Text2Disp = [Text2Disp,['CPU time: ',num2str(ht1)],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['CPU time: ',num2str(ht1)];
+    app.Report_Antidote{end+1} = '';
     
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     drawnow
     
     % -------------------------------------------------------------
@@ -559,18 +577,23 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     %NORM(3) = NORM(3)/100;
     X0 = X0./NORM;
     
-    Text2Disp = [Text2Disp,['##### Final P-T-X Optimization (from: T = ',num2str(NORM(1)),' degree C; P = ',num2str(NORM(2)),' bar) #####'],'<br />'];
+    app.Report_Antidote{end+1} = ['##### Final P-T-X Optimization (from: T = ',num2str(NORM(1)),' degree C; P = ',num2str(NORM(2)),' bar) #####'];
     for i = 1:length(Min)
-        Text2Disp = [Text2Disp,[' * Additional variable:   X',num2str(i),'(',char(ElementB{i}),') = ',num2str(NORM(2+i)),'   [',num2str(Min(i)),' - ',num2str(Max(i)),']'],'<br />'];
+        app.Report_Antidote{end+1} = [' * Additional variable:   X',num2str(i),'(',char(ElementB{i}),') = ',num2str(NORM(2+i)),'   [',num2str(Min(i)),' - ',num2str(Max(i)),']'];
     end
-    Text2Disp = [Text2Disp,[''],'<br />'];
-    Text2Disp = [Text2Disp,['Method: Simplex'],'<br />'];
+    app.Report_Antidote{end+1} = [''];
+    app.Report_Antidote{end+1} = ['Method: Simplex'];
     if MinimOptions.Weights.Use
-        Text2Disp = [Text2Disp,['Equation: Other [E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]'],'<br /><br />'];
+        app.Report_Antidote{end+1} = ['Equation: Other [E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]'];
+        app.Report_Antidote{end+1} = '';
     else
-        Text2Disp = [Text2Disp,['Equation: Classic','[E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'],'<br /><br />'];
+        app.Report_Antidote{end+1} = ['Equation: Classic','[E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'];
+        app.Report_Antidote{end+1} = '';
     end
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
+    
+    pause(0.1)
+    scroll(app.Text_Report_Antidote,'bottom');
     
     % goto bypass
     
@@ -604,14 +627,15 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     %Hf = Result(3)*NORM(3);
     X_Vari = Result(3:end).*NORM(3:end);
     
-    Text2Disp = [Text2Disp,['RESULTS (Final P-T-X optimization)'],'<br />'];
-    Text2Disp = [Text2Disp,['T = ',num2str(TCf)],'<br />'];
-    Text2Disp = [Text2Disp,['P = ',num2str(Pf)],'<br />'];
+    app.Report_Antidote{end+1} = ['RESULTS (Final P-T-X optimization)'];
+    app.Report_Antidote{end+1} = ['T = ',num2str(TCf)];
+    app.Report_Antidote{end+1} = ['P = ',num2str(Pf)];
     for i = 1:length(X_Vari)
-        Text2Disp = [Text2Disp,['X(',num2str(i),') ',char(ElementB{i}),' = ',num2str(X_Vari(i))],'<br />'];
+        app.Report_Antidote{end+1} = ['X(',num2str(i),') ',char(ElementB{i}),' = ',num2str(X_Vari(i))];
     end
-    Text2Disp = [Text2Disp,['Minimum: ',num2str(Res)],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['Minimum: ',num2str(Res)];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     % Here we need to update the bulk
     %[Bulk,TempBinBulk] = SuperFast_H_Update(TempBinBulk,Hf);
@@ -620,8 +644,9 @@ if sum(AdditionalVariables) > 0  && isequal(MinimOptions.Search.Symplex.FirstOpt
     app.BinBulk(SelectedBinBulk) = TempBinBulk;
     app.LBCEditField.Value = Bulk;
     
-    Text2Disp = [Text2Disp,['Bulk: ',Bulk],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['Bulk: ',Bulk];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
     
 else
@@ -633,16 +658,20 @@ else
     
     %[E4] = OptiBingoPT(X0,NORM,LIMS,InvMet,WorkVariXMap,MinimOptions,handles);
     
-    disp(['##### Final P-T Optimization (from: ',num2str(NORM(1)),' bar; ',num2str(NORM(2)),' C) #####']);
-    
-    disp(' ')
-    fprintf('%s\t\t%s\n','Method:','Simplex');
+    app.Report_Antidote{end+1} = ['##### Final P-T-X Optimization (from: T = ',num2str(NORM(1)),' degree C; P = ',num2str(NORM(2)),' bar) #####'];
+    app.Report_Antidote{end+1} = [''];
+    app.Report_Antidote{end+1} = ['Method: Simplex'];
     if MinimOptions.Weights.Use
-        fprintf('%s\t%s\t%s\n','Equation:','Other',['[E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]']);
+        app.Report_Antidote{end+1} = ['Equation: Other [E4 = -(',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,1)),'*E1 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,2)),'*E2 + ',num2str(MinimOptions.Weights.Values(MinimOptions.Weights.Selected,3)),'*E3)]'];
+        app.Report_Antidote{end+1} = '';
     else
-        %fprintf('%s\t%s\t%s\n','Equation:','Classic','[E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]');
-        fprintf('%s\t%s\t%s\n','Equation:','Classic','[E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*E3)]');
+        app.Report_Antidote{end+1} = ['Equation: Classic','[E4 = -1/3*(E1 + (E1/100)*E2 + (E1/100)*(E2/100)*E3)]'];
+        app.Report_Antidote{end+1} = '';
     end
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
+    
+    pause(0.1)
+    scroll(app.Text_Report_Antidote,'bottom');
     
     app.LiveUpdate = 1;
     
@@ -655,13 +684,15 @@ else
     Pf = Result(2)*NORM(2);
     
     
-    Text2Disp = [Text2Disp,['RESULTS (Final P-T optimization)'],'<br />'];
-    Text2Disp = [Text2Disp,['X(1) = ',num2str(Pf),' (P,GPa)'],'<br />'];
-    Text2Disp = [Text2Disp,['X(2) = ',num2str(TCf),' (T,°C)'],'<br /><br />'];
+    app.Report_Antidote{end+1} = ['RESULTS (Final P-T optimization)'];
+    app.Report_Antidote{end+1} = ['X(1) = ',num2str(Pf),' (P,GPa)'];
+    app.Report_Antidote{end+1} = ['X(2) = ',num2str(TCf),' (T,°C)'];
+    app.Report_Antidote{end+1} = '';
     
     ht1 = toc;
-    Text2Disp = [Text2Disp,['CPU time ',num2str(ht2),' s'],'<br /><br />'];
-    app.HTML_AntidoteReport.HTMLSource = [HTML_1,Text2Disp,HTML_2];
+    app.Report_Antidote{end+1} = ['CPU time ',num2str(ht2),' s'];
+    app.Report_Antidote{end+1} = '';
+    app.Text_Report_Antidote.Value = app.Report_Antidote;
     
 end
 
@@ -674,6 +705,9 @@ app.BingoPressureEditField.Value = Pf;
 Output.WeCallBingo = 1;
 Output.WeSaveWorkspace = 1;
 Output.Message = 'Success';
+
+pause(0.1)
+scroll(app.Text_Report_Antidote,'bottom');
 
 w = whos;
 for a = 1:length(w)
