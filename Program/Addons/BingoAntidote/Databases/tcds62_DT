@@ -722,7 +722,7 @@ WM    (-SITE,MARGULES)   A(1):K,Na,Ca - M2A(1):Al,Mg,Fe - M2B(1):Al,F3 - T1(2):S
   fcel          K - Fe - Al - Si,Si    0.63    0.0     0.0     0
   pa            Na - Al - Al - Si,Al    0.37    0.0     0.0     0
 !  ma2           Ca - Al - Al - Al,Al    0.63    0.0     0.0     0
-!  fmu2          K - Al - F3 - Si,Al    0.63    0.0     0.0     0
+  fmu2          K - Al - F3 - Si,Al    0.63    0.0     0.0     0
 **** MARGULES PARAMETERS ****
 mu - cel
 12             0.0      0.0      0.2
@@ -1585,7 +1585,7 @@ geik - pnt
 ! note:   ds6.
 ! entry:  D.K. Tinkham. Fri 21 Aug 2015 18:56:12 (via axcnvrt.wl)
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-**** MINERAL DATA ****
+**** MuNERAL DATA ****
 !  Required dataset phase components for COM's: {mu+, cel+, fcel+, pa+, gr+, andr+}
 mu2                   K(1)AL(3)SI(3)H(2)O(12)                 mu2           code
  ST              0.0         1000.0              0              0
@@ -1608,7 +1608,7 @@ fmu3                  K(1)FE(1)AL(2)SI(3)H(2)O(12)           fmu3           code
  COM      mu+[1]gr+[-1/2]andr+[1/2]
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-**** SOLUTION DATA ****
+**** SuLUTION DATA ****
 MRG    (-SITE,MARGULES)   A(1):K,Na,Ca - M2A(1):Al,Mg,Fe - M2B(1):Al,F3 - T1(2):Si,Al
   mu2           K - Al - Al - Si,Al    0.63    0.0     0.0     0
   cel2          K - Mg - Al - Si,Si    0.63    0.0     0.0     0
@@ -1616,7 +1616,7 @@ MRG    (-SITE,MARGULES)   A(1):K,Na,Ca - M2A(1):Al,Mg,Fe - M2B(1):Al,F3 - T1(2):
   pa2           Na - Al - Al - Si,Al    0.37    0.0     0.0     0
   ma            Ca - Al - Al - Al,Al    0.63    0.0     0.0     0
 !  fmu3          K - Al - F3 - Si,Al    0.63    0.0     0.0     0
-**** MARGULES PARAMETERS ****
+**** MuRGULES PARAMETERS ****
 mu2 - cel2
 12             0.0      0.0      0.2
 mu2 - fcel2

@@ -176,27 +176,32 @@ for i=1:NbPerm
 end
 
 for i=1:length(WorkVariModRef.Names)
-    disp(' ')
-    disp(' ')
+    app.Report_Antidote{end+1} = [' '];
+    app.Report_Antidote{end+1} = [' '];
     
     Selected = find(VolFrac(:,i));
     
-    fprintf('%s\n',['PHASE: ',WorkVariModRef.Names{i},' (selected: ',num2str(length(Selected)),'/',num2str(NbPerm),')']);
-    fprintf('%s\t%s\t%s\t%s\n',' ','mean','std','% (1o)');
+    app.Report_Antidote{end+1} = ['PHASE: ',WorkVariModRef.Names{i},' (selected: ',num2str(length(Selected)),'/',num2str(NbPerm),')'];
+    app.Report_Antidote{end+1} = ['....: mean | std | % (at 1s)'];
     
-    fprintf('%s\t%.4f\t%.4f\t%.4f\n','  VOLs',mean(VolFrac(Selected,i)),std(VolFrac(Selected,i)),std(VolFrac(Selected,i))/mean(VolFrac(Selected,i))*100);
-    fprintf('%s\t%.4f\t%.4f\t%.4f\n','  VOLu',mean(VolFrac(:,i)),std(VolFrac(:,i)),std(VolFrac(:,i))/mean(VolFrac(:,i))*100);
-    fprintf('%s\n','  ----');
+    app.Report_Antidote{end+1} = ['VOLs: ',num2str(mean(VolFrac(Selected,i))),' | ',num2str(std(VolFrac(Selected,i))),' | ',num2str(std(VolFrac(Selected,i))/mean(VolFrac(Selected,i))*100)];
+    app.Report_Antidote{end+1} = ['VOLu: ',num2str(mean(VolFrac(:,i))),' | ',num2str(std(VolFrac(:,i))),' | ',num2str(std(VolFrac(:,i))/mean(VolFrac(:,i))*100)];
+    app.Report_Antidote{end+1} = ['....'];
+    
     
     for j=1:length(WorkVariModRef.Els)
         if ~isequal(WorkVariModRef.Els{j},'O') && ~isequal(WorkVariModRef.Els{j},'H') && ~isequal(WorkVariModRef.Els{j},'E') && mean(COMP(:,i,j))
-            fprintf('%s%s\t%.4f\t%.4f\t%.4f\n','  ',char(WorkVariModRef.Els{j}),mean(COMP(Selected,i,j)),std(COMP(Selected,i,j)),std(COMP(Selected,i,j))/(mean(COMP(Selected,i,j))+1e-19)*100);
+            app.Report_Antidote{end+1} = [char(WorkVariModRef.Els{j}),': ',num2str(mean(COMP(Selected,i,j))),' | ',num2str(std(COMP(Selected,i,j))),' | ',num2str(std(COMP(Selected,i,j))/(mean(COMP(Selected,i,j))+1e-19)*100)];
         end
     end
+    
     figure, hist(VolFrac(Selected,i)), title([WorkVariModRef.Names{i},' VOL (',num2str(length(Selected)),'/',num2str(NbPerm),')'])
+    
 end
-disp(' ')
+app.Report_Antidote{end+1} = [' '];
+app.Report_Antidote{end+1} = [' '];
 
+app.Text_Report_Antidote.Value = app.Report_Antidote;
 
 Output.WeCallBingo = 0;
 Output.WeSaveWorkspace = 0;

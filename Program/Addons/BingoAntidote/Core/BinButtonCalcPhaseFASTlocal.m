@@ -10,7 +10,7 @@ BinBulk = BinBulkTemp;
 % (1) Get the shape of the selected pixels
 h = BinBulk(1).DomainXrefYref;
 [LinS,ColS] = size(app.MaskFile.MaskMap);
-MaskSel = Xpoly2maskX(h(:,1),h(:,2),LinS,ColS);
+MaskSel = poly2mask(h(:,1),h(:,2),LinS,ColS);
 
 % define the selected phases (checkbox =1)
 BinPhaseDef = app.BinPhaseDef;
