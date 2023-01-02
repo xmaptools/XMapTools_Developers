@@ -8,8 +8,9 @@ Release 4.1 includes new functionalities and updates to XMapTools and improvemen
   - Add a point counting tool to evaluate pseudo-modes; XMapTools selects randomly pixels on the map and estimates the modal abundances (in %). A version with uncertainty estimation using Monte-Carlo can be activated
   - Add a functionality to calibrate pixels of a selection of masks for standardisation of EPMA data. Note that merged maps are only generated when the option "Apply to all maps" is selected.
   - Add entropic filters to the classification (TEXTF)
-  - Improve stability of XMapTools when a ROI is drawn or edited
   - Add the old function to run XMapTools and open immediately a project in the MATLAB version using the command: _XMapTools open ProjectName_
+  - Add a demo version of Bingo-Antidote 2.0 for test purposes
+  - Improve stability of XMapTools when a ROI is drawn or edited
 
 - LA-ICP-MS: 
   - Add a multi-standard calibration option which required several major changes in both the import tool and the calibration module for LA-ICPMS data. This update also includes several improvements and minor corrections. Compatibility with data generated using previous versions is not fully maintained 
