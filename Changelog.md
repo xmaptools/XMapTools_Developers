@@ -1,5 +1,52 @@
 # CHANGELOG for XMapTools developer
 
+## XMapTools 4.1 (build 230102)
+Release 4.1 includes new functionalities and updates to XMapTools and improvements to stability and compatibility. 
+
+- General
+  - Add tools for single-mask classification and the creation of sub-masks. At the moment, it is recommended to use the Random Algorithm forest for creating sub-masks 
+  - Add a point counting tool to evaluate pseudo-modes; XMapTools selects randomly pixels on the map and estimates the modal abundances (in %). A version with uncertainty estimation using Monte-Carlo can be activated
+  - Add a functionality to calibrate pixels of a selection of masks for standardisation of EPMA data. Note that merged maps are only generated when the option "Apply to all maps" is selected.
+  - Add entropic filters to the classification (TEXTF)
+  - Improve stability of XMapTools when a ROI is drawn or edited
+  - Add the old function to run XMapTools and open immediately a project in the MATLAB version using the command: _XMapTools open ProjectName_
+
+- LA-ICP-MS: 
+  - Add a multi-standard calibration option which required several major changes in both the import tool and the calibration module for LA-ICPMS data. This update also includes several improvements and minor corrections. Compatibility with data generated using previous versions is not fully maintained 
+  - Add an option to read the sweep time values for each element from an xml file. Note that the file name should be AcqMethod.xml.   
+  - Improve performances for plotting and ROI interaction of the Spider module  
+
+- Data Visualisation Module:
+  - Improve the global performances of this module by implementing the low ressource mode to all plots. Only 20 % of the data points are plotted when this mode is active; this threshold can be adjusted in the option tab 
+  - Add an option to select a range of data (using the fields Xmin and Xmax) when plotting an histogram
+  - Add a plotting report generated while plotting a ternary diagram
+  - Add an option to create a single-mask maskfile from he pixels selected by the Identify 
+  - Add a dropdown menu to select a phase from a maskfile to plot only the pixel compositions of this phase
+  - Add an option to avoid plotting zeros; this is important for the fitting tools
+  - Fix several issue in the starting function that would prevent the module to open for special cases (e.g. less than 3 maps)
+
+- Import tool:
+  - Improve compatibility of the EPMA Converter to import data from JEOL microprobes (Windows)
+  - Activate map re-sampling and orientation corrections to all data types in the import tools. This resolves an issue when LA-ICPMS data are imported from Iolite. It is not recommended to use these tools for other data types 
+
+- Other:
+  - Add an option to unfreeze the interface after an error by simply requesting to close the app. This  option does not require to have unsaved data as in previous versions
+  - Add a checking function for the selected training set before classification
+  - Add a mask file signature to ensure data compatibility throughout XMapTools and add-ons 
+  - Improve interface behavior for button availability, tooltips and error messages
+  - Improve GUI size for screens with low resolution
+  -	Improve the plot behaviour of the main tree menu: if a category/dataset from Quanti, Merged, Result, Other, the first element in the list is automatically displayed
+  - Export a file Last_LBCsim.txt in the main directory containing each local bulk compositions simulated by XMapTools for estimating the LBC uncertainty. 
+  - Fix an issue in the classification function when part of the selected maps have been deleted
+  - Fix a minor issue in the variable initialisation for mask files
+  - Fix several minor issues in the Converter for LA-ICP-MS; reported by Nils Gies 
+  - Fix several minor issues in the behaviour of ROI for training sets; reported by Nils Gies 
+  - Fix an issue in the project loading function
+  - Other minor bug and fixes
+
+
+
+
 ## XMapTools 4.1 Release Candidate (no public release yet)
 - Release notes:
   - Improve stability of XMapTools when a ROI is drawn or edited
