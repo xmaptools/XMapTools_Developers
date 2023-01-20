@@ -94,17 +94,25 @@ Definition_File:	DEF_TCDS62_DT.txt
 Last_Change:		23.12.2022
 Comment:			TCDS62 database (metapelite) no F3 end-members (faster if Fe is FeO; no MRG)
 
-! ###
-! File_Name:		tcds62c
-! Definition_File:	DEF_TCDS62C.txt		
-! Last_Change:		05.07.2019
-! Comment:			Original TCDS62c database for mafic rocks distributed by Capi
+###
+File_Name:			tcds62c
+Definition_File:	DEF_TCDS62C.txt		
+Last_Change:		05.07.2019
+Comment:			Original TCDS62c database for mafic rocks distributed by Capi
 
-! ###
-! File_Name:		tcds62c_noF3
-! Definition_File:	DEF_TCDS62C.txt		
-! Last_Change:		05.07.2019
-! Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
+###
+File_Name:			tcds62c_noF3
+Definition_File:	DEF_TCDS62C.txt		
+Last_Change:		05.07.2019
+Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
+
+###
+File_Name:			td-ds62-mb50-02.txt
+Definition_File:	DEF_td-ds62-mb50-02.txt		
+Last_Change:		17.01.2023
+Comment:			td-ds62-mb50-02 database (mafic) from Doug
+
+
 
 
 
