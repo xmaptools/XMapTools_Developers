@@ -1,5 +1,14 @@
 # CHANGELOG for XMapTools developer
 
+
+## XMapTools 4.2 beta 1 (no build yet)
+
+- Implement a stopwatch in the classification function; results are visible in the log file
+- Solve an issue with the loading function when the only mask file was deleted in the project
+- Solve an issue with the mask deleting function
+
+
+
 ## XMapTools 4.1 (build 230102)
 Release 4.1 includes new functionalities and updates to XMapTools and improvements to stability and compatibility. 
 
