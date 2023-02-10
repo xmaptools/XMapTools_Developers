@@ -1,8 +1,0 @@
-
-# This is the file attributing code-owners request for a review
-# when someone opens a pull request that modifies code they own.
-
-# responsible the specified folder and subfolders in it
-
-# Hugo
-/Program/ @lanari 
