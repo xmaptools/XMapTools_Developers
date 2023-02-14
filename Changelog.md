@@ -3,9 +3,17 @@
 
 ## XMapTools 4.2 beta 1 (no build yet)
 
+- Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
 - Implement a stopwatch in the classification function; results are visible in the log file
-- Solve an issue with the loading function when the only mask file was deleted in the project
-- Solve an issue with the mask deleting function
+
+
+- LA-ICP-MS: 
+  - Add a new data category in the secondary tree menu for LOD data
+
+- Other: 
+  - Add a version tracking option in project files to simplify the detection of compatibility issues
+  - Solve an issue with the loading function when the only mask file was deleted in the project
+  - Solve an issue with the mask deleting function
 
 
 
