@@ -3,7 +3,9 @@
 
 ## XMapTools 4.2 beta 1 (no build yet)
 
+- Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
 - Implement a stopwatch in the classification function; results are visible in the log file
+
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
