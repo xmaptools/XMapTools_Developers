@@ -3,6 +3,8 @@
 
 ## XMapTools 4.2 beta 1 (no build yet)
 
+- Add a new color scheme for plotting mask images that is automatically applied to new classification. Unrecognised classes are shown in black 
+- Add a new module for editing the colors of the mask image
 - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
 - Implement a stopwatch in the classification function; results are visible in the log file
 
