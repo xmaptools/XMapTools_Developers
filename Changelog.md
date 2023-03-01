@@ -3,6 +3,8 @@
 
 ## XMapTools 4.2 beta 1 (no build yet)
 
+- Add a new color scheme "XMapTools Color Palette for Minerals" for plotting mask images that is automatically applied to new classifications. Unrecognised classes are shown in black 
+- Add a new module "Mask Color Editor" for editing the colors of the mask image. It is possible to (1) apply the new "XMapTools Color Palette for Minerals, (2) edit individual colors using a color picker, (3) apply any of the available color palettes
 - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
 - Implement a stopwatch in the classification function; results are visible in the log file
 
@@ -12,7 +14,9 @@
 
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
-  - Solve an issue with the loading function when the only mask file was deleted in the project
+  - Improve the scale bar and solve several display and location issues
+  - Solve several minor issues in the loading function (1) for loading projects generated with XMapTools 3 and (2) when the last mask file was deleted in the project
+  - Solve an issue in the sampling function (circle and polygon) where zeros were considered while calculating the mean value
   - Solve an issue with the mask deleting function
 
 
