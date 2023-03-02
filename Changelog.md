@@ -11,6 +11,7 @@
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
+  - Fix an issue preventing the file AcqMethod.xml to be read
 
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
