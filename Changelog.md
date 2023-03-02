@@ -7,6 +7,7 @@
   - Add a new module "Mask Color Editor" for editing the colors of the mask image. It is possible to (1) apply the new "XMapTools Color Palette for Minerals, (2) edit individual colors using a color picker, (3) apply any of the available color palettes
   - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
   - Implement a stopwatch in the classification function; results are visible in the log file
+  - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in the data file Data.txt when the "Multiple Map" option is used
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
