@@ -56,7 +56,6 @@ addpath([Where,'/Addons/BingoAntidote/Dev/media']);
 addpath([Where,'/Addons/BingoAntidote/Core']);
 addpath([Where,'/Addons/BingoAntidote/Databases']);
 addpath([Where,'/Addons/BingoAntidote/Functions']);
-addpath([Where,'/Addons/BingoAntidote/Modules']);
 
 
 savepath
