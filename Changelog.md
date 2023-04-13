@@ -5,8 +5,8 @@
 - General
   - Add a new color scheme "XMapTools Color Palette for Minerals" for plotting mask images that is automatically applied to new classifications. Unrecognised classes are shown in black 
   - Add a new module "Mask Color Editor" for editing the colors of the mask image. It is possible to (1) apply the new "XMapTools Color Palette for Minerals, (2) edit individual colors using a color picker, (3) apply any of the available color palettes
-  - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
-  - Add a functionality to update the element/oxide indexation for quanti and merged datasets available via Menu > Edit > Dataset > Update Element/Oxide Indexation
+  - Add a menu option to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
+  - Add a menu option to update the element/oxide indexation for quanti and merged datasets available via Menu > Edit > Dataset > Update Element/Oxide Indexation
   - Implement a stopwatch in the classification function; results are visible in the log file
   - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in the data file Data.txt when the "Multiple Map" option is used
 
