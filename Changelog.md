@@ -1,13 +1,15 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.2 beta 1 (no build yet)
+## XMapTools 4.2 beta 2 (no build yet)
 - General
   - Add a new color scheme "XMapTools Color Palette for Minerals" for plotting mask images that is automatically applied to new classifications. Unrecognised classes are shown in black 
   - Add a new module "Mask Color Editor" for editing the colors of the mask image. It is possible to (1) apply the new "XMapTools Color Palette for Minerals, (2) edit individual colors using a color picker, (3) apply any of the available color palettes
   - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
+  - Add a functionality to update the element/oxide indexation for quanti and merged datasets available via Menu > Edit > Dataset > Update Element/Oxide Indexation
   - Implement a stopwatch in the classification function; results are visible in the log file
   - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in the data file Data.txt when the "Multiple Map" option is used
+
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
@@ -16,6 +18,7 @@
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
   - Improve the scale bar and solve several display and location issues
+  - Solve an issue in the import module that prevented the imported quantitative maps expressed in oxide wt% to be used for structural formula calculations
   - Solve several minor issues in the loading function (1) for loading projects generated with XMapTools 3 and (2) when the last mask file was deleted in the project
   - Solve an issue in the sampling function (circle and polygon) where zeros were considered while calculating the mean value
   - Solve an issue with the mask deleting function
