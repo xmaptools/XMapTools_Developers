@@ -18,6 +18,7 @@
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
   - Improve the scale bar and solve several display and location issues
+  - Solve a major issue in the training set preventing ROI to be added if more than one training set was created
   - Solve an issue in the import module that prevented the imported quantitative maps expressed in oxide wt% to be used for structural formula calculations
   - Solve several minor issues in the loading function (1) for loading projects generated with XMapTools 3 and (2) when the last mask file was deleted in the project
   - Solve an issue in the sampling function (circle and polygon) where zeros were considered while calculating the mean value
