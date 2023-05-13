@@ -9,11 +9,13 @@
   - Add a menu option to update the element/oxide indexation for quanti and merged datasets available via Menu > Edit > Dataset > Update Element/Oxide Indexation
   - Implement a stopwatch in the classification function; results are visible in the log file
   - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in the data file Data.txt when the "Multiple Map" option is used
+  - Improve the converter module for EPMA by automatically reading the dwell time for JEOL datasets
 
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
   - Fix an issue preventing the file AcqMethod.xml to be read
+
 
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
