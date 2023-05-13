@@ -23,6 +23,7 @@
   - Solve several minor issues in the loading function (1) for loading projects generated with XMapTools 3 and (2) when the last mask file was deleted in the project
   - Solve an issue in the sampling function (circle and polygon) where zeros were considered while calculating the mean value
   - Solve an issue with the mask deleting function
+  - Solve an issue in the structural formula module for calculations involving a fixed oxygen and number of cations
 
 
 
