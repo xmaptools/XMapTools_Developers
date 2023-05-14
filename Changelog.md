@@ -16,7 +16,14 @@
   - Add a new data category in the secondary tree menu for LOD data
   - Fix an issue preventing the file AcqMethod.xml to be read
 
-
+- Bingo-Antidote 2.1
+  - New graphical user interface with improved workflow and advanced tools
+  - All recipes and previous functionalities have been implemented
+  - Add an option to save and load a project
+  - Add an option to add new phase definitions using a file AddPhaseDefinitions.txt in the working directory
+  - This version of Bingo-Antidote is fully compatible with the latest version of Theriak-Domino
+  
+  
 - Other: 
   - Add a version tracking option in project files to simplify the detection of compatibility issues
   - Improve the scale bar and solve several display and location issues
