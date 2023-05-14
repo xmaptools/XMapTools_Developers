@@ -27,10 +27,6 @@ BinSet.Bulk2Display(1) = '1'; % Very important
 
 dlmwrite('XBIN',char(BinSet.Database,'no'),'delimiter','');
 
-if ~exist('XBIN')
-    keyboard
-end
-
 disp(['... XBIN has been updated by Bingo - database: ',char(BinSet.Database),' ...']);
 %disp(' ')
 
