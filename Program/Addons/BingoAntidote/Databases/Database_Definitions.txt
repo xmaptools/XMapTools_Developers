@@ -89,34 +89,34 @@ Comment:			TC55 database (mostly 3.30) with biotite model of Tajcmanova et al. (
 ! HOPO (2011)
 
 ###
-File_Name:			tcds62_DT
-Definition_File:	DEF_TCDS62_DT.txt		
-Last_Change:		23.12.2022
-Comment:			Original TCDS62 database for metapelite distributed by Doug Tinkham (no MRG)
+File_Name:			td-ds62-mp50-v05.txt
+Definition_File:	DEF_ds62-mp.txt		
+Last_Change:		31.05.2023
+Comment:			Database td-ds62-mp50 for metapelite distributed by Doug Tinkham (no ma in WM)
 
-###
-File_Name:			tcds62_DT_noF3
-Definition_File:	DEF_TCDS62_DT.txt		
-Last_Change:		23.12.2022
-Comment:			TCDS62 database (metapelite) no F3 end-members (faster if Fe is FeO; no MRG)
+! ###
+! File_Name:			tcds62_DT_noF3
+! Definition_File:	DEF_TCDS62_DT.txt		
+! Last_Change:		23.12.2022
+! Comment:			TCDS62 database (metapelite) no F3 end-members (faster if Fe is FeO; no MRG)
 
-###
-File_Name:			tcds62c
-Definition_File:	DEF_TCDS62C.txt		
-Last_Change:		05.07.2019
-Comment:			Original TCDS62c database for mafic rocks distributed by Capi
+! ###
+! File_Name:			tcds62c
+! Definition_File:	DEF_TCDS62C.txt		
+! Last_Change:		05.07.2019
+! Comment:			Original TCDS62c database for mafic rocks distributed by Capi
 
-###
-File_Name:			tcds62c_noF3
-Definition_File:	DEF_TCDS62C.txt		
-Last_Change:		05.07.2019
-Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
+! ###
+! File_Name:			tcds62c_noF3
+! Definition_File:	DEF_TCDS62C.txt		
+! Last_Change:		05.07.2019
+! Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
 
-###
-File_Name:			td-ds62-mb50-02.txt
-Definition_File:	DEF_td-ds62-mb50-02.txt		
-Last_Change:		17.01.2023
-Comment:			td-ds62-mb50-02 database (mafic) from Doug
+! ###
+! File_Name:			td-ds62-mb50-02.txt
+! Definition_File:	DEF_td-ds62-mb50-02.txt		
+! Last_Change:		17.01.2023
+! Comment:			td-ds62-mb50-02 database (mafic) from Doug
 
 
 
