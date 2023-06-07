@@ -7,8 +7,9 @@ __Last update 07.06.2023 (PL)__
 - Run the program RESET_CONFIG
 - Run install_XMapTools_MATLAB.m if you work from a new directory
 
-- Delete XMapTools.prj
-- Delete the folder of the previous package "/XMapTools"
+- I you already compiled XMapTools in the same directory: 
+  - Delete XMapTools.prj
+  - Delete the folder of the previous package "/XMapTools"
 
 - Open the App Designer (open XMapTools or start XMapTools)
 - Change hardcoded version in the startup function 
