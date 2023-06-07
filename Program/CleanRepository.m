@@ -19,8 +19,14 @@ function [] = CleanRepository()
 
 clear all, clc, close all
 
-delete('XMapTools.prj');
-rmdir(fullfile(cd,'XMapTools'), 's');
-rmdir(fullfile(cd,'XMapTools_resources'), 's');
+if exist('XMapTools.prj')
+    delete('XMapTools.prj');
+end
+if exist(fullfile(cd,'XMapTools'),'dir')
+    rmdir(fullfile(cd,'XMapTools'), 's');
+end
+if exist(fullfile(cd,'XMapTools_resources'),'dir')
+    rmdir(fullfile(cd,'XMapTools_resources'), 's');
+end
 
 disp('Completed – you are ready to compile')
