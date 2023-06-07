@@ -21,7 +21,7 @@ Public repository: https://github.com/xmaptools/XMapTools_Public
 
 ## How to join the developer team?
 
-Contact pierre.lanari@geo.unibe.ch
+Contact pierre.lanari@unibe.ch
 
 ## How to get started
 You can pull the current developer version of XMapTools from this directory using the main branch. As changes are not all pushed at the same time, some functionalities of the git version could not work due to compatibility issues. Check the <a href="https://github.com/xmaptools/XMapTools_Public">public repository</a> if you are looking for a stable version of XMapTools. 
