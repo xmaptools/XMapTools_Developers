@@ -21,6 +21,17 @@ __Last update 07.06.2023 (PL)__
 - Update the text of the description: 
 
 ```
+Release 4.2 includes new features and updates to XMapTools, as well as stability and compatibility improvements. This update is highly recommended for all users.
+
+Release notes:
+- Add a new colour scheme "XMapTools Colour Palette for Minerals"
+- Add a new colour editor module
+- Add a Bingo-Antidote 2.1
+- Include several additional bug fixes
+
+Find out more at https://xmaptools.ch/
+
+
 Release 4.1 includes new functionalities and updates to XMapTools and improvements to stability and compatibility. 
 
 Release notes:
