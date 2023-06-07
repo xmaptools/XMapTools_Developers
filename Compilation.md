@@ -1,6 +1,6 @@
 # Deployment of a new release of XMapTools on MacOS or WINDOWS
 
-Last update 07.06.2023 (PL)
+__Last update 07.06.2023 (PL)__
 
 
 
