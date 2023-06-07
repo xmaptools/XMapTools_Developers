@@ -1,7 +1,7 @@
 !
 ! This is the DATABASE DEFINITION FILE of Bingo-Antidote	
 ! 
-! PL - 23.07.19
+! PL - 14.05.23
 
 
 
@@ -50,28 +50,34 @@ Last_Change:		18.10.2019
 Comment:			Original TC55 database distributed by Capi with Theriak-Domino
 
 ###
-File_Name:			tc55_3.20
-Definition_File:	DEF_TC55.txt		
-Last_Change:		23.10.2019
-Comment:			Original TC55 version 3.20 (1998)
-
-###
-File_Name:			tc55_3.25
-Definition_File:	DEF_TC55.txt		
-Last_Change:		18.10.2019
-Comment:			Original TC55 version 3.25 (2005)
-
-###
-File_Name:			tc55_3.30
-Definition_File:	DEF_TC55.txt		
-Last_Change:		18.10.2019
-Comment:			Original TC55 version 3.30 (2007)
-
-###
 File_Name:			tc55_subsolidus
 Definition_File:	DEF_TC55.txt		
 Last_Change:		05.07.2019
 Comment:			TC55 database with no melt model (works faster for subsolidus conditions)
+
+###
+File_Name:			td-ds55-HP1.txt
+Definition_File:	DEF_TC55HP1.txt		
+Last_Change:		19.05.2023
+Comment:			Original TC55 by D.K. Tinkham version 2014-10-06
+
+! ###
+! File_Name:			tc55_3.20
+! Definition_File:	DEF_TC55.txt		
+! Last_Change:		23.10.2019
+! Comment:			Original TC55 version 3.20 (1998)
+
+! ###
+! File_Name:			tc55_3.25
+! Definition_File:	DEF_TC55.txt		
+! Last_Change:		18.10.2019
+! Comment:			Original TC55 version 3.25 (2005)
+
+! ###
+! File_Name:			tc55_3.30
+! Definition_File:	DEF_TC55.txt		
+! Last_Change:		18.10.2019
+! Comment:			Original TC55 version 3.30 (2007)
 
 ###
 File_Name:			tc55_Bt
@@ -83,34 +89,34 @@ Comment:			TC55 database (mostly 3.30) with biotite model of Tajcmanova et al. (
 ! HOPO (2011)
 
 ###
-File_Name:			tcds62_DT
-Definition_File:	DEF_TCDS62_DT.txt		
-Last_Change:		23.12.2022
-Comment:			Original TCDS62 database for metapelite distributed by Doug Tinkham (no MRG)
+File_Name:			td-ds62-mp50-v05.txt
+Definition_File:	DEF_ds62-mp.txt		
+Last_Change:		31.05.2023
+Comment:			Database td-ds62-mp50 for metapelite distributed by Doug Tinkham (no ma in WM)
 
-###
-File_Name:			tcds62_DT_noF3
-Definition_File:	DEF_TCDS62_DT.txt		
-Last_Change:		23.12.2022
-Comment:			TCDS62 database (metapelite) no F3 end-members (faster if Fe is FeO; no MRG)
+! ###
+! File_Name:			tcds62_DT_noF3
+! Definition_File:	DEF_TCDS62_DT.txt		
+! Last_Change:		23.12.2022
+! Comment:			TCDS62 database (metapelite) no F3 end-members (faster if Fe is FeO; no MRG)
 
-###
-File_Name:			tcds62c
-Definition_File:	DEF_TCDS62C.txt		
-Last_Change:		05.07.2019
-Comment:			Original TCDS62c database for mafic rocks distributed by Capi
+! ###
+! File_Name:			tcds62c
+! Definition_File:	DEF_TCDS62C.txt		
+! Last_Change:		05.07.2019
+! Comment:			Original TCDS62c database for mafic rocks distributed by Capi
 
-###
-File_Name:			tcds62c_noF3
-Definition_File:	DEF_TCDS62C.txt		
-Last_Change:		05.07.2019
-Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
+! ###
+! File_Name:			tcds62c_noF3
+! Definition_File:	DEF_TCDS62C.txt		
+! Last_Change:		05.07.2019
+! Comment:			TCDS62c database (mafic) no F3 end-members (faster if Fe is FeO)
 
-###
-File_Name:			td-ds62-mb50-02.txt
-Definition_File:	DEF_td-ds62-mb50-02.txt		
-Last_Change:		17.01.2023
-Comment:			td-ds62-mb50-02 database (mafic) from Doug
+! ###
+! File_Name:			td-ds62-mb50-02.txt
+! Definition_File:	DEF_td-ds62-mb50-02.txt		
+! Last_Change:		17.01.2023
+! Comment:			td-ds62-mb50-02 database (mafic) from Doug
 
 
 

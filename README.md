@@ -35,10 +35,10 @@ You can pull the current developer version of XMapTools from this directory usin
 - We recommend you to copy the files to a separate folder and to work there in order to avoid any modification of the main branch. 
 
 ### Installation/Update and first steps
-- Pull the current developer version of XMapTools from this directory using the main branch
-- Copy the files to the setup directory (a different folder from the GIT)
-- Install MATLAB 2020b; it is recommended to use MATLAB 2020b if you want to change the code of XMapTools via the app designer
-- Open MATLAB and navigate to the setup directory
+- Pull the current developer version of XMapTools from this directory using one of the active branch
+- Copy the files to your XMapTools setup directory (a different folder from the GIT: e.g. Documents/XMapTools4/)
+- Install MATLAB 2020b and the required toolboxes (see above); it is recommended to use MATLAB 2020b if you want to change the code of XMapTools via the app designer (older versions won't work, newest versions might cause troubles)
+- Open MATLAB and navigate to your setup directory
 - Type in the MATLAB Command Window >> install_MATLAB
 - Type in the MATLAB Command Window >> RESET_CONFIG
 - Change the Current Path in MATLAB to a directory containing data

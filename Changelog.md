@@ -1,24 +1,38 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.2 beta 1 (no build yet)
+## XMapTools 4.2 RC (no build yet)
+
 - General
-  - Add a new color scheme "XMapTools Color Palette for Minerals" for plotting mask images that is automatically applied to new classifications. Unrecognised classes are shown in black 
-  - Add a new module "Mask Color Editor" for editing the colors of the mask image. It is possible to (1) apply the new "XMapTools Color Palette for Minerals, (2) edit individual colors using a color picker, (3) apply any of the available color palettes
-  - Add a function to save a result dataset in a hdf5 file available in Menu > Edit > Dataset > Export as hdf5
+  - Add a new colour scheme "XMapTools Colour Palette for Minerals" for plotting mask images that is automatically applied to new classifications. Unrecognised classes are displayed in black 
+  - Add a new module "Mask Colour Editor" to edit the colours of the mask image. It is possible to (1) apply the new "XMapTools Colour Palette for Minerals, (2) edit individual colours using a colour picker, (3) apply any of the available colour palettes.
+  - Add a menu option to save a result dataset to an hdf5 file available in Menu > Edit > Dataset > Export as hdf5
+  - Add a menu option to update the element/oxide indexing for Quanti and Merged datasets, available in Menu > Edit > Dataset > Update Element/Oxide Indexing
   - Implement a stopwatch in the classification function; results are visible in the log file
-  - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in the data file Data.txt when the "Multiple Map" option is used
+  - Improve the sampling tools "Circle" and "Area (Polygon)" by exporting all data in a  file Data.txt when the "Multiple Map" option is used
+  - Improve the converter module for EPMA by automatically reading the dwell time for JEOL data sets
 
 - LA-ICP-MS: 
   - Add a new data category in the secondary tree menu for LOD data
-  - Fix an issue preventing the file AcqMethod.xml to be read
+  - Fix a problem that prevented the AcqMethod.xml file from being read.
 
+- Bingo-Antidote 2.1
+  - New GUIwith improved workflow and advanced tools
+  - All recipes and previous functionalities have been implemented
+  - Add an option to save and load a Bingo-Antidote project
+  - Add an option to add new phase definitions using a file AddPhaseDefinitions.txt in the working directory
+  - This version of Bingo-Antidote is fully compatible with the latest version of Theriak-Domino (available at https://github.com/Theriak-Domino/)
+  - The following thermodynamic databases have been tested: JUN92.bs; td-ds55-HP1.txt; td-ds62-mp50-v05.txt 
+  
 - Other: 
-  - Add a version tracking option in project files to simplify the detection of compatibility issues
+  - Add a version tracking option in project files to make it easier to identify compatibility issues
   - Improve the scale bar and solve several display and location issues
-  - Solve several minor issues in the loading function (1) for loading projects generated with XMapTools 3 and (2) when the last mask file was deleted in the project
-  - Solve an issue in the sampling function (circle and polygon) where zeros were considered while calculating the mean value
-  - Solve an issue with the mask deleting function
+  - Solve a major issue in the training set that prevented ROI from being added when more than one training set was created.
+  - Solve an issue in the import module that prevented the imported quantitative maps expressed in oxide wt% from being used for structural formula calculations
+  - Solve several minor issues in the the load function (1) when loading projects created with XMapTools 3 and (2) when the last mask file in the project was deleted
+  - Fix a problem in the sampling function (circle and polygon) where zeros were included in the average calculation.
+  - Fix a problem with the mask delete function
+  - Fix a problem in the Structural Formula module for calculations with a fixed oxygen and number of cations.
 
 
 

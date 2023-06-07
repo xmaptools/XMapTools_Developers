@@ -20,10 +20,16 @@ clear all
 clc
 close all
 
+% XMapTools
 config.xmaptools.setup_path = '';
 config.xmaptools.last_path = '';
-config.xthermotools.theriak_path = '';
+
+% config.xthermotools.theriak_path = '';
+
+% Bingo-Antidote:
 config.bingoantidote.theriak_path = '';
+config.bingoantidote.setup_path = '';
+
 
 save('config_xmaptools.mat','config');
 
