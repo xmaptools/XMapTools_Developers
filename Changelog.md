@@ -22,7 +22,7 @@
   - Add an option to save and load a Bingo-Antidote project
   - Add an option to add new phase definitions using a file AddPhaseDefinitions.txt in the working directory
   - This version of Bingo-Antidote is fully compatible with the latest version of Theriak-Domino (available at https://github.com/Theriak-Domino/)
-  - The following thermodynamic databases have been tested: JUN92.bs; td-ds55-HP1.txt; td-ds62-mp50-v05.txt 
+  - The following thermodynamic databases have been tested: JUN92.bs; td-ds55-HP1.txt; td-ds62-mp50-v05.txt; td-ds62-mb50-v07.txt
   
 - Other: 
   - Add a version tracking option in project files to make it easier to identify compatibility issues
