@@ -4,13 +4,13 @@
 ## XMapTools 4.3 developer (no build yet)
 
 - General
-  -
+  - Add a functionality to reorder masks within a maskfile
 
 - LA-ICP-MS: 
   -
 
 - Other: 
-  - 
+  - Fixes several compatibility issues in the project loader for files created with previous versions of XMapTools
 
 
 
