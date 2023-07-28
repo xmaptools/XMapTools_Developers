@@ -5,6 +5,7 @@
 
 - General
   - Add a functionality to reorder masks within a maskfile
+  - Improve the compatibility of the correlation plots by implementing an option to select a submask
 
 - LA-ICP-MS: 
   -
