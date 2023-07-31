@@ -12,7 +12,8 @@
 
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
-  - Fixes several compatibility issues in the project loader for files created with previous versions of XMapTools
+  - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
+  - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
 
 
 
