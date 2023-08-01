@@ -7,6 +7,9 @@
   - Add a functionality to reorder masks within a maskfile
   - Improve the compatibility of the correlation plots by implementing an option to select a submask
 
+- Data Visualisation Module:
+  - Addition of a sub-mask selection option for plotting a limited range of data
+
 - LA-ICP-MS: 
   -
 
