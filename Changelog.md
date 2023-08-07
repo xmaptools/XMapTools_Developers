@@ -1,6 +1,30 @@
 # CHANGELOG for XMapTools developer
 
 
+## XMapTools 4.3 developer (no build yet)
+
+- General
+  - Add a functionality to reorder masks within a maskfile
+  - Solve issues in the classification function for the creation of submasks
+  - Improve the compatibility of the correlation plots by implementing an option to select a submask
+
+- Data Visualisation Module:
+  - Add a submask selection option for plotting 
+  - Add an option to hold the axis limits in binary plots
+
+- LA-ICP-MS: 
+  -
+
+- Other: 
+  - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
+  - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
+  - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
+
+
+
+
+
+
 ## XMapTools 4.2 RC (no build yet)
 
 - General
