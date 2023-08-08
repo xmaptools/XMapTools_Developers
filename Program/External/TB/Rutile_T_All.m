@@ -22,7 +22,7 @@ OutputData = zeros(size(InputData,1),length(OutputVariables));
 P_kbar = AddParameters.Values(1);
 aSiO2 = AddParameters.Values(1);
 
-P_bar = P_kbar*1e4;
+P_bar = P_kbar*1e3;
 
 Idx = find(InputData(:,1) > 0);
 ZrO2 = InputData(Idx,1);
