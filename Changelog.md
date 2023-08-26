@@ -6,19 +6,22 @@
 - General
   - Add a functionality to reorder masks within a maskfile
   - Solve issues in the classification function for the creation of submasks
-  - Improve the compatibility of the correlation plots by implementing an option to select a submask
+  - Improve the correlation plots by implementing an option to select a submask
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
-  - Add an option to hold the axis limits in binary plots
+  - Add an option to fix (hold on) the axis limits in binary plots
 
 - LA-ICP-MS: 
-  -
+  - Add a multi-file mode for importing LA-ICP-MS data
+  - Add a log generator module for data collected in separate files
+  - Add a functionality to filter values below LOD in quanti files
 
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
   - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
+  - Fix a display issue in the information window for maps containing NaN values
 
 
 
