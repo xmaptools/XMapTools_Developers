@@ -16,6 +16,7 @@
   - Add a multi-file mode for importing LA-ICP-MS data
   - Add a log generator module for data collected in separate files
   - Add a functionality to filter values below LOD in quanti files
+  - Modify the export function to add the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
 
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
