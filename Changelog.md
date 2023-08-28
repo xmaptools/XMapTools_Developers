@@ -7,6 +7,7 @@
   - Add a functionality to reorder masks within a maskfile
   - Solve issues in the classification function for the creation of submasks
   - Improve the correlation plots by implementing an option to select a submask
+  - Improve the output format of the multi-map export function for all sampling methods
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
