@@ -27,9 +27,9 @@ Se	ppm	51	4
 Sn	ppm	59	6
 V	ppm	63	10
 W	ppm	20	2
-Bi	ppm	60	
-In	ppm	50	
-Au	ppm	57	
-Ir	ppm	42	
-Te	ppm	15	
-Tl	ppm	50	
+Bi	ppm	60	-
+In	ppm	50	-
+Au	ppm	57	-
+Ir	ppm	42	-
+Te	ppm	15	-
+Tl	ppm	50	-
