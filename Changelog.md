@@ -18,8 +18,10 @@
   - Add a multi-file mode for importing LA-ICP-MS data
   - Add a log generator module for data collected in separate files
   - Add a functionality to filter values below LOD in quanti files
+  - Add standard files for: NIST614, FGS1, FGS2, STDGL3, MASS1, NiS3, MAPS4, MACS3
   - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
-
+  - Optimize the GUI of the data conversion module for LA-ICP-MS
+  
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
