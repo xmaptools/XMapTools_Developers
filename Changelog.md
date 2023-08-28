@@ -8,6 +8,7 @@
   - Solve issues in the classification function for the creation of submasks
   - Improve the correlation plots by implementing an option to select a submask
   - Improve the output format of the multi-map export function for all sampling methods
+  - Improve the live plot of the sampling method strip 
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
@@ -24,8 +25,10 @@
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
   - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
   - Fix a display issue in the information window for map data containing NaN values
+  
 
-
+tutorial:
+- How to export compositions using the sampling function
 
 
 
