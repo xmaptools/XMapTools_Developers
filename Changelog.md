@@ -13,6 +13,7 @@
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
   - Add an option to fix (hold on) the axis limits in binary plots
+  - Add the specific colors of each mask for plotting
 
 - LA-ICP-MS: 
   - Add a multi-file mode for importing LA-ICP-MS data
