@@ -1,11 +1,10 @@
 # Deployment of a new release of XMapTools on MacOS or WINDOWS
 
-__Last update 07.06.2023 (PL)__
-
+__Last update 07.10.2023 (PL)__
 
 
 - Run the program RESET_CONFIG
-- Run install_XMapTools_MATLAB.m if you work from a new directory
+- Run install_XMapTools_MATLAB.m if you work from a new directory (recommended)
 - Run CleanDirectory.m to perform the pre-compilation cleaning tasks
 - Open the App Designer (open XMapTools or start XMapTools)
 - Change hardcoded version in the startup function 
