@@ -9,6 +9,7 @@
   - Improve the correlation plots by implementing an option to select a submask
   - Improve the output format of the multi-map export function for all sampling methods
   - Improve the live plot of the sampling method strip 
+  - Add a subroutine to check the map size before classification. Display an error message with the map size if there is any problem with the data (problem discovered by Alissa Madera)
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
