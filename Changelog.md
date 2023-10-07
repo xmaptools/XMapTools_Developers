@@ -6,21 +6,36 @@
 - General
   - Add a functionality to reorder masks within a maskfile
   - Solve issues in the classification function for the creation of submasks
-  - Improve the compatibility of the correlation plots by implementing an option to select a submask
+  - Improve the correlation plots by implementing an option to select a submask
+  - Improve the output format of the multi-map export function for all sampling methods
+  - Improve the live plot of the sampling method strip 
+  - Add a subroutine to check the map size before classification. Display an error message with the map size if there is any problem with the data (problem discovered by Alissa Madera)
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
-  - Add an option to hold the axis limits in binary plots
+  - Add an option to fix (hold on) the axis limits in binary plots
+  - Add the specific colors of each mask for plotting
 
 - LA-ICP-MS: 
-  -
-
+  - Add a multi-file mode for importing LA-ICP-MS data
+  - Add a log generator module for data collected in separate files
+  - Add a functionality to filter values below LOD in quanti files
+  - Add standard files for: NIST614, FGS1, FGS2, STDGL3, MASS1, NiS3, MAPS4, MACS3
+  - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
+  - Optimize the GUI of the data conversion module for LA-ICP-MS
+  
+- Sampling tools:
+  - Add a label showing the orientation of the stip when the shape is modified or rotated. (thanks to @hannahcunning on GitHub for suggesting this change) 
+  
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
   - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
+  - Fix a display issue in the information window for map data containing NaN values
+  
 
-
+tutorial:
+- How to export compositions using the sampling function
 
 
 
