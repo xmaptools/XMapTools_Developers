@@ -1,7 +1,7 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.3 developer (no build yet)
+## XMapTools 4.3 developer (build 231007)
 
 - General
   - Add a functionality to reorder masks within a maskfile
