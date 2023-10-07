@@ -24,6 +24,9 @@
   - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
   - Optimize the GUI of the data conversion module for LA-ICP-MS
   
+- Sampling tools:
+  - Add a label showing the orientation of the stip when the shape is modified or rotated. (thanks to @hannahcunning on GitHub for suggesting this change) 
+  
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
