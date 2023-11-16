@@ -15,6 +15,9 @@
   - Add a submask selection option for plotting 
   - Add an option to fix (hold on) the axis limits in binary plots
   - Add the specific colors of each mask for plotting
+  - Improve performance of density map calculation; density maps are now displayed in low resource mode by default
+  - Add an option to hide the density map in low resource mode
+  - Add an option to set the density map resolution (default: 100)
 
 - LA-ICP-MS: 
   - Add a multi-file mode for importing LA-ICP-MS data
@@ -24,8 +27,11 @@
   - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
   - Optimize the GUI of the data conversion module for LA-ICP-MS
   
-- Sampling tools:
-  - Add a label showing the orientation of the stip when the shape is modified or rotated. (thanks to @hannahcunning on GitHub for suggesting this change) 
+- Sampling Tools (thanks to @hannahcunning on GitHub for suggesting these changes):
+  - Add a label showing the orientation of the stip when the shape is modified or rotated. 
+  - Improve multi-map export function when a mask is selected from the secondary menu
+  - Improve the file format for single-map sampling
+  - ROI is not deleted when mask selection is changed from the secondary menu
   
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
@@ -34,8 +40,8 @@
   - Fix a display issue in the information window for map data containing NaN values
   
 
-tutorial:
-- How to export compositions using the sampling function
+- Tutorials:
+  - How to export compositions using the sampling function
 
 
 
