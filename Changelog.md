@@ -5,11 +5,14 @@
 
 - General
   - Add a functionality to reorder masks within a maskfile
-  - Solve issues in the classification function for the creation of submasks
   - Improve the correlation plots by implementing an option to select a submask
   - Improve the output format of the multi-map export function for all sampling methods
   - Improve the live plot of the sampling method strip 
   - Add a subroutine to check the map size before classification. Display an error message with the map size if there is any problem with the data (problem discovered by Alissa Madera)
+  
+- Classification:
+  - Improve the performance of classification for sub-mask creation and solve several minor issues 
+  - Solve issues in the classification function for the creation of sub-masks
 
 - Data Visualisation Module:
   - Add a submask selection option for plotting 
@@ -35,7 +38,7 @@
   - Add a label showing the orientation of the stip when the shape is modified or rotated. 
   - Improve multi-map export function when a mask is selected from the secondary menu
   - Improve the file format for single-map sampling
-  - ROI is not deleted when mask selection is changed from the secondary menu
+  - Add an option to the Sampling menu to hold the ROI. The ROI will not be deleted if the mask selection is changed from the secondary menu and this mode is selected
   
 - Other: 
   - Fix an issue in the external function for rutile thermometry for the Kohn (2020) equations (pressure unit, discovered by Mona Lueder)
