@@ -7,7 +7,8 @@
   - Add a functionality to reorder masks within a maskfile
   - Improve the correlation plots by implementing an option to select a submask
   - Improve the output format of the multi-map export function for all sampling methods
-  - Improve the live plot of the sampling method strip 
+  - Improve the live plot of the sampling method strip
+  - Improve the calibration module interface for EPMA data, including a description of the check calibration table 
   - Add a subroutine to check the map size before classification. Display an error message with the map size if there is any problem with the data (problem discovered by Alissa Madera)
   
 - Classification:
