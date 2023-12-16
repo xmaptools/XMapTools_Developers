@@ -47,6 +47,7 @@
   - Fix several compatibility issues in the project loader for files created with previous versions of XMapTools
   - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
   - Fix a display issue in the information window for map data containing NaN values
+  - Fix an error in the title of the sampling strip plot where colors where switched; the blue curve represents the median and the red curve represents the mean profiles (discovered by Nils Gies)
   
 
 - Tutorials:
