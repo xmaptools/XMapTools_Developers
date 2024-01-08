@@ -33,7 +33,7 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <p>This help file contains a description of the <i>Converter for LA-ICP-MS data</i>, which can read LA-ICP-MS data natively. The data reduction method is described in the following paper: </p>
 
-<p>Markmann, T.A., Lanari, P., Piccoli, F., Pettke, T., Tamblyn, R., Tedeschi, M., Lueder, M., Kunz, B., Riel, N., and Laughton, J. (2024). Multi-phase quantitative compositional mapping by LA-ICP-MS: analytical approach and data reduction protocol implemented in XMapTools. Chemical Geology, DOI:10.1016/j.chemgeo.2023.121895</p>
+<p>Markmann, T.A., Lanari, P., Piccoli, F., Pettke, T., Tamblyn, R., Tedeschi, M., Lueder, M., Kunz, B., Riel, N., and Laughton, J. (2024). Multi-phase quantitative compositional mapping by LA-ICP-MS: analytical approach and data reduction protocol implemented in XMapTools. Chemical Geology, 646, 121895.</p>
 
 
 <h2><a name="MainSteps"></a>Main steps to import LA-ICP-MS data</h2> 
@@ -160,41 +160,41 @@ The following categories are available in this tree menu:
 
 <h3><a name="Step6"></a>Step 6: Select and check secondary standard</h3>
 
-<p>Select the measurements to be used as secondary standard using the dropdown menu located in SECONDARY STANDARD. Integrations can be edited following the same strategy as for background integration and primary standard (see above).</p>
+<p>Select the measurements to be used as the secondary standard using the drop down menu under SECONDARY STANDARD. Integrations can be edited using the same strategy as for background integration and primary standard (see above).</p>
 
-<p>Select using the dropdown menu <i>Int. Std</i> an element to be used as a reference to calculate the composition of the secondary standard. This choice at this stage has no effect on the map calibration that is done in XMapTools (a different element can be used). But here, it is possible to quickly check the calibration using the secondary standard for several elements used as internal standard.</p>
+<p>Use the <i>Int. Std</i> drop down menu to select an element to be used as a reference for calculating the composition of the secondary standard. This choice has no effect at this stage on the map calibration performed in XMapTools (another element can be used). But here it is possible to quickly check the calibration using the secondary standard for several elements used as internal standard.</p>
 
-<p>An example is shown in Figure 5 below.</p>
+<p>An example is shown in Figure 6 below.</p>
 
 <p><img src="./img/Converter_LAICPMS_2b.png" width="700"></p>
 
-<i><b>Figure 5</b>: Selection of a secondary standard and data quality check.</i>
+<i><b>Figure 6</b>: Selection of a secondary standard and data quality check.</i>
 
-<p>The table shown in Figure 5 reports the average composition of the secondary material (integrated over all measurements) compared to the reference composition for all elements. The last column shows the difference between the measured and reference composition expressed in %. </p>
+<p>The table in Figure 6 shows the average composition of the secondary material (integrated over all measurements) compared to the reference composition for all elements. The last column shows the difference between the measured and reference compositions expressed in %. </p>
 
-<p>The button <i>Cal. Matrix</i> generates a calibration matrix showing how the secondary standard matches the reference composition for any element selected as reference. An example is provided in Figure 6. </p>
+<p>The <i>Cal. Matrix</i> button generates a calibration matrix showing how the secondary standard matches the reference composition for each element selected as reference. An example is shown in Figure 7. </p>
 
 <p>Pressing the button <i>Apply</i> ends this step. </p>
 
 <p><img src="./img/Converter_LAICPMS_6.png" width="700"></p>
-<i><b>Figure 6</b>: Calibration matrix showing the drift in percent for each element (x-axis) depending on the element used as internal standard (y-axis). A row represents therefore a calibration using a single-element. </i>
+<i><b>Figure 7</b>: Calibration matrix showing the percentage drift for each element (x-axis) as a function of the element used as internal standard (y-axis). A row therefore represents a calibration with a single element as internal standard.</i>
 
 
 <h3><a name="Step7"></a>Step 7: Generate map files</h3>
 
-<p>Maps can be generated from raster measurements after correcting for background, fitting the primary and checking the secondary standard(s). </p>
+<p>Maps can be generated from raster measurements after background correction, adjustment of the primary reference material(s) and checking of the secondary reference material(s). </p>
 
-<p>Select the raster measurements to be used to construct the map using the dropdown menu located in MAPS (SCANS). Integrations cannot be edited but a cycle shift can be applied in case of long transport time between the ablation cell and the mass spectrometer. </p>
+<p>Use the drop down menu in MAPS (SCANS) to select the raster measurements to be used to construct the map. Integrations cannot be edited, but a cycle shift can be applied if there is a long transport time between the ablation cell and the mass spectrometer. </p>
  
-<p>Press the button <i>Apply</i> to validate and generate the maps. Three buttons becomes available. </p>
+<p>Press the <i>Apply</i> button to validate and generate the maps. Three buttons become available. </p>
 
 <ul>
-<li><img src="./img/icon_share.png" width="20"> button <b>Check</b> opens two new figures in external windows. The first one shows the ablation paths (red points) and the position of each pixel (black squares) on the final image in the LA-ICPMS coordinate system. The second figure shows the corresponding grid in map coordinates. </li>
-<li><img src="./img/icon_picture.png" width="20"> button <b>Show</b> opens a new figure and plot for the element selected in the dropdown menu the three maps shown in Figure 1: (1) Element intensity map of the sample expressed in background-corrected intensity (cps). (2) Element intensity pseudo-map of the primary reference material expressed in background-corrected intensity (cps) and (3) element pseudo-map for the primary reference material expressed in µg/g. </li>
-<li><img src="./img/icon_create.png" width="20"> button <b>Export</b> generates all maps as well as standard data and store them in a folder Maps_cps. The converter is automatically closed when the maps have been generated. </li>
+<li><img src="./img/icon_share.png" width="20"> The <b>Check</b> button opens two new figures in external windows. The first one shows the ablation paths (red dots) and the position of each pixel (black squares) on the final image in the LA-ICPMS coordinate system. The second figure shows the corresponding grid in map coordinates. </li>
+<li><img src="./img/icon_picture.png" width="20"> The <b>Show</b> button opens a new figure and, for the element selected from the drop down menu, displays several maps as shown in Figure 1: (1) Element intensity map of the sample expressed in background corrected intensity (cps). (2) Element intensity pseudo-map of the primary reference material expressed in background corrected intensity (cps) and (3) Element pseudo-map for the primary reference material expressed in µg/g as well as the background map, the number of sweeps for background and the number of sweeps for unknowns used to calculate the LOD (Markmann et al. 2024). </li>
+<li><img src="./img/icon_create.png" width="20"> The <b>Export</b> button generates all the maps and standard data and saves them in a folder called Maps_cps. The converter will automatically close when the maps have been generated. </li>
 </ul>
 
-<p>To use the data oin XMapTools, click on the button <i>Import (Import Maps)</i> available on the tab <i>Project & Import</i>.</p>
+<p>To use the data in XMapTools, click on the <i>Import (Import Maps)</i> button available on the <i>Project & Import</i> tab.</p>
 
 <p>After creating the maps, it is possible to calculate a new dataset using the same settings, if more than one dataset is available. </p>
 
