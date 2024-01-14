@@ -16,6 +16,16 @@ __Last update 07.10.2023 (PL)__
 - Update the text of the description: 
 
 ```
+Release 4.3 includes new features and updates to XMapTools as well as stability and compatibility improvements. This update is strongly recommended for all users.
+
+Release notes:
+- Add new features for LA-ICPMS data reduction following Markmann et al. (2024)
+- Improve classification, data visualisation and sampling
+- Include several additional bug fixes
+
+Find out more at https://xmaptools.ch/release-4-3/
+
+
 Release 4.2 includes new features and updates to XMapTools and Bingo-Antidote, as well as stability and compatibility improvements. This update is highly recommended for all users.
 
 Release notes:
