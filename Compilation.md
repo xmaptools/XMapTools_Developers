@@ -7,7 +7,8 @@ __Last update 07.10.2023 (PL)__
 - Run install_XMapTools_MATLAB.m if you work from a new directory (recommended)
 - Run CleanDirectory.m to perform the pre-compilation cleaning tasks
 - Open the App Designer (open XMapTools or start XMapTools)
-- Change hardcoded version in the startup function 
+- Change hardcoded version in the startup function
+- Save the project (to update code version)
 - Click Share > Standalone
 
 - Select the splash screen
@@ -60,7 +61,8 @@ Release notes (XMapTools 4 beta 4 – October 2022)
 Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md
 ```
  
-- In additional installer options, select the custom logo for installation + on macOS the following message: 
+- In additional installer options, select the custom logo for installation
+- On macOS, add the following message: 
 
 ```
 --
