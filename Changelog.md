@@ -1,7 +1,7 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.3 beta 2 (build 231215)
+## XMapTools 4.3 (build 240114)
 
 - General
   - Add a functionality to reorder masks within a maskfile
@@ -11,6 +11,14 @@
   - Improve the calibration module interface for EPMA data, including a description of the check calibration table 
   - Add a subroutine to check the map size before classification. Display an error message with the map size if there is any problem with the data (problem discovered by Alissa Madera)
   - Update and improve the help files
+  
+LA-ICP-MS: 
+  - Add a multi-file mode for importing LA-ICP-MS data
+  - Add a log generator module for data collected in separate files
+  - Add a functionality to filter values below LOD in quanti files
+  - Add standard files for: NIST614, FGS1, FGS2, STDGL3, MASS1, NiS3, MAPS4, MACS3
+  - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
+  - Optimize the GUI of the data conversion module for LA-ICP-MS
   
 - Classification:
   - Add a classification test and calculate the classification metrics (Accuracy, Precision, Recall, F1 Score); they are displayed in the Information tab, if a mask file is selected. This feature is not available for mask files created with previous versions of XMapTools
@@ -26,14 +34,6 @@
   - Add an option to hide the density map in low resource mode
   - Add an option to set the density map resolution (default: 100)
 
-- LA-ICP-MS: 
-  - Add a multi-file mode for importing LA-ICP-MS data
-  - Add a log generator module for data collected in separate files
-  - Add a functionality to filter values below LOD in quanti files
-  - Add standard files for: NIST614, FGS1, FGS2, STDGL3, MASS1, NiS3, MAPS4, MACS3
-  - Modify the export function to append the isotope number to the file name (e.g. Al.txt is now Al_27.txt)
-  - Optimize the GUI of the data conversion module for LA-ICP-MS
-  
 - Drift correction module:
   - Add a drift correction module to XMapTools 4 with enhanced data visualisation capabilities  
   - Add a 2D correction subroutine based on a single mask that includes data renormalisation 
@@ -50,10 +50,7 @@
   - Fix an issue in the data visualisation module for binary plots after the mask option was disabled
   - Fix a display issue in the information window for map data containing NaN values
   - Fix an error in the title of the sampling strip plot where colors where switched; the blue curve represents the median and the red curve represents the mean profiles (discovered by Nils Gies)
-  
 
-- Tutorials:
-  - How to export compositions using the sampling function
 
 
 
