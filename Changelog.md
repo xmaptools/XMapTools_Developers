@@ -1,6 +1,18 @@
 # CHANGELOG for XMapTools developer
 
 
+## XMapTools 4.4 (no build yet)
+
+
+- classification
+  - Set the number of neighbors to 5 for KNN classification
+
+- Other:
+  - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt
+
+
+
+
 ## XMapTools 4.3 (build 240114)
 
 - General
