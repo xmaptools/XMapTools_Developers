@@ -3,11 +3,16 @@
 
 ## XMapTools 4.4 (no build yet)
 
+REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
-- classification
-  - Set the number of neighbors to 5 for KNN classification
+- LA-ICPMS:
+  - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval.
+
+- Classification:
+  - Set the number of neighbours to 5 for KNN classification
 
 - Other:
+  - Solve an issue in the Spider module that prevented the plot from being updated
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt
 
 
