@@ -10,11 +10,15 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
 - Classification:
   - Set the number of neighbours to 5 for KNN classification
+  - Add an option to select a mask with merged data
+  - Disable the log scale of the colour bar when a mask file is selected and displayed
+  
 
 - Other:
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue 
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt
+  - Change the data type from 'wt%' to 'wt/wt' in the Import module
 
 
 
