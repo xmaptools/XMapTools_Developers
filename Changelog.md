@@ -6,7 +6,7 @@
 REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
 - LA-ICPMS:
-  - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval.
+  - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval
 
 - Classification:
   - Set the number of neighbours to 5 for KNN classification
@@ -15,6 +15,7 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   
 
 - Other:
+  - Add log scale compatibility to multi-plot images and to the gif creation function
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue 
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt
