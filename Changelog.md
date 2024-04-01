@@ -6,8 +6,10 @@
 REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
 - LA-ICPMS:
+  - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data will be stored in the MapStandards_Import.mat file. 
+  - Display the mean(sweeps) obtained by the sweep extraction routine when visualising the generated maps using the show button.  
   - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval
-
+  
 - Classification:
   - Set the number of neighbours to 5 for KNN classification
   - Add an option to select a mask with merged data
