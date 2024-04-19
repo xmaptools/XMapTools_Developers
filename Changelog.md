@@ -17,6 +17,8 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   
 
 - Other:
+  - Enhance the Generator module by adding the ability to use log, log10 and exp functions
+  - Enhance the Data Visualisation module with the ability to use log scales for binary plots
   - Add log scale compatibility to multi-plot images and to the gif creation function
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue 
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue
