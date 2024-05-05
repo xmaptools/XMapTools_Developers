@@ -5,6 +5,9 @@
 
 REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
+- General:
+  - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM
+
 - LA-ICPMS:
   - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data will be stored in the MapStandards_Import.mat file. 
   - Display the mean(sweeps) obtained by the sweep extraction routine when visualising the generated maps using the show button.  
