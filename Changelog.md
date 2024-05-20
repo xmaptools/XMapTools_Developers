@@ -9,7 +9,9 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM
 
 - LA-ICPMS:
-  - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data will be stored in the MapStandards_Import.mat file. 
+  - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat
+  - The LOD filter is automatically applied in the LA-ICPMS calibration module when a new Quanti dataset is generated
+  - Add an option to the LA-ICPMS calibration module to store unfiltered maps (LOD). If this option is selected, two Quanti datasets will be generated, one filtered (default) and one unfiltered labeled as "no LOD filter"
   - Display the mean(sweeps) obtained by the sweep extraction routine when visualising the generated maps using the show button.  
   - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval
   - Fix minor issues with ROI generation and plot interaction in the Log Generator module
