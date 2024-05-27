@@ -7,6 +7,8 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
 
 - General:
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM
+  - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out
+  
 
 - LA-ICPMS:
   - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat
