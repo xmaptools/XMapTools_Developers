@@ -10,7 +10,7 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out
 
 - LA-ICPMS:
-  - Add a Super Precision Interogator tool to the Calibration module. This module allows ROIs to be selected during calibration and the measured composition and LOD of the entire area to be exported. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (in progress)
+  - Add a Super Precision Interogator tool to the Calibration module. This module allows ROIs to be selected during calibration. It measures the composition and the LOD of the entire area. The data then can be exported. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (in progress).
   - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat
   - The LOD filter is automatically applied in the LA-ICPMS calibration module when a new Quanti dataset is generated
   - Add an option to the LA-ICPMS calibration module to store unfiltered maps (LOD). If this option is selected, two Quanti datasets will be generated, one filtered (default) and one unfiltered labeled as "no LOD filter"
