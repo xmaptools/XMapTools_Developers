@@ -17,46 +17,7 @@ __Last update 07.10.2023 (PL)__
 - Update the text of the description: 
 
 ```
-Release 4.3 includes new features and updates to XMapTools as well as stability and compatibility improvements. This update is strongly recommended for all users.
-
-Release notes:
-- Add new features for LA-ICPMS data reduction following Markmann et al. (2024)
-- Improve classification, data visualisation and sampling
-- Include several additional bug fixes
-
-Find out more at https://xmaptools.ch/release-4-3/
-
-
-Release 4.2 includes new features and updates to XMapTools and Bingo-Antidote, as well as stability and compatibility improvements. This update is highly recommended for all users.
-
-Release notes:
-- Add a new colour scheme "XMapTools Colour Palette for Minerals"
-- Add a new colour editor module
-- Add Bingo-Antidote 2.1
-- Include several additional bug fixes
-
-Find out more at https://xmaptools.ch/release-4-2/
-
-
-Release 4.1 includes new functionalities and updates to XMapTools and improvements to stability and compatibility. 
-
-Release notes:
-- Add multi-standard calibration for LA-ICPMS data
-- Add new features for classification and estimation of mineral modes
-- Add a demo version of Bingo-Antidote 2.0
-- Improve the Data Visualisation Module
-- Additional bug fixes
-
-Find out more at https://xmaptools.ch/release-4-1/
-
-
-XMapTools 4 updates the core experience of XMapTools with a redesigned interface, the addition of machine learning algorithms for classification and new tools for data calibration and vizualisation.
-
-Release notes (XMapTools 4 beta 4 – October 2022)
-- Improvements of compatibility, stability and overall performences 
-- Add a new classification tool to create sub-masks (test)
-- First test of deployement for a developer version of the new Bingo-Antidote
-- Additional bug fixes
+#### THIS IS A BETA VERSION OF XMAPTOOLS: Some features will only be available in the public release ####
 
 Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md
 ```
