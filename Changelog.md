@@ -33,6 +33,7 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt
   - Change the data type from 'wt%' to 'wt/wt' in the Import module
+  - Edit the message displayed when XMapTools is used for the first time
 
 
 
