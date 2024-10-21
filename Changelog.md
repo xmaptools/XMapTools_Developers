@@ -9,6 +9,7 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
   - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile in XMapTools. These new features can be used in both binary and ternary diagrams.
   - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out.
+  
 
 - LA-ICPMS:
   - Add a Super Precision Interogator tool to the Calibration module. This module allows ROIs to be selected during calibration. It measures the composition and the LOD of the entire area. The data then can be exported. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (work in progress) and the current version is for test only. Contact Pierre Lanari or Thorsten Markmann for more information.
@@ -29,6 +30,8 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Enhance the Generator module by adding the ability to use log, log10 and exp functions.
   - Enhance the Data Visualisation module with the ability to use log scales for binary plots.
   - Add log scale compatibility to multi-plot images and to the gif creation function.
+  - Improve the map display engine as a test for compatibility with future versions of MATLAB. To run XMapTools with the 4.3 legacy display engine, simply add an empty legacy.xmt file to your working directory.
+  - Fix a problem where the zoom state was lost when exporting the map to a new window. 
   - Fix an aspect ratio error for the RGB image in the Data Visualization module.
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue. 
   - Fix a problem in the calculation of the end member fraction for andradite garnets. Thanks to Rich Taylor for reporting this problem.
