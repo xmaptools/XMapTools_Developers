@@ -10,6 +10,7 @@ REMEMBER to deactivate the debug mode in LA-ICPMS converter
   - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile in XMapTools. These new features can be used in both binary and ternary diagrams.
   - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out.
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some artefacts of the multi-phase calibration routine for EPMA especially for mixed pixels. 
+  - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
 
 - LA-ICPMS:
   - Add a Super Precision Interogator tool to the Calibration module. This module allows ROIs to be selected during calibration. It measures the composition and the LOD of the entire area. The data then can be exported. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (work in progress) and the current version is for test only. Contact Pierre Lanari or Thorsten Markmann for more information.
