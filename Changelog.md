@@ -3,7 +3,8 @@
 
 ## XMapTools 4.4 (no build yet)
 
-REMEMBER to deactivate the debug mode in LA-ICPMS converter
+- Compatibility: 
+ - XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 23.2. However, the version of XMapTools compatible with the M-Series chip is restricted to macOS Monterey (12.6), macOS Ventura (13), macOS Sonoma (14) and probably the latest releases. The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4.   
 
 - General:
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
