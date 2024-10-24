@@ -40,7 +40,7 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt.
   - Change the data type from 'wt%' to 'wt/wt' in the Import module.
   - Edit the message displayed when XMapTools is used for the first time.
-
+  - Other minor bug and fixes
 
 
 
