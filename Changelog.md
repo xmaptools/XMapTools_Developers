@@ -13,7 +13,8 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
 
 - LA-ICPMS:
-  - Add a Super Precision Interogator tool (beta version) to the Calibration module for LA-ICPMS. This module allows ROIs to be selected during calibration. It estimates the composition and the LOD of the entire area. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (work in progress) and the current version is untested. Contact Pierre Lanari or Thorsten Markmann for more information.  - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat.
+  - Add a Super Precision Interogator tool (beta version) to the Calibration module for LA-ICPMS. This module allows ROIs to be selected during calibration. It estimates the composition and the LOD of the entire area. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (work in progress) and the current version is untested. Contact Pierre Lanari or Thorsten Markmann for more information.  
+  - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat.
   - The LOD filter is automatically applied in the LA-ICPMS calibration module when a new Quanti dataset is generated.
   - Add an option to the LA-ICPMS calibration module to store unfiltered maps (LOD). If this option is selected, two Quanti datasets will be generated, one filtered (default) and one unfiltered labeled as "no LOD filter".
   - Add a module to select the date format when importing files from LA-ICPMS instruments
