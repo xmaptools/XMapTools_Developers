@@ -12,6 +12,7 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some artefacts of the multi-phase calibration routine for EPMA especially for mixed pixels. 
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
   - Add an option to convert quanti and merged maps from oxide wt% to oxide moles. 
+  - Add an option to duplicate a training set.
 
 - LA-ICPMS:
   - Add a Super Precision Interogator tool (beta version) to the Calibration module for LA-ICPMS. This module allows ROIs to be selected during calibration. It estimates the composition and the LOD of the entire area. A comparison with the median composition and LOD of all pixels within each ROI is also provided. This module will be documented in a publication (work in progress) and the current version is untested. Contact Pierre Lanari or Thorsten Markmann for more information.  
