@@ -1,4 +1,4 @@
-function [OutputData,OutputVariables] = StructFctBiotite(InputData,InputVariables,ElOxDataDef)
+function [OutputData,OutputVariables] = StructFctBiotite_Ti(InputData,InputVariables,ElOxDataDef)
 % -
 % XMapTools External Function: structural formula of biotite 
 %  
@@ -43,7 +43,7 @@ OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 % General structural formula function for 11 oxygen
 WhereMin = find(sum(InputData,2) > 50);
-[MatrixSF,ElementsList] = SF_OxNorm(InputData(WhereMin,:),InputVariables,11,ElOxDataDef);
+[MatrixSF,ElementsList] = SF_OxNorm_iter(InputData(WhereMin,:),InputVariables,11,ElOxDataDef);
 
 % Atom site repartition (loop)
 for ii=1:length(WhereMin)
