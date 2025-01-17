@@ -3,7 +3,7 @@ function [OutputData,OutputVariables] = StructFctBiotite_Ti(InputData,InputVaria
 % XMapTools External Function: structural formula of biotite 
 %  
 %  ++01.2024 New structural formula for biotite based on Waters & Charnley (2002)
-%       - Asuming a 11 oxygen + Ti basis to account for proposed deprotonation substitution
+%       - Asuming a 11 oxygen + 0.5 Ti basis to account for proposed deprotonation substitution
 %       - In line with previous Structural Formulae for biotite and Waters & Charnley (2002):
 %           - Ti assumed to be ordered onto M2
 %           - Al assumed to be ordered onto M1
@@ -43,7 +43,13 @@ OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 % General structural formula function for 11 oxygen
 WhereMin = find(sum(InputData,2) > 50);
-[MatrixSF,ElementsList] = SF_OxNorm_iter(InputData(WhereMin,:),InputVariables,11,ElOxDataDef);
+% set the corr_element_idx to the index of Ti. This idx is defined in
+% Core_Call_SF.m
+corr_element_idx = 2
+% set corr_element_factor to 0.5, as Waters & Charnley (2002) calculated on
+% 22O + Ti basis, here 11O + 0.5Ti is used.
+corr_element_factor = 0.5
+[MatrixSF,ElementsList] = SF_OxNorm_iter(InputData(WhereMin,:),InputVariables,11,ElOxDataDef, corr_element_idx, corr_element_factor);
 
 % Atom site repartition (loop)
 for ii=1:length(WhereMin)
