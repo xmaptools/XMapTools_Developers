@@ -1,4 +1,4 @@
-function [MatrixSF,ElementsList] = SF_OxNorm_iter(MatrixOxide,OxList,OxBasis,ElOxDataDef)
+function [MatrixSF,ElementsList] = SF_OxNorm_iter(MatrixOxide,OxList,OxBasis,ElOxDataDef, corr_element_idx, corr_element_factor)
 %
 % XMapTools is a free software solution for the analysis of chemical maps
 % Copyright © 2022-2025 University of Bern, Institute of Geological Sciences, Pierre Lanari
@@ -54,7 +54,7 @@ TheSum = sum((AtomicPer .* NumO) ./ Num,2);
 initial_Ox_corr_guess = 0.01;
 
 % Call fsolve with the anonymous function and initial guess
-Ox_corr = fsolve(@(Ox_corr_guess) Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem), initial_Ox_corr_guess);
+Ox_corr = fsolve(@(Ox_corr_guess) Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor), initial_Ox_corr_guess);
 
 RefOx = repmat(TheSum/(OxBasis+Ox_corr),1,NbElem);
 MatrixSF = AtomicPer ./ RefOx;
@@ -64,14 +64,14 @@ ElementsList = ListEl(loc);
 end
 
 
-function [difference] = Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem)
+function [difference] = Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor)
 
 RefOx = repmat(TheSum/(OxBasis+Ox_corr_guess),1,NbElem);
 MatrixSF = AtomicPer ./ RefOx;
 
-% read element for correction, Ti in case of Bt and calculate a value for Ox_guess
-Matrix_Ox_corr = % here the Ti value from the matrix should be read
+% read element for correction and multiply with a correction factor
+Vec_Ox_corr =  corr_element_factor .* MatrixSF(:, corr_element_idx);
 
-difference = Matrix_Ox_corr - Ox_corr_guess;
+difference = Vec_Ox_corr - Ox_corr_guess;
 
 end
