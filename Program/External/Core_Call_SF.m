@@ -37,6 +37,11 @@ switch ExtFct
         InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O'};
         InputData = GenerateInputData(Data,OxList,InputVariables);
         [OutputData,OutputVariables] = StructFctBiotite(InputData,InputVariables,ElOxDataDef);
+
+    case 'StructFctBiotite_Ti'
+        InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O'};
+        InputData = GenerateInputData(Data,OxList,InputVariables);
+        [OutputData,OutputVariables] = StructFctBiotite_Ti(InputData,InputVariables,ElOxDataDef);
         
     case 'StructFctBrucite'
         InputVariables = {'SiO2','TiO2','Al2O3','FeO','Fe2O3','MnO','MgO','CaO','Na2O','K2O','As2O3','Sb2O3','Cs2O'};
