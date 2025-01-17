@@ -53,10 +53,19 @@ TheSum = sum((AtomicPer .* NumO) ./ Num,2);
 % Define initial guess for Ox_corr_guess
 initial_Ox_corr_guess = 0.01;
 
-% Call fsolve with the anonymous function and initial guess
-Ox_corr = fsolve(@(Ox_corr_guess) Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor), initial_Ox_corr_guess);
+% define solver options
+options = optimset('Display', 'none');
 
-RefOx = repmat(TheSum/(OxBasis+Ox_corr),1,NbElem);
+Ox_corr = zeros(size(TheSum)); % Initialize vector for results
+for i = 1:length(Ox_corr)
+    % Solve for each element separately
+    Ox_corr(i) = fsolve(@(Ox_corr_guess) ...
+        Ox_guess_diff(AtomicPer(i,:), TheSum(i), OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor), ...
+        initial_Ox_corr_guess, options);
+end
+
+% RefOx = repmat(TheSum/(OxBasis+Ox_corr),1,NbElem);
+RefOx = repmat(TheSum./(Ox_corr+OxBasis),1,NbElem);
 MatrixSF = AtomicPer ./ RefOx;
 
 ElementsList = ListEl(loc);
@@ -66,11 +75,11 @@ end
 
 function [difference] = Ox_guess_diff(AtomicPer, TheSum, OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor)
 
-RefOx = repmat(TheSum/(OxBasis+Ox_corr_guess),1,NbElem);
-MatrixSF = AtomicPer ./ RefOx;
+RefOx = repmat(TheSum./(Ox_corr_guess+OxBasis),1,NbElem);
+VecSF = AtomicPer ./ RefOx;
 
 % read element for correction and multiply with a correction factor
-Vec_Ox_corr =  corr_element_factor .* MatrixSF(:, corr_element_idx);
+Vec_Ox_corr =  corr_element_factor .* VecSF(corr_element_idx);
 
 difference = Vec_Ox_corr - Ox_corr_guess;
 
