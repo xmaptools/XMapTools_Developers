@@ -119,7 +119,7 @@ Functions.Min(Min).SF.Name{Fct} = 'Bt (SF, 11-Ox. basis)';
 Functions.Min(Min).SF.FileName{Fct} = 'StructFctBiotite'; 
 
 Fct = length(Functions.Min(Min).SF)+1;
-Functions.Min(Min).SF.Name{Fct} = 'Bt (SF, 11-Ox. + 0.5Ti basis)';
+Functions.Min(Min).SF.Name{Fct} = 'Bt (SF, 11-Ox. + Ti basis)';
 Functions.Min(Min).SF.FileName{Fct} = 'StructFctBiotite_Ti'; 
 
 % -------------------------------------------------------------------------
