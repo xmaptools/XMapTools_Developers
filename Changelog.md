@@ -8,6 +8,7 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
 - General:
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
   - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile in XMapTools. These new features can be used in both binary and ternary diagrams.
+  - Add the ability to use maps from the Other category (e.g. BSE, CL, etc.) for classification. 
   - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out.
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some artefacts of the multi-phase calibration routine for EPMA especially for mixed pixels. 
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
@@ -39,7 +40,8 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue. 
   - Fix a problem in the calculation of the end member fraction for andradite garnets. Thanks to Rich Taylor for reporting this problem.
   - Fix an issue that prevented the first map from being displayed when a Quanti dataset was selected.
-  - Fixed an issue with displaying mask names in the Data Visualization module when a mask file was selected. Thanks to Jonas Vanardois and the second year bachelor students at UNIL for reporting this issue. 
+  - Fix an issue with displaying mask names in the Data Visualization module when a mask file was selected. Thanks to Jonas Vanardois and the second year bachelor students at UNIL for reporting this issue. 
+  - Fix a issue in the converter for EPMA (JEOL Windows recipe) where the CL maps were not recognised.
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue.
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt.
   - Change the data type from 'wt%' to 'wt/wt' in the Import module.
