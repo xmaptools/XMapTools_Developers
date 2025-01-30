@@ -3,16 +3,19 @@
 
 ## XMapTools 4.4 (no build yet)
 
-This version is highly recommended to all users. Note that XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 23.2. However, the version of XMapTools compatible with the M-Series chip is restricted to macOS Monterey (12.6), macOS Ventura (13), macOS Sonoma (14). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4.   
+This version is highly recommended to all users.  
+
+- Compatibility information for MacOS users:
+Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.4 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14) and Sequoia (15). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4.   
 
 - General:
+  - Add several submask classification tools, including an unsupervised classification method based on the k-means algorithm proposed by Gies et al. (2024), Computers & Geosciences, 189, 105626 and a manual classification method in the Data Visualisation module inspired by Prêt et al. (2010), American Mineralogist, 95, 1379-1388.  
+  - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile (or submask to a selected maskfile) in XMapTools. These new features can be used in both binary and ternary diagrams.
+   - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out. 
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
-  - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile in XMapTools. These new features can be used in both binary and ternary diagrams.
-  - Add the ability to use maps from the Other category (e.g. BSE, CL, etc.) for classification. 
-  - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out.
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some artefacts of the multi-phase calibration routine for EPMA especially for mixed pixels. 
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
-  - Add an option to convert quanti and merged maps from oxide wt% to oxide moles. 
+  - Add an option to convert quanti and merged maps from oxide wt% to oxide moles. These datasets can be used in the data visualisation module. 
   - Add an option to duplicate a training set.
 
 - LA-ICPMS:
@@ -26,6 +29,8 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Fix minor issues with ROI generation and plot interaction in the Log Generator module.
 
 - Classification:
+  - Add the ability to use maps from the Other category (e.g. BSE, CL, etc.) for classification.
+  - Add a button to remove all the selected maps for classification.
   - Set the number of neighbours to 5 for KNN classification.
   - Add an option to select a mask with merged data.
   - Disable the log scale of the colour bar when a mask file is selected and displayed.
@@ -34,7 +39,7 @@ This version is highly recommended to all users. Note that XMapTools 4.4 runs na
   - Enhance the Generator module by adding the ability to use log, log10 and exp functions.
   - Enhance the Data Visualisation module with the ability to use log scales for binary plots.
   - Add log scale compatibility to multi-plot images and to the gif creation function.
-  - Improve the map display engine as a test for compatibility with future versions of MATLAB. To run XMapTools with the 4.3 legacy display engine, simply add an empty legacy.xmt file to your working directory.
+  - Improve the map display engine as a test for compatibility with future versions of MATLAB. To start XMapTools with the 4.3 legacy display engine, simply add an empty legacy.xmt file to your working directory.
   - Fix a problem where the zoom state was lost when exporting the map to a new window. 
   - Fix an aspect ratio error for the RGB image in the Data Visualization module.
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue. 
