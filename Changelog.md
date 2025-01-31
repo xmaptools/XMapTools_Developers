@@ -3,7 +3,7 @@
 
 ## XMapTools 4.4 (no build yet)
 
-This version is highly recommended to all users.  
+This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
 - Compatibility information for MacOS users:
 Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.4 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14) and Sequoia (15). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4.   
@@ -12,6 +12,7 @@ Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon M
   - Add several submask classification tools, including an unsupervised classification method based on the k-means algorithm proposed by Gies et al. (2024), Computers & Geosciences, 189, 105626 and a manual classification method in the Data Visualisation module inspired by Prêt et al. (2010), American Mineralogist, 95, 1379-1388.  
   - Add multi-ROI selection tool in the data visualisation module and the ability to save the manually created maskfile (or submask to a selected maskfile) in XMapTools. These new features can be used in both binary and ternary diagrams.
    - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out. 
+  - Add a new structural formula calculation method for biotite based on Waters & Charnley (2002) assuming an 11 oxygen + Ti basis to account for a deprotonation substitution.
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some artefacts of the multi-phase calibration routine for EPMA especially for mixed pixels. 
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
@@ -27,13 +28,16 @@ Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon M
   - Display the mean(sweeps) obtained by the sweep extraction routine when visualising the generated maps using the show button.  
   - Improve signal display and background integrations in the converter module. The count rate of a single sweep is displayed with a dot. Integrations are displayed in black if no count was taken during the interval.
   - Fix minor issues with ROI generation and plot interaction in the Log Generator module.
-
+  
 - Classification:
   - Add the ability to use maps from the Other category (e.g. BSE, CL, etc.) for classification.
   - Add a button to remove all the selected maps for classification.
-  - Set the number of neighbours to 5 for KNN classification.
+  - Set the number of neighbours to 5 for K-nearest neighbours.
   - Add an option to select a mask with merged data.
   - Disable the log scale of the colour bar when a mask file is selected and displayed.
+
+- Bingo-Antidote 
+  - Add the database JUN92_Pourteau2014 as used in Petroccia et al. (2025) JMG 43,21-46. 
   
 - Other:
   - Enhance the Generator module by adding the ability to use log, log10 and exp functions.
@@ -53,6 +57,7 @@ Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon M
   - Edit the message displayed when XMapTools is used for the first time.
   - Other minor bug and fixes
 
+Release notes published on XX.XX.2025, by Pierre Lanari & Philip Hartmeier.
 
 
 ## XMapTools 4.3 (build 240114)
