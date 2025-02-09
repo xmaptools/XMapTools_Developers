@@ -21,17 +21,19 @@ Public repository: https://github.com/xmaptools/XMapTools_Public
 
 ## How to join the developer team?
 
-Contact pierre.lanari@unibe.ch
+Contact pierre.lanari@unil.ch
 
 ## How to get started
-You can pull the current developer version of XMapTools from this directory using the main branch. As changes are not all pushed at the same time, some functionalities of the git version could not work due to compatibility issues. Check the <a href="https://github.com/xmaptools/XMapTools_Public">public repository</a> if you are looking for a stable version of XMapTools. 
+You can download or fetch the current development version of XMapTools from this directory using the main branch. Since changes are not all committed at the same time, some features of the git version may not work due to compatibility issues. Check the <a href="https://github.com/xmaptools/XMapTools_Public">public repository</a> if you are looking for a stable version of XMapTools. 
 
 ### Requirements
-- MATLAB R2020b with the Statistics Toolbox, Image Processing Toolbox, Mapping Toolbox. Compatibility with more recent version of MATLAB is not checked. 
-- For compatibility reasons, you must use MATLAB R2020b if you wish to share modifications made with the MATLAB App Designer. 
+- MATLAB R2020b with the Statistics Toolbox, Image Processing Toolbox, Mapping Toolbox (since 4.1), and Deep Learning Toolbox (since 4.4). Compatibility with later versions of MATLAB is not guaranteed, but XMapTools developer seems to behave well in MATLAB 2025a.
+- You must use the base version of MATLAB (currently MATLAB R2020b) if you want to share changes made to MLAPP files with the MATLAB App Designer. Note that this is not necessary for editing MATLAB code files (.m), which can be done with more recent versions of MATLAB. 
+- For compatibility reasons, and because MLAPP files are binary files and code changes cannot be tracked by GitHub, it is important to export the MLAPP file to a MATLAB code file (.m) in the SourceControl folder so that changes to MLAPP files can be tracked.
+ 
 
 ### Warnings
-- Never overwrite the main branch if you're not invited to do so; create your own branch if you want to push changes to the server!  
+- Never overwrite the main branch if you're not invited to do so but create a pull request; create your own branch if you want to push changes to the server!  
 - We recommend you to copy the files to a separate folder and to work there in order to avoid any modification of the main branch. 
 
 ### Installation/Update and first steps
