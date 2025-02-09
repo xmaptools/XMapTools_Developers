@@ -29,7 +29,7 @@ You can download or fetch the current development version of XMapTools from this
 ### Requirements
 - MATLAB R2020b with the Statistics Toolbox, Image Processing Toolbox, Mapping Toolbox (since 4.1), and Deep Learning Toolbox (since 4.4). Compatibility with later versions of MATLAB is not guaranteed, but XMapTools developer seems to behave well in MATLAB 2025a.
 - You must use the base version of MATLAB (currently MATLAB R2020b) if you want to share changes made to MLAPP files with the MATLAB App Designer. Note that this is not necessary for editing MATLAB code files (.m), which can be done with more recent versions of MATLAB. 
-- For compatibility reasons, and because MLAPP files are binary files and code changes cannot be tracked by GitHub, it is important to export the MLAPP file to a MATLAB code file (.m) in the SourceControl folder so that changes to MLAPP files can be tracked.
+- For compatibility reasons, and because MLAPP files are binary files and code changes cannot be tracked by GitHub, it is important to export the MLAPP file to a MATLAB code file (.m) in the SourceControl folder so that changes to MLAPP files can be tracked. Any pull request containing comits that are missing source control files will be rejected.
  
 
 ### Warnings
