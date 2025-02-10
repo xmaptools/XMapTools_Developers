@@ -41,9 +41,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SaveunfilteredmapsCheckBox      matlab.ui.control.CheckBox
         BydefaultLODfilteredmapsaresavedLabel  matlab.ui.control.Label
         LODfilteringLabel               matlab.ui.control.Label
-        Plot1                           matlab.ui.control.UIAxes
-        Plot3                           matlab.ui.control.UIAxes
         Plot2                           matlab.ui.control.UIAxes
+        Plot3                           matlab.ui.control.UIAxes
+        Plot1                           matlab.ui.control.UIAxes
         PixelReconstructionandImprovingPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
@@ -73,10 +73,18 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SetasPredictorButton            matlab.ui.control.Button
         SetasOutputButton               matlab.ui.control.Button
         GridLayout11                    matlab.ui.container.GridLayout
-        TrainNNButton                   matlab.ui.control.Button
+        TrainSNNButton                  matlab.ui.control.Button
         GridResolutionDropDown          matlab.ui.control.DropDown
         ResolutionDropDownLabel         matlab.ui.control.Label
         PRIP_AI_MapMenu                 matlab.ui.control.DropDown
+        ParametersPanel                 matlab.ui.container.Panel
+        GridLayout12                    matlab.ui.container.GridLayout
+        NormalisationCheckBox           matlab.ui.control.CheckBox
+        NbNeuronsInput                  matlab.ui.control.NumericEditField
+        NbLayersInput                   matlab.ui.control.NumericEditField
+        NeuronsLabel                    matlab.ui.control.Label
+        LayersLabel                     matlab.ui.control.Label
+        MultipleSNNCheckBox             matlab.ui.control.CheckBox
         PRIP_AI_Plot                    matlab.ui.control.UIAxes
         ContextMenu                     matlab.ui.container.ContextMenu
         CopyMenu                        matlab.ui.container.Menu
@@ -284,30 +292,30 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             else
                 colorbar(app.PRIP_AI_Plot,'vertical');
             end
-            colormap(app.PRIP_AI_Plot,[app.XMapToolsApp.ColorMapValues_noMask;1.0000,0.0784,0.5765]);
+            colormap(app.PRIP_AI_Plot,[app.XMapToolsApp.ColorMapValues_noMask]);
             
             app.PRIP_Limits_Min.Value = min(ConcMap(:));
             app.PRIP_Limits_Max.Value = max(ConcMap(:));
-%             
-%             LodMap = app.MapCpsData_PRIP_AI(ElId).LOD;
-%             
-%             WhereBelowLOD = find(ConcMap > 0 & ConcMap <= LodMap);
-%             
-%             LOD_Filter = nan(size(LodMap));
-%             LOD_Filter(WhereBelowLOD) = 2 * app.PRIP_Limits_Max.Value;
-%             
-%             AlphaMap = zeros(size(LOD_Filter));
-%             AlphaMap(WhereBelowLOD) = 1;
-%             
-%             hold(app.PRIP_Plot,'on')
-%             imagesc(app.PRIP_Plot,LOD_Filter, "AlphaData", AlphaMap);
-%             
-%             app.PRIP_Plot.XTick = [];
-%             app.PRIP_Plot.YTick = [];
-%             
-%             disableDefaultInteractivity(app.PRIP_Plot)
-%             
-%             CheckLogScale(app)
+            %
+            %             LodMap = app.MapCpsData_PRIP_AI(ElId).LOD;
+            %
+            %             WhereBelowLOD = find(ConcMap > 0 & ConcMap <= LodMap);
+            %
+            %             LOD_Filter = nan(size(LodMap));
+            %             LOD_Filter(WhereBelowLOD) = 2 * app.PRIP_Limits_Max.Value;
+            %
+            %             AlphaMap = zeros(size(LOD_Filter));
+            %             AlphaMap(WhereBelowLOD) = 1;
+            %
+            %             hold(app.PRIP_Plot,'on')
+            %             imagesc(app.PRIP_Plot,LOD_Filter, "AlphaData", AlphaMap);
+            %
+            %             app.PRIP_Plot.XTick = [];
+            %             app.PRIP_Plot.YTick = [];
+            %
+            %             disableDefaultInteractivity(app.PRIP_Plot)
+            %
+            CheckLogScale(app)
         end
         
         
@@ -588,8 +596,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             %log
             if app.PRIP_LogScale.Value
                 app.PRIP_Plot.ColorScale = 'log';
+                app.PRIP_AI_Plot.ColorScale = 'log';
             else
                 app.PRIP_Plot.ColorScale = 'linear';
+                app.PRIP_AI_Plot.ColorScale = 'linear';
             end
         end
         
@@ -1199,9 +1209,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.SetasOutputButton.Enable = 'off';
             
             app.GridResolutionDropDown.Visible = 'off';
-            app.TrainNNButton.Visible = 'off';
+            app.TrainSNNButton.Visible = 'off';
             app.PRIP_AI_Plot.Visible = 'off';
             app.PRIP_AI_MapMenu.Visible = 'off';
+            app.ParametersPanel.Visible = 'off';
             
             InternalElementStdDropDownValueChanged(app);
             
@@ -1251,7 +1262,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             
             app.WaitBar = uiprogressdlg(app.XMapToolsCalibrationLaICPMS,'Title','XMapTools','Indeterminate','on');
             app.WaitBar.Message = 'The calibrated maps will be available very soon, so please hang on!';
-              
+            
             CalibrateMaps(app);
             PlotAllMaps(app);
             if isequal(app.PRIP_Activated,0)
@@ -1873,7 +1884,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.SetasOutputButton.Enable = 'on';
             
             app.GridResolutionDropDown.Visible = 'on';
-            app.TrainNNButton.Visible = 'on';
+            app.TrainSNNButton.Visible = 'on';
+            
+            app.ParametersPanel.Visible = 'on';
             
             close(app.WaitBar)
             
@@ -1901,9 +1914,8 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_AI_SelectedRowsinTable = event.Indices(:,1);
         end
 
-        % Button pushed function: TrainNNButton
-        function TrainNNButtonPushed(app, event)
-            
+        % Button pushed function: TrainSNNButton
+        function TrainSNNButtonPushed(app, event)
             
             SelectedPredictors = find(app.PRIP_AI_SelectedPredictors == 1);
             SelectedOutputs = find(app.PRIP_AI_SelectedPredictors == 0);
@@ -1919,7 +1931,12 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 Conc_Outputs = app.PRIP_AI_GridData.Grid(iGrid).Data(iROI).Conc(SelectedOutputs);
                 LOD_ROI_Outputs = app.PRIP_AI_GridData.Grid(iGrid).Data(iROI).LOD_ROI(SelectedOutputs);
                 
+                % We need all elements of the ROI to be above LOD:
+                
                 if isempty(find(Conc_Predictors < LOD_ROI_Predictors)) && isempty(find(Conc_Outputs < LOD_ROI_Outputs))
+                    
+                    % We loop over the pixels of the ROI to add them one by one and 
+                    % to  check if their values are > LOD. Othwerwise we take the ROI value.  
                     
                     for i = 1:size(app.PRIP_AI_GridData.Grid(iGrid).Data(iROI).ConcAllPx,1)
                         
@@ -1949,68 +1966,125 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                         Compt = Compt+1;
                         Predictors(:,Compt) = Conc_Predictors_Px;
                         Outputs(:,Compt) = Conc_Outputs_Px;
+                        
                     end
                     
-                    %Compt = Compt+1;
-                    %Predictors(:,Compt) = Conc_Predictors;
-                    %Outputs(:,Compt) = Conc_Outputs;
+                    % This was the first implementation with only the ROI
+                    % values. Tested in St-Maxime, Feb. 2025.  
+                    
+                    % Compt = Compt+1;
+                    % Predictors(:,Compt) = Conc_Predictors;
+                    % Outputs(:,Compt) = Conc_Outputs;
                 end
             end
             
-            x = Predictors;
-            t = Outputs;
+            x = Predictors;     % network input
             
-            disp(' ')
-            disp('________ New job PRIP AI ________')
-            disp(['Nb constraints: ',num2str(numel(x))]);
+            figure, tiledlayout('flow');
             
-            trainFcn = 'trainlm';  % Levenberg-Marquardt backpropagation.
-            
-            % Create a Fitting Network
-            hiddenLayerSize = [5,5];
-            net = fitnet(hiddenLayerSize,trainFcn);
-            
-            net.layers{1}.transferFcn = 'poslin';
-            net.layers{2}.transferFcn = 'poslin';
-            
-            net.divideParam.trainRatio = 70/100;
-            net.divideParam.valRatio = 15/100;
-            net.divideParam.testRatio = 15/100;
-            
-            [net,tr] = train(net,x,t);
-            
-            MaskId = app.ClassDropDown.Value;
-            MaskMap = zeros(size(app.MaskFile.MaskMap));
-            MaskInd = find(app.MaskFile.MaskMap == MaskId);
-            MaskMap(MaskInd) = ones(size(MaskInd));
-            
-            InputMtx = zeros(numel(SelectedPredictors),numel(MaskInd));
-            
-            for iEl = 1:length(SelectedPredictors)
-                for i = 1:length(MaskInd)
-                    InputMtx(iEl,i) = app.MapCpsData(SelectedPredictors(iEl)).Conc(MaskInd(i));
+            for iDim = 1:size(Outputs,1)
+                
+                if app.MultipleSNNCheckBox.Value
+                    t = Outputs(iDim,:);        
+                else
+                    t = Outputs;
                 end
+                
+                disp(' ')
+                disp('________ New job PRIP AI ________')
+                disp(['Nb constraints: ',num2str(numel(x))]);
+                disp(['Nb predictors: ',num2str(size(x,1))]);
+                disp(['Nb outputs: ',num2str(size(t,1))]);
+                
+                trainFcn = 'trainlm';  % Levenberg-Marquardt backpropagation.
+                
+                % Create a Fitting Network
+                hiddenLayerSize = app.NbLayersInput.Value .* ones(1,app.NbNeuronsInput.Value);
+                net = fitnet(hiddenLayerSize,trainFcn);
+                
+                disp(['Nb neurons: ',num2str(numel(hiddenLayerSize))]);
+                disp(['Nb hiden layers: ',num2str(mean(hiddenLayerSize))]);
+                
+                net.layers{1}.transferFcn = 'poslin';
+                net.layers{2}.transferFcn = 'poslin';
+                
+                % net.layers{3}.transferFcn = 'poslin';     % this doesn't
+                % work at all. 
+                
+                % view(net)
+                
+                %rng("default") % For reproducibility
+                
+                if app.NormalisationCheckBox.Value
+                    [x,settings] = mapminmax(Predictors);
+                    disp(['Normalisasion: on']);
+                end
+                
+                net.divideParam.trainRatio = 70/100;
+                net.divideParam.valRatio = 15/100;
+                net.divideParam.testRatio = 15/100;
+                
+                [net,tr] = train(net,x,t);
+                
+                % Print some results
+                nexttile; hold on
+                plot(tr.epoch,tr.perf,'-b','LineWidth',2)
+                plot(tr.epoch,tr.vperf,'-g','LineWidth',2)
+                plot(tr.epoch,tr.tperf,'-r','LineWidth',2)
+                xline(tr.best_epoch,'-k') 
+                a = gca;
+                a.YScale = 'log';
+                title([app.PRIP_AI_MapMenu.Items{SelectedOutputs(iDim)}])
+                
+                MaskId = app.ClassDropDown.Value;
+                MaskMap = zeros(size(app.MaskFile.MaskMap));
+                MaskInd = find(app.MaskFile.MaskMap == MaskId);
+                MaskMap(MaskInd) = ones(size(MaskInd));
+                
+                InputMtx = zeros(numel(SelectedPredictors),numel(MaskInd));
+                
+                for iEl = 1:length(SelectedPredictors)
+                    for i = 1:length(MaskInd)
+                        InputMtx(iEl,i) = app.MapCpsData(SelectedPredictors(iEl)).Conc(MaskInd(i));
+                    end
+                end
+                
+                if app.NormalisationCheckBox.Value
+                    InputMtx = mapminmax.apply(InputMtx,settings);
+                end
+                
+                Predictions = net(InputMtx);
+                
+                if app.MultipleSNNCheckBox.Value
+                    PredictionsMtx(iDim,:) = Predictions;
+                else
+                    PredictionsMtx = Predictions;
+                    break
+                end
+                
             end
             
-            Predictions = net(InputMtx);
-            
-            NegValues = find(Predictions < 0);
+            NegValues = find(PredictionsMtx < 0);
             if ~isempty(NegValues)
                 disp(['** ',num2str(numel(NegValues)),' negative values replaced by 0']);
-                Predictions(NegValues) = 0;
+                PredictionsMtx(NegValues) = 0;
             end
             
             app.MapCpsData_PRIP_AI = app.MapCpsData;
             
             for iEl = 1:length(SelectedOutputs)
                 Where = SelectedOutputs(iEl);
-                app.MapCpsData_PRIP_AI(Where).Conc(MaskInd) = Predictions(iEl,:);
+                WhereBDL = find(app.MapCpsData_PRIP_AI(Where).Conc < app.MapCpsData_PRIP_AI(Where).LOD);
+                Selection = find(ismember(MaskInd,WhereBDL));
+                app.MapCpsData_PRIP_AI(Where).Conc(MaskInd(Selection)) = PredictionsMtx(iEl,Selection);
             end
             
             app.PRIP_AI_Plot.Visible = 'On';
             app.PRIP_AI_MapMenu.Visible = 'on';
             
             Plot_PRIP_AI(app)
+            
+            caxis(app.PRIP_AI_Plot,[1e-2 1e0])
             
         end
 
@@ -2299,29 +2373,32 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.LODfilteringLabel.Layout.Column = [1 4];
             app.LODfilteringLabel.Text = 'LOD filtering';
 
-            % Create Plot1
-            app.Plot1 = uiaxes(app.GridLayout6);
-            title(app.Plot1, 'Title')
-            app.Plot1.XTick = [];
-            app.Plot1.YTick = [];
-            app.Plot1.Layout.Row = [7 12];
-            app.Plot1.Layout.Column = [1 3];
+            % Create Plot2
+            app.Plot2 = uiaxes(app.GridLayout6);
+            title(app.Plot2, 'Title')
+            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot2.XTick = [];
+            app.Plot2.YTick = [];
+            app.Plot2.Layout.Row = [7 12];
+            app.Plot2.Layout.Column = [7 9];
 
             % Create Plot3
             app.Plot3 = uiaxes(app.GridLayout6);
             title(app.Plot3, 'Title')
+            app.Plot3.PlotBoxAspectRatio = [1.40467625899281 1 1];
             app.Plot3.XTick = [];
             app.Plot3.YTick = [];
             app.Plot3.Layout.Row = [7 12];
             app.Plot3.Layout.Column = [4 6];
 
-            % Create Plot2
-            app.Plot2 = uiaxes(app.GridLayout6);
-            title(app.Plot2, 'Title')
-            app.Plot2.XTick = [];
-            app.Plot2.YTick = [];
-            app.Plot2.Layout.Row = [7 12];
-            app.Plot2.Layout.Column = [7 9];
+            % Create Plot1
+            app.Plot1 = uiaxes(app.GridLayout6);
+            title(app.Plot1, 'Title')
+            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot1.XTick = [];
+            app.Plot1.YTick = [];
+            app.Plot1.Layout.Row = [7 12];
+            app.Plot1.Layout.Column = [1 3];
 
             % Create PixelReconstructionandImprovingPrecisionPRIPTab
             app.PixelReconstructionandImprovingPrecisionPRIPTab = uitab(app.TabGroup);
@@ -2425,6 +2502,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             % Create PRIP_Plot
             app.PRIP_Plot = uiaxes(app.PRIP_GridLayout);
             title(app.PRIP_Plot, 'Title')
+            app.PRIP_Plot.PlotBoxAspectRatio = [1.18336314847943 1 1];
             app.PRIP_Plot.XTick = [];
             app.PRIP_Plot.YTick = [];
             app.PRIP_Plot.Layout.Row = [2 14];
@@ -2539,13 +2617,13 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.GridLayout11.Layout.Row = 1;
             app.GridLayout11.Layout.Column = [6 11];
 
-            % Create TrainNNButton
-            app.TrainNNButton = uibutton(app.GridLayout11, 'push');
-            app.TrainNNButton.ButtonPushedFcn = createCallbackFcn(app, @TrainNNButtonPushed, true);
-            app.TrainNNButton.Icon = '042-shuffle.png';
-            app.TrainNNButton.Layout.Row = 1;
-            app.TrainNNButton.Layout.Column = [6 8];
-            app.TrainNNButton.Text = 'Train NN';
+            % Create TrainSNNButton
+            app.TrainSNNButton = uibutton(app.GridLayout11, 'push');
+            app.TrainSNNButton.ButtonPushedFcn = createCallbackFcn(app, @TrainSNNButtonPushed, true);
+            app.TrainSNNButton.Icon = '042-shuffle.png';
+            app.TrainSNNButton.Layout.Row = 1;
+            app.TrainSNNButton.Layout.Column = [6 8];
+            app.TrainSNNButton.Text = 'Train SNN';
 
             % Create GridResolutionDropDown
             app.GridResolutionDropDown = uidropdown(app.GridLayout11);
@@ -2565,9 +2643,75 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_AI_MapMenu.Layout.Row = 1;
             app.PRIP_AI_MapMenu.Layout.Column = [12 13];
 
+            % Create ParametersPanel
+            app.ParametersPanel = uipanel(app.PRIPAI_GridLayout10);
+            app.ParametersPanel.Title = 'Parameters';
+            app.ParametersPanel.Layout.Row = [6 14];
+            app.ParametersPanel.Layout.Column = 5;
+
+            % Create GridLayout12
+            app.GridLayout12 = uigridlayout(app.ParametersPanel);
+            app.GridLayout12.ColumnWidth = {'1x', '1x', '1x', '1x'};
+            app.GridLayout12.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout12.ColumnSpacing = 5;
+            app.GridLayout12.RowSpacing = 5;
+            app.GridLayout12.Padding = [5 5 5 5];
+
+            % Create NormalisationCheckBox
+            app.NormalisationCheckBox = uicheckbox(app.GridLayout12);
+            app.NormalisationCheckBox.Text = 'Normalisation';
+            app.NormalisationCheckBox.FontSize = 10;
+            app.NormalisationCheckBox.Layout.Row = 1;
+            app.NormalisationCheckBox.Layout.Column = [1 4];
+
+            % Create NbNeuronsInput
+            app.NbNeuronsInput = uieditfield(app.GridLayout12, 'numeric');
+            app.NbNeuronsInput.Limits = [2 5];
+            app.NbNeuronsInput.HorizontalAlignment = 'center';
+            app.NbNeuronsInput.Layout.Row = 3;
+            app.NbNeuronsInput.Layout.Column = [1 2];
+            app.NbNeuronsInput.Value = 2;
+
+            % Create NbLayersInput
+            app.NbLayersInput = uieditfield(app.GridLayout12, 'numeric');
+            app.NbLayersInput.Limits = [5 50];
+            app.NbLayersInput.HorizontalAlignment = 'center';
+            app.NbLayersInput.Layout.Row = 3;
+            app.NbLayersInput.Layout.Column = [3 4];
+            app.NbLayersInput.Value = 5;
+
+            % Create NeuronsLabel
+            app.NeuronsLabel = uilabel(app.GridLayout12);
+            app.NeuronsLabel.HorizontalAlignment = 'center';
+            app.NeuronsLabel.VerticalAlignment = 'bottom';
+            app.NeuronsLabel.FontSize = 10;
+            app.NeuronsLabel.FontWeight = 'bold';
+            app.NeuronsLabel.Layout.Row = 2;
+            app.NeuronsLabel.Layout.Column = [1 2];
+            app.NeuronsLabel.Text = 'Neurons';
+
+            % Create LayersLabel
+            app.LayersLabel = uilabel(app.GridLayout12);
+            app.LayersLabel.HorizontalAlignment = 'center';
+            app.LayersLabel.VerticalAlignment = 'bottom';
+            app.LayersLabel.FontSize = 10;
+            app.LayersLabel.FontWeight = 'bold';
+            app.LayersLabel.Layout.Row = 2;
+            app.LayersLabel.Layout.Column = [3 4];
+            app.LayersLabel.Text = 'Layers';
+
+            % Create MultipleSNNCheckBox
+            app.MultipleSNNCheckBox = uicheckbox(app.GridLayout12);
+            app.MultipleSNNCheckBox.Text = 'Multiple-SNN';
+            app.MultipleSNNCheckBox.FontSize = 10;
+            app.MultipleSNNCheckBox.Layout.Row = 6;
+            app.MultipleSNNCheckBox.Layout.Column = [1 4];
+            app.MultipleSNNCheckBox.Value = true;
+
             % Create PRIP_AI_Plot
             app.PRIP_AI_Plot = uiaxes(app.PRIPAI_GridLayout10);
             title(app.PRIP_AI_Plot, 'Title')
+            app.PRIP_AI_Plot.PlotBoxAspectRatio = [1.18336314847943 1 1];
             app.PRIP_AI_Plot.XTick = [];
             app.PRIP_AI_Plot.YTick = [];
             app.PRIP_AI_Plot.Layout.Row = [2 14];
