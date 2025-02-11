@@ -6,7 +6,7 @@
 This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
 - Compatibility information for MacOS users:
-Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.4 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14) and Sequoia (15). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4 final release.   
+Note that the public compiled version of XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.4 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14) and Sequoia (15). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4 final release.   
 
 - General:
   - Add a data export module to export median and/or mean mineral compositions from merged or quanti maps as csv files. This module is available in the Add-ons tab. The MinPlot format is compatible with MinPlotX, a structural formula calculation program developed by Jesse Walters and Nils Gies. 
@@ -21,7 +21,7 @@ Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon M
   - Improve the Select and Crop feature and enable it to crop merged maps. This addition was suggested by Cam Davidson for cropping quantitative compositional maps obtained by SEM.
 
 - LA-ICPMS:
-  - Improve the LA-ICPMS calibration module by the addition of several  Pixel Reconstruction and Improving Precision (PRIP) tools. Manual PRIP mode allows ROIs to be manually selected during calibration to estimate local composition with improved LOD. A comparison with the median composition and LOD of all pixels within each ROI is also provided. The PRIP-AI module allows the calculation of pixel compositions below the LOD using neural networks. These new features are under development and limited in the public version of XMapTools; they will be documented in a publication. Contact Pierre Lanari or Thorsten Markmann for more information.  
+  - Improve the LA-ICPMS calibration module by the addition of several Pixel Reconstruction and Improved Precision (PRIP) tools. Manual PRIP mode allows ROIs to be manually selected during calibration to estimate local composition with improved LOD. A comparison with the median composition and LOD of all pixels within each ROI is also provided. The PRIP-AI module allows the calculation of pixel compositions below the LOD using neural networks. These new features are under development and limited in the public version of XMapTools; they will be documented in a publication. Contact Pierre Lanari or Thorsten Markmann for more information.  
   - Add a sweep extraction routine to the converter for LA-ICPMS to export data from all measured sweeps. The generated data are stored in a new file SweepData_Import.mat.
   - The LOD filter is automatically applied in the LA-ICPMS calibration module when a new Quanti dataset is generated.
   - Add an option to the LA-ICPMS calibration module to store unfiltered maps (LOD). If this option is selected, two Quanti datasets will be generated, one filtered (default) and one unfiltered labeled as "no LOD filter".
@@ -55,6 +55,7 @@ Note that the compiled version of XMapTools 4.4 runs natively on Apple Silicon M
   - Fix a issue in the converter for EPMA (JEOL Windows recipe) where the CL maps were not recognised.
   - Solve an issue in the Spider module that prevented the plot from being updated. Thanks to Guillaume Bonnet for reporting this issue.
   - Minor fixes in XMap_MinColors.txt and XMap_MinDensity.txt.
+  - Improve compatibility of the Export Plot Tool (opens in a new window) by allowing log scale colour bars to be properly exported.
   - Change the data type from 'wt%' to 'wt/wt' in the Import module.
   - Edit the message displayed when XMapTools is used for the first time.
   - Other minor bug and fixes

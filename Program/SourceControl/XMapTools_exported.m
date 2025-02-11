@@ -11524,6 +11524,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             ax2.XLim = app.FigMain.XLim;
             ax2.YLim = app.FigMain.YLim;
             
+            ax2.ColorScale = app.FigMain.ColorScale;
+            
             %keyboard
             
             figure(app.XMapTools_GUI)
@@ -11720,7 +11722,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                     [Success,Message,MessageID] = mkdir('Exported-Sampling');
                     DateStr = char(datestr(now));
-                    DateStr(find(DateStr == ' ')) = '_';                     DateStr(find(DateStr == ':')) = '_';
+                    DateStr(find(DateStr == ' ')) = '_'; DateStr(find(DateStr == ':')) = '_';
                     ProjectName = ['Sampling_Transect_',DateStr];
                     Directory = fullfile(cd,'Exported-Sampling',ProjectName);
                     [Success,Message,MessageID] = mkdir(Directory);
@@ -13634,9 +13636,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 expand(app.Node_Qt.Children(end))
                 app.TreeData_Main.SelectedNodes = app.Node_Qt.Children(end).Children(1);
                 TreeData_MainSelectionChanged(app);
+                
+                app.SaveRequired = 1;
             end
-            
-            app.SaveRequired = 1;
             
             close(app.WaitBar);
             
