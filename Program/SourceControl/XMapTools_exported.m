@@ -122,6 +122,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Calibrate_Merge                 matlab.ui.control.Button
         Calibrate_AddROIforLBC          matlab.ui.control.Button
         Calibrate_ROI_menu              matlab.ui.control.DropDown
+        Calibrate_MultiROICheckBox      matlab.ui.control.CheckBox
         CalibratetTab_help              matlab.ui.control.Button
         Image_15                        matlab.ui.control.Image
         Image_16                        matlab.ui.control.Image
@@ -140,6 +141,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Calibrate_LOD_CalcButton        matlab.ui.control.Button
         Calibrate_LOD_menu              matlab.ui.control.DropDown
         Calibrate_ApplyLODfilter        matlab.ui.control.Button
+        POINTCOUNTINGLabel              matlab.ui.control.Label
         FUNCTIONSTab                    matlab.ui.container.Tab
         GridLayout_ExternalFctTab       matlab.ui.container.GridLayout
         NORMALIZATIONSTRUCTURALFORMULALabel  matlab.ui.control.Label
@@ -295,8 +297,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -320,8 +322,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -6687,7 +6689,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         end
         
         
-        function LBC_ROI_changed_shape(app,~)
+        function LBC_ROI_changed_shape(app, ~)
             
             WhereDensity = app.CompViewer_DensityMenu.UserData(app.CompViewer_DensityMenu.Value);
             DensityMap = app.XMapToolsData.MapData.Ot.Data(WhereDensity).Map;
@@ -6695,7 +6697,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             NodeData = app.TreeData_Main.SelectedNodes.NodeData;
             Idx = NodeData(2);
             
-            Mask = createMask(app.ROI_LBC);
+            Mask = zeros(size(DensityMap));
+            for i = 1:length(app.ROI_LBC)
+                MaskTemp = createMask(app.ROI_LBC(i).ROI);
+                WhereMask = find(MaskTemp);
+                Mask(WhereMask) = 1;
+            end
+            
+            % figure, imagesc(Mask), axis image, colorbar
+            
             IdxMask = find(Mask & app.XMapToolsData.MapData.Me.Data(Idx).CData(end).Map > 0);
             
             DensityDomain = sum(DensityMap(IdxMask))/numel(IdxMask);
@@ -13383,6 +13393,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
         end
 
+        % Value changed function: Calibrate_MultiROICheckBox
+        function Calibrate_MultiROICheckBoxValueChanged(app, event)
+            if isequal(app.Calibrate_MultiROICheckBox.Value,0)
+                app.ROI_LBC = [];
+                app.ROI_LBC_Listener = [];
+                ROI_DeleteROI(app);
+            end
+        end
+
         % Button pushed function: Calibrate_AddROIforLBC
         function Calibrate_AddROIforLBCButtonPushed(app, event)
             
@@ -13407,27 +13426,39 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.CompViewer_Label.Text = 'Local bulk composition';
             
-            ROI_DeleteROI(app);
+            if isequal(app.Calibrate_MultiROICheckBox,0)
+                ROI_DeleteROI(app);
+                app.ROI_LBC = [];
+                app.ROI_LBC_Listener = [];
+                iROI = 1;
+            else
+                iROI = length(app.ROI_LBC) + 1;
+            end
             
             switch app.Calibrate_ROI_menu.Value
                 case 'Rectangle ROI'
                     DrawingMode(app,'on','Rectangle');
-                    app.ROI_LBC = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LBC(iROI).ROI = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Polygon ROI'
                     DrawingMode(app,'on','Polygon');
-                    app.ROI_LBC = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LBC(iROI).ROI = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
                     DrawingMode(app,'off');
             end
             
-            app.ROI_LBC_Listener = addlistener(app.ROI_LBC, 'ROIMoved', @(varargin)LBC_ROI_changed_shape(app, app.ROI_LBC));
+            app.ROI_LBC_Listener = addlistener(app.ROI_LBC(iROI).ROI, 'ROIMoved', @(varargin)LBC_ROI_changed_shape(app, app.ROI_LBC));
             
             % Extract data
-            LBC_ROI_changed_shape(app,app.ROI_LBC);
+            LBC_ROI_changed_shape(app, app.ROI_LBC);
             
             app.TabGroup.SelectedTab = app.CompositionTab;
             
+        end
+
+        % Button pushed function: Calibrate_Spider_Button
+        function Calibrate_Spider_ButtonPushed(app, event)
+            Menu_Modules_SpiderPlotMenuSelected(app, event);
         end
 
         % Button pushed function: Calibrate_Merge
@@ -13775,11 +13806,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             close(app.WaitBar)
             
-        end
-
-        % Button pushed function: Calibrate_Spider_Button
-        function Calibrate_Spider_ButtonPushed(app, event)
-            Menu_Modules_SpiderPlotMenuSelected(app, event);
         end
 
         % Callback function: Help_ProjectImportMenu, ImportTab_help
@@ -16858,7 +16884,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create CalibrateGridLayout
             app.CalibrateGridLayout = uigridlayout(app.CALIBRATETab);
-            app.CalibrateGridLayout.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '0.15x'};
+            app.CalibrateGridLayout.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '0.15x'};
             app.CalibrateGridLayout.RowHeight = {'1x', '1x', '1x', '0.6x'};
             app.CalibrateGridLayout.ColumnSpacing = 4;
             app.CalibrateGridLayout.RowSpacing = 4;
@@ -16942,7 +16968,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LOCALBULKCOMPOSITIONLabel.FontSize = 9;
             app.LOCALBULKCOMPOSITIONLabel.FontColor = [0.149 0.149 0.149];
             app.LOCALBULKCOMPOSITIONLabel.Layout.Row = 4;
-            app.LOCALBULKCOMPOSITIONLabel.Layout.Column = [12 19];
+            app.LOCALBULKCOMPOSITIONLabel.Layout.Column = [12 21];
             app.LOCALBULKCOMPOSITIONLabel.Text = 'LOCAL BULK COMPOSITION';
 
             % Create Calibrate_GenerateDensity
@@ -16975,7 +17001,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Calibrate_AddROIforLBC.FontSize = 9;
             app.Calibrate_AddROIforLBC.Tooltip = {'Add ROI for LBC extraction'};
             app.Calibrate_AddROIforLBC.Layout.Row = [1 2];
-            app.Calibrate_AddROIforLBC.Layout.Column = [18 19];
+            app.Calibrate_AddROIforLBC.Layout.Column = [20 21];
             app.Calibrate_AddROIforLBC.Text = 'Add ROI';
 
             % Create Calibrate_ROI_menu
@@ -16983,9 +17009,18 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Calibrate_ROI_menu.Items = {'Rectangle ROI', 'Polygon ROI'};
             app.Calibrate_ROI_menu.Tooltip = {'Method for ROI drawing'};
             app.Calibrate_ROI_menu.FontSize = 10;
-            app.Calibrate_ROI_menu.Layout.Row = 3;
+            app.Calibrate_ROI_menu.Layout.Row = 1;
             app.Calibrate_ROI_menu.Layout.Column = [16 19];
             app.Calibrate_ROI_menu.Value = 'Rectangle ROI';
+
+            % Create Calibrate_MultiROICheckBox
+            app.Calibrate_MultiROICheckBox = uicheckbox(app.CalibrateGridLayout);
+            app.Calibrate_MultiROICheckBox.ValueChangedFcn = createCallbackFcn(app, @Calibrate_MultiROICheckBoxValueChanged, true);
+            app.Calibrate_MultiROICheckBox.Tooltip = {'Activate Mutli-ROI mode'};
+            app.Calibrate_MultiROICheckBox.Text = 'Multi-ROI';
+            app.Calibrate_MultiROICheckBox.FontSize = 9;
+            app.Calibrate_MultiROICheckBox.Layout.Row = 2;
+            app.Calibrate_MultiROICheckBox.Layout.Column = [17 19];
 
             % Create CalibratetTab_help
             app.CalibratetTab_help = uibutton(app.CalibrateGridLayout, 'push');
@@ -17011,7 +17046,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Create Image_17
             app.Image_17 = uiimage(app.CalibrateGridLayout);
             app.Image_17.Layout.Row = [1 4];
-            app.Image_17.Layout.Column = 23;
+            app.Image_17.Layout.Column = 22;
             app.Image_17.ImageSource = 'ImageDelimiter.png';
 
             % Create Image_18
@@ -17076,15 +17111,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LBC_UncCalc.IconAlignment = 'center';
             app.LBC_UncCalc.Tooltip = {'Calculate Uncertainties using Monte Carlo'};
             app.LBC_UncCalc.Layout.Row = 2;
-            app.LBC_UncCalc.Layout.Column = 22;
+            app.LBC_UncCalc.Layout.Column = 26;
             app.LBC_UncCalc.Text = '';
 
             % Create PxLabel
             app.PxLabel = uilabel(app.CalibrateGridLayout);
             app.PxLabel.HorizontalAlignment = 'right';
-            app.PxLabel.FontSize = 8;
+            app.PxLabel.FontSize = 9;
             app.PxLabel.Layout.Row = 2;
-            app.PxLabel.Layout.Column = 20;
+            app.PxLabel.Layout.Column = [23 24];
             app.PxLabel.Text = 'Px';
 
             % Create LBC_ValueMC
@@ -17095,7 +17130,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LBC_ValueMC.HorizontalAlignment = 'center';
             app.LBC_ValueMC.FontSize = 10;
             app.LBC_ValueMC.Layout.Row = 2;
-            app.LBC_ValueMC.Layout.Column = 21;
+            app.LBC_ValueMC.Layout.Column = 25;
             app.LBC_ValueMC.Value = 20;
 
             % Create LBC_NbSimMC
@@ -17106,15 +17141,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LBC_NbSimMC.HorizontalAlignment = 'center';
             app.LBC_NbSimMC.FontSize = 10;
             app.LBC_NbSimMC.Layout.Row = 1;
-            app.LBC_NbSimMC.Layout.Column = [21 22];
+            app.LBC_NbSimMC.Layout.Column = [25 26];
             app.LBC_NbSimMC.Value = 100;
 
             % Create SimLabel
             app.SimLabel = uilabel(app.CalibrateGridLayout);
             app.SimLabel.HorizontalAlignment = 'right';
-            app.SimLabel.FontSize = 8;
+            app.SimLabel.FontSize = 9;
             app.SimLabel.Layout.Row = 1;
-            app.SimLabel.Layout.Column = 20;
+            app.SimLabel.Layout.Column = [23 24];
             app.SimLabel.Text = 'Sim';
 
             % Create Calibrate_LOD_CalcButton
@@ -17145,6 +17180,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Calibrate_ApplyLODfilter.Layout.Row = 1;
             app.Calibrate_ApplyLODfilter.Layout.Column = 33;
             app.Calibrate_ApplyLODfilter.Text = '';
+
+            % Create POINTCOUNTINGLabel
+            app.POINTCOUNTINGLabel = uilabel(app.CalibrateGridLayout);
+            app.POINTCOUNTINGLabel.HorizontalAlignment = 'center';
+            app.POINTCOUNTINGLabel.VerticalAlignment = 'bottom';
+            app.POINTCOUNTINGLabel.FontSize = 9;
+            app.POINTCOUNTINGLabel.FontColor = [0.149 0.149 0.149];
+            app.POINTCOUNTINGLabel.Layout.Row = 4;
+            app.POINTCOUNTINGLabel.Layout.Column = [23 27];
+            app.POINTCOUNTINGLabel.Text = 'POINT COUNTING';
 
             % Create FUNCTIONSTab
             app.FUNCTIONSTab = uitab(app.TabButtonGroup);
@@ -18455,19 +18500,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18649,16 +18694,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -18668,6 +18703,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);

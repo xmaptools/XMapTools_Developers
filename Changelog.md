@@ -15,6 +15,7 @@ Note that the public compiled version of XMapTools 4.4 runs natively on Apple Si
    - Add the Border Removing Correction (BRC) algorithm from XMapTools 3.4 to the data visualisation module. If checked, the border pixels of the selected mask file will be filtered out. 
   - Add a new structural formula calculation method for biotite based on Waters & Charnley (2002) assuming an 11 oxygen + Ti basis to account for a deprotonation substitution (added by P. Hartmeier).
   - Add a tool to duplicate and adjust the minimum and maximum total values of a set of merged maps (available from the Edit > Map > Duplicate and Adjust menu). This tool allows the user to define a minimum, maximum and sigma value and to rescale all pixels whose sum exceeds this value. It can be used to eliminate some of the artefacts of the EPMA multi-phase calibration routine, especially for mixed pixels that end up with too high totals. 
+  - Add the ability to define multiple ROIs to generate a local bulk composition.
   - Add an option to export a merged dataset to text files (available from the Edit > Dataset > Export (Merged) menu).
   - Add an option to convert quanti and merged maps from oxide wt% to oxide moles. These datasets can be used in the data visualisation module. 
   - Add an option to duplicate a training set.
