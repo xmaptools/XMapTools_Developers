@@ -1,7 +1,7 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.4 (no build yet)
+## XMapTools 4.4 beta 2 RC (build 250215)
 
 This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
