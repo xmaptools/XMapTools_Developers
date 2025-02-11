@@ -44,7 +44,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         Plot2                           matlab.ui.control.UIAxes
         Plot3                           matlab.ui.control.UIAxes
         Plot1                           matlab.ui.control.UIAxes
-        PixelReconstructionandImprovingPrecisionPRIPTab  matlab.ui.container.Tab
+        PixelReconstructionandImprovedPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
         PRIP_Table_Analysis             matlab.ui.control.Table
@@ -134,6 +134,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         PRIP_AI_SelectedPredictors
         
         PRIP_AI_SelectedRowsinTable
+        
+        GeneratedDataCellFormat
+        GeneratedLabelCellFormat
+        GeneratedLODCellFormat
         
     end
     
@@ -313,7 +317,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             %             app.PRIP_Plot.XTick = [];
             %             app.PRIP_Plot.YTick = [];
             %
-            %             disableDefaultInteractivity(app.PRIP_Plot)
+            disableDefaultInteractivity(app.PRIP_AI_Plot)
             %
             CheckLogScale(app)
         end
@@ -709,6 +713,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_Table_ROI.Data = Data4Table;
             app.PRIP_Table_ROI.Selection = i;
             
+            if i > 0
+                app.PRIP_Export.Enable = 'on';
+            end
+            
             %             CalculateCalibrationROIs(app);
             %
             %             app.UpdatePlotROI = 0;
@@ -1028,6 +1036,24 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 end
             end
         end
+        
+        function GenerateCellFromSelectedData(app)
+            
+            app.GeneratedLabelCellFormat = app.InternalElementStdDropDown.Items; 
+            
+            Conc = cell(length(app.PRIP_ROIs_Data), length(app.GeneratedLabelCellFormat));
+            LOD =  cell(length(app.PRIP_ROIs_Data), length(app.GeneratedLabelCellFormat));
+            
+            for i = 1:length(app.PRIP_ROIs_Data)
+                
+                Conc(i,:) = num2cell(app.PRIP_ROIs_Data(i).Conc');
+                LOD(i,:) = num2cell(app.PRIP_ROIs_Data(i).LOD_ROI');
+            end
+            
+            app.GeneratedDataCellFormat = Conc;
+            app.GeneratedLODCellFormat = LOD;
+            
+        end
     end
     
 
@@ -1214,6 +1240,8 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_AI_MapMenu.Visible = 'off';
             app.ParametersPanel.Visible = 'off';
             
+            app.PRIPAI_GridLayout10.Visible = 'off';
+            
             InternalElementStdDropDownValueChanged(app);
             
             close(app.WaitBar)
@@ -1280,6 +1308,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 
                 app.PRIP_AI_MapMenu.Items = app.ElementDropDown.Items;
                 app.PRIP_AI_MapMenu.ItemsData = app.ElementDropDown.ItemsData;
+                
                 
                 if ~isempty(app.PxDataRaw.ElNames)
                     app.PRIP_GridLayout.Visible = 'on';
@@ -1653,6 +1682,61 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         % Button pushed function: PRIP_Export
         function PRIP_ExportButtonPushed(app, event)
             
+            % Simple export function
+            
+            GenerateCellFromSelectedData(app)
+            
+            [Success,Message,MessageID] = mkdir('Exported-PRIP');
+            DateStr = char(datestr(now));
+            DateStr(find(DateStr == ' ')) = '_'; DateStr(find(DateStr == ':')) = '_';
+            ProjectName = ['Export_',DateStr];
+            Directory = fullfile(cd,'Exported-PRIP',ProjectName);
+            [Success,Message,MessageID] = mkdir(Directory);
+            
+            T1 = cell2table(app.GeneratedDataCellFormat,'VariableNames',app.GeneratedLabelCellFormat);
+            writetable(T1,fullfile(Directory,'Data.csv'));
+            
+            T2 = cell2table(app.GeneratedLODCellFormat,'VariableNames',app.GeneratedLabelCellFormat);
+            writetable(T2,fullfile(Directory,'LOD.csv'));
+            
+            T3 = cell2table(app.PRIP_Table_ROI.Data,'VariableNames',app.PRIP_Table_ROI.ColumnName);
+            writetable(T3,fullfile(Directory,'ROIs.csv'));
+            
+            f2 = figure;
+            ax2 = gca;
+            
+            copyobj(app.PRIP_Plot.Children(end),ax2);
+            axis(ax2,'image');
+            colormap(ax2,app.PRIP_Plot.Colormap)
+            colorbar('vertical');
+            ax2.XTick = app.PRIP_Plot.XTick;
+            ax2.YTick = app.PRIP_Plot.YTick;
+            ax2.YDir = app.PRIP_Plot.YDir;
+            ax2.CLim = app.PRIP_Plot.CLim;
+            
+            ax2.XLim = app.PRIP_Plot.XLim;
+            ax2.YLim = app.PRIP_Plot.YLim;
+            
+            ax2.ColorScale = app.PRIP_Plot.ColorScale;
+            
+            for i = 1:length(app.PRIP_ROIs_Data)
+                switch app.PRIP_ROIs.ROI_Data(i).Type
+                    
+                    case 'Circle'
+                        drawcircle(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Center',app.PRIP_ROIs.ROI_Data(i).Center,'Radius',app.PRIP_ROIs.ROI_Data(i).Radius,'Label',num2str(i));
+                        
+                    case 'Rectangle'
+                        drawrectangle(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
+                        
+                    case 'Polygon'
+                        drawpolygon(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
+                end
+            end
+            
+            exportgraphics(ax2, fullfile(Directory,'Map.pdf'));
+            
+            close(f2);
+            
         end
 
         % Cell selection callback: PRIP_Table_ROI
@@ -1725,7 +1809,17 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 
                 switch selectedTab.Title
                     
-                    case 'Pixel Reconstruction and Improving Precision (PRIP)'
+                    case 'Pixel Reconstruction and Improved Precision (PRIP)'
+                        
+                        if isdeployed
+                            Result = uiconfirm(app.XMapToolsCalibrationLaICPMS, {'Warning, you are entering a grey area! ',' ', 'The PRIP tools are under development and only a small fraction is currently available in the public version of XMapTools. The results obtained with the current feature are not fully tested and should not be considered fully reliable. If you have any questions or doubts, please contact us.'}, 'XMapTools', 'Options', {'I understand and wish to proceed (uncertain)','I understand and will wait for the next release (Cancel)'});
+                        
+                            switch Result
+                                case 'I understand and will wait for the next release (Cancel)'
+                                    return
+                            end
+                        end
+                        
                         
                         Result = uiconfirm(app.XMapToolsCalibrationLaICPMS, 'Missing sweep data. Do you want to load a file?', 'XMapTools', 'Options', {'Yes','No','Cancel'});
                         
@@ -1734,8 +1828,6 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                                 
                                 app.WaitBar = uiprogressdlg(app.XMapToolsCalibrationLaICPMS,'Title','XMapTools','Indeterminate','on');
                                 app.WaitBar.Message = 'Pick a sweep data file (SweepData_Import.mat)';
-                                
-                                app.PxDataRaw = [];
                                 
                                 f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
                                 [FileName,PathName] = uigetfile({'*.mat','Sweep data (*.mat)';'*.*',  'All Files (*.*)'},'Pick a file');
@@ -1750,33 +1842,53 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                                 
                                 load([PathName,FileName]);
                                 
-                                app.PxDataRaw = SweepData_Import.PxDataRaw;
+                                if exist('SweepData_Import','var')
                                 
-                                % Save back the data to XMapTools
-                                app.XMapToolsApp.XMapToolsData.PxDataRaw = app.PxDataRaw;
-                                
-                                app.WaitBar.Message = 'Activating the PRIP Module';
-                                
-                                app.PRIP_GridLayout.Visible = 'on';
+                                    app.PxDataRaw = [];
+                                    
+                                    app.PxDataRaw = SweepData_Import.PxDataRaw;
+                                    
+                                    % Save back the data to XMapTools
+                                    app.XMapToolsApp.XMapToolsData.PxDataRaw = app.PxDataRaw;
+                                    
+                                    app.WaitBar.Message = 'Activating the PRIP Module';
+                                    
+                                    app.PRIP_GridLayout.Visible = 'on';
+                                    
+                                else
+                                    uialert(app.XMapToolsCalibrationLaICPMS,'This file is not a valid file with sweep data.','XMapTools – Error');
+                                    app.TabGroup.SelectedTab = app.TabGroup.Children(1);
+                                end
                                 
                                 close(app.WaitBar);
                                 
                                 
                             case 'No'
+                                app.TabGroup.SelectedTab = app.TabGroup.Children(1);
+                                
                                 
                             case 'Cancel'
                                 app.TabGroup.SelectedTab = app.TabGroup.Children(1);
                         end
                         
-                    case 'PRIP AI'
-                        
-                        
-                        
-                        
-                        keyboard
+                        %keyboard
                 end
                 
+            end
+            
+            switch selectedTab.Title
                 
+                case 'PRIP AI'
+                    
+                    if isdeployed
+                        Results = uiconfirm(app.XMapToolsCalibrationLaICPMS, {'This module is not available in the current release of XMapTools. Stay tuned!'}, 'XMapTools', 'Options', {'Cancel'});
+                        app.TabGroup.SelectedTab = app.TabGroup.Children(1);
+                        return
+                    else
+                        app.PRIPAI_GridLayout10.Visible = 'on';
+                    end
+                    
+                    
             end
             
         end
@@ -2400,12 +2512,12 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.Plot1.Layout.Row = [7 12];
             app.Plot1.Layout.Column = [1 3];
 
-            % Create PixelReconstructionandImprovingPrecisionPRIPTab
-            app.PixelReconstructionandImprovingPrecisionPRIPTab = uitab(app.TabGroup);
-            app.PixelReconstructionandImprovingPrecisionPRIPTab.Title = 'Pixel Reconstruction and Improving Precision (PRIP)';
+            % Create PixelReconstructionandImprovedPrecisionPRIPTab
+            app.PixelReconstructionandImprovedPrecisionPRIPTab = uitab(app.TabGroup);
+            app.PixelReconstructionandImprovedPrecisionPRIPTab.Title = 'Pixel Reconstruction and Improved Precision (PRIP)';
 
             % Create PRIP_GridLayout
-            app.PRIP_GridLayout = uigridlayout(app.PixelReconstructionandImprovingPrecisionPRIPTab);
+            app.PRIP_GridLayout = uigridlayout(app.PixelReconstructionandImprovedPrecisionPRIPTab);
             app.PRIP_GridLayout.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
             app.PRIP_GridLayout.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
 
