@@ -8,6 +8,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
         GridLayout2                  matlab.ui.container.GridLayout
         Mode_Merged_Button           matlab.ui.control.StateButton
         Mode_Quanti_Button           matlab.ui.control.StateButton
+        Mode_Results_Button          matlab.ui.control.StateButton
         GridLayout3                  matlab.ui.container.GridLayout
         Image                        matlab.ui.control.Image
         MaskFileOutputFormatPanel    matlab.ui.container.Panel
@@ -87,6 +88,11 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 app.SecondaryDropDownLabel.Text = "Quanti";
             end
             
+            if isequal(app.Mode_Results_Button.Value,1)
+                app.SecondaryDropDown.Items = app.XMapToolsApp.XMapToolsData.MapData.Re.Names;
+                app.SecondaryDropDown.ItemsData = [1:length(app.SecondaryDropDown.Items)];
+                app.SecondaryDropDownLabel.Text = "Results";
+            end
             
         end
         
@@ -131,8 +137,11 @@ classdef Data_Export_exported < matlab.apps.AppBase
             if isequal(app.Mode_Quanti_Button.Value,1)
                 Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Qt;
                 ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).ElNames;
-                
-                %keyboard
+            end
+            
+            if isequal(app.Mode_Results_Button.Value,1) 
+                Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Re;
+                ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).Labels;
             end
             
             PhaseList = MaskFile.Masks(app.MaskFileDropDown.Value).Names(2:end);
@@ -507,8 +516,10 @@ classdef Data_Export_exported < matlab.apps.AppBase
         function Mode_Merged_ButtonValueChanged(app, event)
             if isequal(app.Mode_Merged_Button.Value,1)
                 app.Mode_Quanti_Button.Value = 0;
+                app.Mode_Results_Button.Value = 0;
             else
                 app.Mode_Quanti_Button.Value = 1;
+                app.Mode_Results_Button.Value = 0;
             end
             update_export_source(app);
         end
@@ -517,14 +528,35 @@ classdef Data_Export_exported < matlab.apps.AppBase
         function Mode_Quanti_ButtonValueChanged(app, event)
             if isequal(app.Mode_Quanti_Button.Value,1)
                 app.Mode_Merged_Button.Value = 0;
+                app.Mode_Results_Button.Value = 0;
             else
                 app.Mode_Merged_Button.Value = 1;
+                app.Mode_Results_Button.Value = 0;
+            end
+            update_export_source(app) 
+        end
+
+        % Value changed function: Mode_Results_Button
+        function Mode_Results_ButtonValueChanged(app, event)
+            if isequal(app.Mode_Results_Button.Value,1)
+                app.Mode_Merged_Button.Value = 0;
+                app.Mode_Quanti_Button.Value = 0;
+            else
+                app.Mode_Quanti_Button.Value = 1;
+                app.Mode_Merged_Button.Value = 0;
             end
             update_export_source(app) 
         end
 
         % Button pushed function: GenerateSaveButton
         function GenerateSaveButtonPushed(app, event)
+            
+            switch app.ExportFormatDropDown.Value
+                case 'ThermoFit'
+                    uialert(app.DataExport,'The ThermoFit format is not yet available, stay tuned!','XMapTools');
+                    app.ExportFormatDropDown.Value = 'MinPlot';
+                    return
+            end
             
             if isempty(app.SecondaryDropDown.Value)
                 uialert(app.DataExport,'No data selected in the drop-down menu','XMapTools');
@@ -553,8 +585,8 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     uialert(app.DataExport,'The file has been saved in the folder /Exported-MinComp','XMapTools','Icon','success');
                 
                 case 'Thermofit'
-                    fid = fopen(fullfile(Directory,[ProjectName,'.txt']),'w');
-                    fclose(fid);
+                    %fid = fopen(fullfile(Directory,[ProjectName,'.txt']),'w');
+                    %fclose(fid);
             end
             
             
@@ -673,6 +705,16 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.Mode_Quanti_Button.FontSize = 10;
             app.Mode_Quanti_Button.Layout.Row = 1;
             app.Mode_Quanti_Button.Layout.Column = 2;
+
+            % Create Mode_Results_Button
+            app.Mode_Results_Button = uibutton(app.GridLayout2, 'state');
+            app.Mode_Results_Button.ValueChangedFcn = createCallbackFcn(app, @Mode_Results_ButtonValueChanged, true);
+            app.Mode_Results_Button.Icon = '321-exit.png';
+            app.Mode_Results_Button.IconAlignment = 'top';
+            app.Mode_Results_Button.Text = 'Results';
+            app.Mode_Results_Button.FontSize = 10;
+            app.Mode_Results_Button.Layout.Row = 1;
+            app.Mode_Results_Button.Layout.Column = 3;
 
             % Create GridLayout3
             app.GridLayout3 = uigridlayout(app.GridLayout);
