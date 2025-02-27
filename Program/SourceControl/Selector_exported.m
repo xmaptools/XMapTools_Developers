@@ -13,7 +13,7 @@ classdef Selector_exported < matlab.apps.AppBase
 
     
     properties (Access = private)
-        XMapToolsApp % Description
+        XMapToolsApp
     end
     
 
@@ -42,7 +42,7 @@ classdef Selector_exported < matlab.apps.AppBase
             app.Select.Visible = 'off';
             
             for i = 1:length(Names)
-                p = uitreenode(app.Tree,'Text',char(Names{i}));
+                p = uitreenode(app.Tree,'Text',char(Names{i}),'UserData',i);
             end
             
             app.Label.Text = Label;
@@ -74,8 +74,11 @@ classdef Selector_exported < matlab.apps.AppBase
         function ApplyButtonPushed(app, event)
             for i = 1:length(app.Tree.SelectedNodes)
                 Names{i} = app.Tree.SelectedNodes(i).Text;
+                SelectedID(i) = app.Tree.SelectedNodes(i).UserData;
             end
             app.XMapToolsApp.ExchangeSelector = Names;
+            app.XMapToolsApp.ExchangeSelectorId = SelectedID;
+            
             SelectCloseRequest(app);
         end
     end

@@ -477,6 +477,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         config                              % For add-ons
         
         ExchangeSelector                    % To communicate with Selector
+        ExchangeSelectorId                  % added 4.4
         
         ExchangeClassification              % To communicate with the classification module (01.2024 – 4.4)
         
@@ -13473,7 +13474,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             waitfor(Selector(app,app.XMapToolsData.MapData.Qt.Names,'Select phases in the list below','Multiple'));
             close(app.WaitBar)
             
-            s = find(ismember(app.XMapToolsData.MapData.Qt.Names,app.ExchangeSelector));
+            % s = find(ismember(app.XMapToolsData.MapData.Qt.Names,app.ExchangeSelector));
+            s = app.ExchangeSelectorId;                                     % changed 4.4
             
             %[s,v] = listdlg('PromptString','Select maps:','SelectionMode','multiple','ListString',app.XMapToolsData.MapData.Qt.Names);
             
