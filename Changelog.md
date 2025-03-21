@@ -1,7 +1,7 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.4 beta 2 RC (build 250215)
+## XMapTools 4.4 (build 250321)
 
 This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
@@ -60,9 +60,10 @@ Note that the public compiled version of XMapTools 4.4 runs natively on Apple Si
   - Improve compatibility of the Export Plot Tool (opens in a new window) by allowing log scale colour bars to be properly exported.
   - Change the data type from 'wt%' to 'wt/wt' in the Import module.
   - Edit the message displayed when XMapTools is used for the first time.
+  - Fix a configuration error for users using the latest developer version via MATLAB.
   - Other minor bug and fixes
 
-Release notes published on XX.XX.2025, by Pierre Lanari & Philip Hartmeier.
+Release notes published on 21.03.2025, by Pierre Lanari & Philip Hartmeier.
 
 
 ## XMapTools 4.3 (build 240114)
