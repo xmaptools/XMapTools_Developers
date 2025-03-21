@@ -297,8 +297,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -322,8 +322,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -477,6 +477,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         config                              % For add-ons
         
         ExchangeSelector                    % To communicate with Selector
+        ExchangeSelectorId                  % added 4.4
         
         ExchangeClassification              % To communicate with the classification module (01.2024 – 4.4)
         
@@ -7165,7 +7166,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.4 beta 2 build 240114';
+            app.XMapTools_VER = 'XMapTools 4.4 build 250321';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -7422,6 +7423,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Text2Disp = [Text2Disp,'   Lanari, P., Vidal, O., De Andrade, V., Dubacq, B., Lewin, E., Grosch, E., Schwartz, S. (2014) XMapTools: a MATLAB©-based program for electron microprobe X-ray image processing and geothermobarometry. Computers and Geosciences. 62, 227-240.\n\n'];
             
             Text2Disp = [Text2Disp,'> LA-ICPMS:\n   Markmann, T.A., Lanari, P., Piccoli, F., Pettke, T., Tamblyn, R., Tedeschi, M., Lueder, M., Kunz, B., Riel, N., and Laughton, J. (2024). Multi-phase quantitative compositional mapping by LA-ICP-MS: analytical approach and data reduction protocol implemented in XMapTools. Chemical Geology, 646, 121895.\n\n'];
+            
+            Text2Disp = [Text2Disp,'> CLASSIFICATION:\n   Lanari, P., Tedeschi, M., (2025). Chemical map classification in XMapTools. Applied Computing and Geosciences, 25, 100230.\n\n'];
             
             Text2Disp = [Text2Disp,'> Mapping technique:\n   Lanari, P., & Piccoli, F., (2020). New horizons in quantitative compositional mapping – Analytical conditions and data reduction using XMapTools. IOP Conf. Series: Materials Science and Engineering 891, 012016.\n\n'];
             Text2Disp = [Text2Disp,'> LA-ICPMS data visualization:\n   Raimondo, T., Payne, J., Wade, B., Lanari, P., Clark, C., Hand, M., (2017). Trace element mapping by LA-ICP-MS: assessing geochemical mobility in garnet. Contributions to Mineralogy and Petrology, 172, 17.\n\n'];
@@ -13473,7 +13476,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             waitfor(Selector(app,app.XMapToolsData.MapData.Qt.Names,'Select phases in the list below','Multiple'));
             close(app.WaitBar)
             
-            s = find(ismember(app.XMapToolsData.MapData.Qt.Names,app.ExchangeSelector));
+            % s = find(ismember(app.XMapToolsData.MapData.Qt.Names,app.ExchangeSelector));
+            s = app.ExchangeSelectorId;                                     % changed 4.4
             
             %[s,v] = listdlg('PromptString','Select maps:','SelectionMode','multiple','ListString',app.XMapToolsData.MapData.Qt.Names);
             
@@ -18500,19 +18504,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18694,16 +18698,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -18713,6 +18707,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);

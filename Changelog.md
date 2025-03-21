@@ -1,7 +1,7 @@
 # CHANGELOG for XMapTools developer
 
 
-## XMapTools 4.4 beta 2 RC (build 250215)
+## XMapTools 4.4 (build 250321)
 
 This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
@@ -47,6 +47,7 @@ Note that the public compiled version of XMapTools 4.4 runs natively on Apple Si
   - Enhance the Data Visualisation module with the ability to use log scales for binary plots.
   - Add log scale compatibility to multi-plot images and to the gif creation function.
   - Improve the map display engine as a test for compatibility with future versions of MATLAB. To start XMapTools with the 4.3 legacy display engine, simply add an empty legacy.xmt file to your working directory.
+  - Fix a problem with the merge function that did not work properly when multiple quanti files had the same name.
   - Fix a problem where the zoom state was lost when exporting the map to a new window. 
   - Fix an aspect ratio error for the RGB image in the Data Visualization module.
   - Fix a problem in the Calibration for EPMA module that could occur if a point was outside the map boundaries; a warning message has been added. Thanks to Stephen Centrella for reporting this issue. 
@@ -59,9 +60,10 @@ Note that the public compiled version of XMapTools 4.4 runs natively on Apple Si
   - Improve compatibility of the Export Plot Tool (opens in a new window) by allowing log scale colour bars to be properly exported.
   - Change the data type from 'wt%' to 'wt/wt' in the Import module.
   - Edit the message displayed when XMapTools is used for the first time.
+  - Fix a configuration error for users using the latest developer version via MATLAB.
   - Other minor bug and fixes
 
-Release notes published on XX.XX.2025, by Pierre Lanari & Philip Hartmeier.
+Release notes published on 21.03.2025, by Pierre Lanari & Philip Hartmeier.
 
 
 ## XMapTools 4.3 (build 240114)
