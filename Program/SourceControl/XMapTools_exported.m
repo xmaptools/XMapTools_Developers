@@ -7166,7 +7166,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.4 beta 2 build 240114';
+            app.XMapTools_VER = 'XMapTools 4.4 build 250321';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
