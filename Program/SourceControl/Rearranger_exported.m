@@ -205,7 +205,7 @@ classdef Rearranger_exported < matlab.apps.AppBase
             % Create RearrangerGUI and hide until all components are created
             app.RearrangerGUI = uifigure('Visible', 'off');
             app.RearrangerGUI.Position = [100 100 967 561];
-            app.RearrangerGUI.Name = 'MATLAB App';
+            app.RearrangerGUI.Name = 'Rearranger – XMapTools';
             app.RearrangerGUI.CloseRequestFcn = createCallbackFcn(app, @RearrangerGUICloseRequest, true);
 
             % Create GridLayout
