@@ -208,6 +208,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Image_33                        matlab.ui.control.Image
         OTHERTOOLSLabel                 matlab.ui.control.Label
         Tool_ExportCompositions         matlab.ui.control.Button
+        Tool_ExportCompositions_2       matlab.ui.control.Button
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -7434,6 +7435,32 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.MapInfo_TextArea.Value = sprintf(Text2Disp);
             %disp('Text updated'),toc
+            
+            % Initiate the colormap (for other modules – 4.5)
+            Resolution = app.Options_ColormapResEditField.Value;
+            SelColorMap = find(ismember(app.Options_ColormapDropDown.Items,app.Options_ColormapDropDown.Value));
+            ColorData = app.ColorMaps(SelColorMap).Code;
+            
+            if isequal(app.Options_Colorbar_Inverse.Value,0)
+                ColorData = flip(ColorData);
+            end
+            
+            if Resolution > 1
+                Xi = 1:Resolution;
+                Step = (Resolution-1)/(size(ColorData,1)-1);
+                X = 1:Step:Resolution;
+                
+                ColorMap = zeros(length(Xi),size(ColorData,2));
+                for i = 1:size(ColorData,2)
+                    ColorMap(:,i) = interp1(X',ColorData(:,i),Xi);
+                end
+            else
+                ColorMap(1,:) = ColorData(1,:);
+            end
+            
+            app.ColorMapValues = ColorMap;
+            app.ColorMapValues_noMask = ColorMap;
+            % --
             
             app.Jiahui = 0;
             
@@ -15986,6 +16013,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             
         end
+
+        % Button pushed function: Tool_ExportCompositions_2
+        function Tool_ExportCompositions_2ButtonPushed(app, event)
+            
+            ImageConverter(app);
+            
+        end
     end
 
     % Component initialization
@@ -17759,6 +17793,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Tool_ExportCompositions.Layout.Row = [1 2];
             app.Tool_ExportCompositions.Layout.Column = [1 2];
             app.Tool_ExportCompositions.Text = 'Export';
+
+            % Create Tool_ExportCompositions_2
+            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
+            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
+            app.Tool_ExportCompositions_2.IconAlignment = 'top';
+            app.Tool_ExportCompositions_2.FontSize = 8;
+            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
+            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
+            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
 
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);

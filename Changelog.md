@@ -1,12 +1,24 @@
 # CHANGELOG for XMapTools developer
 
-
-## XMapTools 4.4 (build 250321)
+## XMapTools 4.5 (no build yet)
 
 This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
 - Compatibility information for MacOS users:
-Note that the public compiled version of XMapTools 4.4 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.4 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14) and Sequoia (15). The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.4 final release.   
+Note that the public compiled version of XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and more recent. The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.5 final release.
+
+- General:
+  - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image. 
+
+
+- Other:
+  - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
+
+
+
+## XMapTools 4.4 (build 250321)
+
+This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
 
 - General:
   - Add a Data Export module to export median and/or mean mineral compositions from merged  quanti and result maps as csv files. This module is available from the Add-ons tab and is compatible with the new sub-mask classification.
