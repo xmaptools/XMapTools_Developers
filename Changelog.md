@@ -10,9 +10,13 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
 - General:
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image. 
 
+- LA-ICP-MS: 
+  - Improve the converter to avoid displaying the file date/time format selection module when the format is automatically detected. Note that the old behaviour can be restored by deselecting the Auto Date/Time option in the converter module.
+
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
+  
 
 
 

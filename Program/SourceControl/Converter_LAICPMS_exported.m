@@ -76,6 +76,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         OptionsLabel                    matlab.ui.control.Label
         DebugMode                       matlab.ui.control.CheckBox
         TestMode                        matlab.ui.control.CheckBox
+        ByPassSelector                  matlab.ui.control.CheckBox
         Plot                            matlab.ui.control.UIAxes
         ContextMenu                     matlab.ui.container.ContextMenu
         CopyMenu                        matlab.ui.container.Menu
@@ -247,7 +248,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 end
                 
                 % SIGNAL
-                CountMeasurements(IsSeq) =  CountMeasurements(IsSeq) + 1;
+                CountMeasurements(IsSeq) =  CountMeasurements(IsSeq) + 1; 
                 IdxCount = CountMeasurements(IsSeq);
                 
                 app.Integrations.Measurements(IsSeq).Names{IdxCount} = SeqName;
@@ -270,8 +271,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             if isempty(app.Integrations.Background.Names)
                 % Here we have no Background measurements detected...
                 
-                waitfor(Signal_Selector(app,app.Data.SumData,'Manual','Background'));
+                % keyboard
                 
+                waitfor(Signal_Selector(app,app.Data,'Manual','Background'));
+                
+                close(app.WaitBar);
+                return
                 keyboard 
             else
                 BackListName = app.Integrations.Background.Names;
@@ -4666,17 +4671,25 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             % Create DebugMode
             app.DebugMode = uicheckbox(app.GridLayout11);
             app.DebugMode.ValueChangedFcn = createCallbackFcn(app, @DebugModeValueChanged, true);
-            app.DebugMode.Text = 'Debug mode';
+            app.DebugMode.Text = 'Debug';
             app.DebugMode.FontSize = 10;
             app.DebugMode.Layout.Row = 3;
-            app.DebugMode.Layout.Column = [1 4];
+            app.DebugMode.Layout.Column = [1 2];
 
             % Create TestMode
             app.TestMode = uicheckbox(app.GridLayout11);
-            app.TestMode.Text = 'Test mode';
+            app.TestMode.Text = 'Test';
             app.TestMode.FontSize = 10;
             app.TestMode.Layout.Row = 3;
-            app.TestMode.Layout.Column = [5 8];
+            app.TestMode.Layout.Column = [3 4];
+
+            % Create ByPassSelector
+            app.ByPassSelector = uicheckbox(app.GridLayout11);
+            app.ByPassSelector.Text = 'Auto Date/Time';
+            app.ByPassSelector.FontSize = 10;
+            app.ByPassSelector.Layout.Row = 3;
+            app.ByPassSelector.Layout.Column = [5 8];
+            app.ByPassSelector.Value = true;
 
             % Create Plot
             app.Plot = uiaxes(app.GridLayout);
