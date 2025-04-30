@@ -19,6 +19,8 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         AutomatedselectionPanel   matlab.ui.container.Panel
         GridLayout3               matlab.ui.container.GridLayout
         DeleteButton              matlab.ui.control.Button
+        PlotMenuDropDownLabel     matlab.ui.control.Label
+        PlotMenuDropDown          matlab.ui.control.DropDown
         UIAxes                    matlab.ui.control.UIAxes
     end
 
@@ -26,6 +28,50 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
     properties (Access = private)
         CallingApp
         Data
+        ROI
+        Integrations
+    end
+    
+    methods (Access = private)
+        
+        function DeactivatePlotZoomPanOptions(app)
+            if ~isempty(app.UIAxes)
+                if ~isempty(app.UIAxes.Toolbar.Children)
+                    app.UIAxes.Toolbar.Children(2).Value = 'off';
+                    matlab.graphics.interaction.webmodes.toggleMode(app.UIAxes,'pan',app.UIAxes.Toolbar.Children(2).Value)
+                    
+                    app.UIAxes.Toolbar.Children(3).Value = 'off';
+                    matlab.graphics.interaction.webmodes.toggleMode(app.UIAxes,'zoom',app.UIAxes.Toolbar.Children(3).Value)
+                    
+                    app.UIAxes.Toolbar.Children(4).Value = 'off';
+                    matlab.graphics.interaction.webmodes.toggleMode(app.UIAxes,'zoomout',app.UIAxes.Toolbar.Children(4).Value)
+                end
+            end
+        end
+        
+        function ROI_DeleteROI(app)
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Rectangle'));
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Polygon'));
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Ellipse'));
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Circle'));
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Point'));
+            delete(findall(app.UIAxes, 'Type',  'images.roi.Polyline'));
+        end
+        
+        
+        function ROI_Position_Changed(app, ~)
+            
+            
+            keyboard
+        end
+        
+        function PlotSelectedData(app)
+            if isequal(app.PlotMenuDropDown.Value,0)
+                plot(app.UIAxes,app.Data.SumData,'.-','MarkerSize',5);
+            else
+                plot(app.UIAxes,app.Data.Cps(:,app.PlotMenuDropDown.Value),'.-','MarkerSize',5);
+            end
+        end
     end
     
 
@@ -53,12 +99,22 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             app.NameEditField.Value = DefNameText;
             
-            plot(app.UIAxes,Data,'-k');
+            app.PlotMenuDropDown.Items =  ['SumData',Data.ElName];
+            app.PlotMenuDropDown.ItemsData = [0:length(Data.ElName)];
+            app.PlotMenuDropDown.Value = 0;
+            
+            PlotSelectedData(app)
             
             app.UIAxes.YScale = 'log';
             rp = rulerPanInteraction('Dimensions','x');
             app.UIAxes.Interactions = [rp];
             tb = axtoolbar(app.UIAxes,{'export','pan','zoomin','zoomout','restoreview'});
+            
+            app.Integrations.Names = {};
+            app.Integrations.Data(1).Interval = [];
+            app.Integrations.Data(1).Position = [];
+            app.Integrations.Data(1).XLim = [];
+            app.Integrations.Data(1).YLim = [];
             
             app.SignalSelectorGUI.Visible = 'on';
 
@@ -67,11 +123,25 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         % Button pushed function: SelecttimeintervalButton
         function SelecttimeintervalButtonPushed(app, event)
             
+            ROI_DeleteROI(app);
+            
+            DeactivatePlotZoomPanOptions(app);
+            
+            PosROI = length(app.Integrations.Names) + 1;
+            
+            app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            
+            app.Integrations.Names{PosROI} = [app.NameEditField.Value,'_',num2str(PosROI)];
+            
+            app.Integrations.Data(PosROI).Interval = [round(app.ROI.Position(1)),round(app.ROI.Position(2))];
+            app.Integrations.Data(PosROI).Position = app.ROI.Position;
+            app.Integrations.Data(PosROI).XLim = app.UIAxes.XLim;
+            app.Integrations.Data(PosROI).YLim = app.UIAxes.YLim;
             
             
             
+            app.ROI_Listener = addlistener(app.ROI, 'MovingROI', @(varargin)ROI_Position_Changed(app, app.ROI));
             
-            keyboard
             
         end
 
@@ -83,6 +153,16 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         % Button pushed function: ADDButton
         function ADDButtonPushed(app, event)
             
+            
+            
+            
+            keyboard
+            
+        end
+
+        % Value changed function: PlotMenuDropDown
+        function PlotMenuDropDownValueChanged(app, event)
+            PlotSelectedData(app);
         end
     end
 
@@ -213,10 +293,24 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.DeleteButton.Layout.Column = [1 3];
             app.DeleteButton.Text = 'Delete';
 
+            % Create PlotMenuDropDownLabel
+            app.PlotMenuDropDownLabel = uilabel(app.GridLayout);
+            app.PlotMenuDropDownLabel.HorizontalAlignment = 'right';
+            app.PlotMenuDropDownLabel.Layout.Row = 5;
+            app.PlotMenuDropDownLabel.Layout.Column = [28 30];
+            app.PlotMenuDropDownLabel.Text = 'Plot Menu';
+
+            % Create PlotMenuDropDown
+            app.PlotMenuDropDown = uidropdown(app.GridLayout);
+            app.PlotMenuDropDown.ValueChangedFcn = createCallbackFcn(app, @PlotMenuDropDownValueChanged, true);
+            app.PlotMenuDropDown.Layout.Row = 5;
+            app.PlotMenuDropDown.Layout.Column = [31 36];
+
             % Create UIAxes
             app.UIAxes = uiaxes(app.GridLayout);
             xlabel(app.UIAxes, 'Sweep')
             ylabel(app.UIAxes, 'Intensity')
+            app.UIAxes.PlotBoxAspectRatio = [2.67268041237113 1 1];
             app.UIAxes.XTick = [0 1];
             app.UIAxes.YTick = [0 1];
             app.UIAxes.FontSize = 9;
