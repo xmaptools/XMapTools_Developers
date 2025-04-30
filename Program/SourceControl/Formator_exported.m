@@ -19,7 +19,7 @@ classdef Formator_exported < matlab.apps.AppBase
 
     
     properties (Access = private)
-        CallingApp 
+        CallingApp
         Entry
         Labels
     end
@@ -59,6 +59,17 @@ classdef Formator_exported < matlab.apps.AppBase
             if ~isempty(IdxSel)
                 app.Tree.SelectedNodes = app.Tree.Children(IdxSel);
                 app.Image_ok.ImageSource = 'Valid.png';
+                
+                
+                if isprop(app.CallingApp,'ByPassSelector')
+                    if isequal(app.CallingApp.ByPassSelector.Value,1)
+                                                
+                        app.CallingApp.ExchangeFormator = app.Tree.SelectedNodes.Text;
+            
+                        SelectCloseRequest(app);
+                        return
+                    end
+                end
             else
                 app.Tree.SelectedNodes = app.Tree.Children(1);
                 app.Image_ok.ImageSource = 'NotValid.png';
@@ -102,7 +113,7 @@ classdef Formator_exported < matlab.apps.AppBase
                 Format = char(app.Tree.SelectedNodes.Text);
             end
             
-            try 
+            try
                 Test = datetime(app.Entry,'InputFormat',Format);
             catch ME
                 uialert(app.Select,'Error, the format does not work','XMapTools')
@@ -117,7 +128,7 @@ classdef Formator_exported < matlab.apps.AppBase
         % Selection changed function: Tree
         function TreeSelectionChanged(app, event)
             app.ManualName.Value = app.Tree.SelectedNodes.Text;
-
+            
         end
 
         % Value changed function: AutomatedFormatCB
