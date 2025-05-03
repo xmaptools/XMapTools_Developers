@@ -15,12 +15,12 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         StartEditField            matlab.ui.control.NumericEditField
         EndEditFieldLabel         matlab.ui.control.Label
         EndEditField              matlab.ui.control.NumericEditField
-        ADDButton                 matlab.ui.control.Button
         AutomatedselectionPanel   matlab.ui.container.Panel
         GridLayout3               matlab.ui.container.GridLayout
         DeleteButton              matlab.ui.control.Button
         PlotMenuDropDownLabel     matlab.ui.control.Label
         PlotMenuDropDown          matlab.ui.control.DropDown
+        ApplyCloseButton          matlab.ui.control.Button
         UIAxes                    matlab.ui.control.UIAxes
     end
 
@@ -29,6 +29,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         CallingApp
         Data
         ROI
+        ROI_Listener
         Integrations
     end
     
@@ -61,8 +62,25 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         
         function ROI_Position_Changed(app, ~)
             
+            SelectedROI = app.Tree.SelectedNodes.NodeData(1);
             
-            keyboard
+            StartSweep = round(app.ROI.Position(1));
+            if StartSweep < 1
+                StartSweep = 1;
+                app.ROI.Position(1) = 1;
+            end
+            EndSweep = round(app.ROI.Position(3));
+            
+            app.Integrations.Data(SelectedROI).Interval = [StartSweep,EndSweep];
+            app.Integrations.Data(SelectedROI).Position = app.ROI.Position;
+            app.Integrations.Data(SelectedROI).XLim = app.UIAxes.XLim;
+            app.Integrations.Data(SelectedROI).YLim = app.UIAxes.YLim;
+            
+            app.StartEditField.Value = StartSweep;
+            app.EndEditField.Value = EndSweep;
+            
+            app.Tree.Children(SelectedROI).Children(1).Text = ['start = ',num2str(StartSweep),' end = ',num2str(EndSweep)];
+            
         end
         
         function PlotSelectedData(app)
@@ -97,6 +115,8 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
                     app.AutomatedselectionPanel.Visible = 'on';
             end
             
+            app.ApplyCloseButton.Visible = 'off';
+            
             app.NameEditField.Value = DefNameText;
             
             app.PlotMenuDropDown.Items =  ['SumData',Data.ElName];
@@ -129,19 +149,44 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             PosROI = length(app.Integrations.Names) + 1;
             
+            if PosROI > 1
+                app.ApplyCloseButton.Visible = 'on';
+            else
+                app.ApplyCloseButton.Visible = 'off';
+            end
+            
             app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
             
             app.Integrations.Names{PosROI} = [app.NameEditField.Value,'_',num2str(PosROI)];
             
-            app.Integrations.Data(PosROI).Interval = [round(app.ROI.Position(1)),round(app.ROI.Position(2))];
+            StartSweep = round(app.ROI.Position(1));
+            if StartSweep < 1
+                Shift = 1-app.ROI.Position(1);
+                StartSweep = 1;
+                app.ROI.Position(1) = 1;
+                app.ROI.Position(3) = app.ROI.Position(3) + Shift;
+            end
+            EndSweep = round(app.ROI.Position(3));
+            
+            app.Integrations.Data(PosROI).Interval = [StartSweep,EndSweep];
             app.Integrations.Data(PosROI).Position = app.ROI.Position;
             app.Integrations.Data(PosROI).XLim = app.UIAxes.XLim;
             app.Integrations.Data(PosROI).YLim = app.UIAxes.YLim;
             
+            app.StartEditField.Value = StartSweep;
+            app.EndEditField.Value = EndSweep;
             
+            app.ROI_Listener = addlistener(app.ROI, 'ROIMoved', @(varargin)ROI_Position_Changed(app, app.ROI));
             
-            app.ROI_Listener = addlistener(app.ROI, 'MovingROI', @(varargin)ROI_Position_Changed(app, app.ROI));
+            p = uitreenode(app.Tree,'Text',app.Integrations.Names{PosROI},'NodeData',[PosROI,0]);
             
+            p1 = uitreenode(p,'Text',['start = ',num2str(StartSweep),' end = ',num2str(EndSweep)],'NodeData',[PosROI,1]);
+            
+            expand(p);
+            
+            app.Tree.SelectedNodes = p;
+            
+            app.ROI.Label = app.Integrations.Names{PosROI};
             
         end
 
@@ -150,7 +195,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
         end
 
-        % Button pushed function: ADDButton
+        % Callback function
         function ADDButtonPushed(app, event)
             
             
@@ -163,6 +208,39 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         % Value changed function: PlotMenuDropDown
         function PlotMenuDropDownValueChanged(app, event)
             PlotSelectedData(app);
+        end
+
+        % Selection changed function: Tree
+        function TreeSelectionChanged(app, event)
+            
+            ROI_DeleteROI(app);
+           
+            DeactivatePlotZoomPanOptions(app);
+            
+            SelectedROI = app.Tree.SelectedNodes.NodeData(1);
+            
+            app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all','Position',app.Integrations.Data(SelectedROI).Position);
+            
+            app.UIAxes.XLim = app.Integrations.Data(SelectedROI).XLim;
+            app.UIAxes.YLim = app.Integrations.Data(SelectedROI).YLim;
+            
+            app.ROI_Listener = addlistener(app.ROI, 'ROIMoved', @(varargin)ROI_Position_Changed(app, app.ROI));
+            
+            app.ROI.Label = app.Integrations.Names{SelectedROI};
+            
+        end
+
+        % Button pushed function: ApplyCloseButton
+        function ApplyCloseButtonPushed(app, event)
+            
+            
+            
+            
+            
+            
+            
+            
+            keyboard
         end
     end
 
@@ -186,6 +264,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
 
             % Create Tree
             app.Tree = uitree(app.GridLayout);
+            app.Tree.SelectionChangedFcn = createCallbackFcn(app, @TreeSelectionChanged, true);
             app.Tree.Layout.Row = [5 18];
             app.Tree.Layout.Column = [1 5];
 
@@ -200,11 +279,11 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.ManualselectionPanel.TitlePosition = 'centertop';
             app.ManualselectionPanel.Title = 'Manual selection';
             app.ManualselectionPanel.Layout.Row = [1 4];
-            app.ManualselectionPanel.Layout.Column = [11 23];
+            app.ManualselectionPanel.Layout.Column = [11 17];
 
             % Create GridLayout2
             app.GridLayout2 = uigridlayout(app.ManualselectionPanel);
-            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x'};
             app.GridLayout2.RowHeight = {'1x', '1x', '1x'};
             app.GridLayout2.ColumnSpacing = 5;
             app.GridLayout2.RowSpacing = 5;
@@ -262,14 +341,6 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.EndEditField.Layout.Row = 3;
             app.EndEditField.Layout.Column = [5 6];
 
-            % Create ADDButton
-            app.ADDButton = uibutton(app.GridLayout2, 'push');
-            app.ADDButton.ButtonPushedFcn = createCallbackFcn(app, @ADDButtonPushed, true);
-            app.ADDButton.Icon = '056-plus.png';
-            app.ADDButton.Layout.Row = 2;
-            app.ADDButton.Layout.Column = [9 11];
-            app.ADDButton.Text = 'ADD';
-
             % Create AutomatedselectionPanel
             app.AutomatedselectionPanel = uipanel(app.GridLayout);
             app.AutomatedselectionPanel.TitlePosition = 'centertop';
@@ -306,13 +377,21 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.PlotMenuDropDown.Layout.Row = 5;
             app.PlotMenuDropDown.Layout.Column = [31 36];
 
+            % Create ApplyCloseButton
+            app.ApplyCloseButton = uibutton(app.GridLayout, 'push');
+            app.ApplyCloseButton.ButtonPushedFcn = createCallbackFcn(app, @ApplyCloseButtonPushed, true);
+            app.ApplyCloseButton.Icon = '044-repeat.png';
+            app.ApplyCloseButton.IconAlignment = 'top';
+            app.ApplyCloseButton.FontWeight = 'bold';
+            app.ApplyCloseButton.Layout.Row = [2 3];
+            app.ApplyCloseButton.Layout.Column = [19 22];
+            app.ApplyCloseButton.Text = 'Apply & Close';
+
             % Create UIAxes
             app.UIAxes = uiaxes(app.GridLayout);
             xlabel(app.UIAxes, 'Sweep')
             ylabel(app.UIAxes, 'Intensity')
             app.UIAxes.PlotBoxAspectRatio = [2.67268041237113 1 1];
-            app.UIAxes.XTick = [0 1];
-            app.UIAxes.YTick = [0 1];
             app.UIAxes.FontSize = 9;
             app.UIAxes.Layout.Row = [6 18];
             app.UIAxes.Layout.Column = [6 36];

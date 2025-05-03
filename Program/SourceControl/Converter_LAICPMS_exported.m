@@ -238,7 +238,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 SeqListName{i} = SeqName;
                 
-                % BACKGROUND (3.5)
+                % BACKGROUND (4.5)
                 if length(tback) > 1
                     ComptBackground = ComptBackground + 1;
                     app.Integrations.Background.Names{ComptBackground} = SeqName;
@@ -271,16 +271,22 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             if isempty(app.Integrations.Background.Names)
                 % Here we have no Background measurements detected...
                 
-                % keyboard
-                
                 waitfor(Signal_Selector(app,app.Data,'Manual','Background'));
                 
+                
+                
+                
+                % app.ExchangeFormator
+                
+                % HereWeAre
+                
+                keyboard
+                
                 close(app.WaitBar);
-                return
-                keyboard 
-            else
-                BackListName = app.Integrations.Background.Names;
+                return  
             end
+            
+            BackListName = app.Integrations.Background.Names;
             
             app.Integrations.SeqListName = SeqListName;
             
