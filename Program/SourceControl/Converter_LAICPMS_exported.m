@@ -87,7 +87,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         XMapToolsApp
         LastDir         % from XMapTools (startup)
         DataFiles       % Data not organised from different files
-        Data            % Data clean
         
         TimeShiftCorrData   % Data from the automated time shift correction
         Integrations
@@ -115,6 +114,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
     properties (Access = public)
         Log             % Data from the log file
         ExchangeFormator
+        
+        Data            % Data clean
         
     end
     
@@ -157,10 +158,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.Integrations.Measurements(1).Y2 = [];
             app.Integrations.Measurements(1).SpotSize = [];
             app.Integrations.Measurements(1).ScanVel = [];
-            app.Integrations.Measurements(1).Distance = [];
             
-            app.Integrations.Measurements(1).Slope = [];
-            app.Integrations.Measurements(1).Intercept = [];
+            %app.Integrations.Measurements(1).Distance = [];
+            %app.Integrations.Measurements(1).Slope = [];
+            %app.Integrations.Measurements(1).Intercept = [];
             
             %figure, hold on
             
@@ -225,6 +226,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     SeqName = SeqName{1}{1};
                 end
                 
+                % TEMPORARY 4.5
                 disp(SeqName)
                 
                 IsSeq = find(ismember(app.Integrations.TypeNames,SeqName));
@@ -266,6 +268,15 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
                 app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
                 app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
+                
+                % Check scan velocity (v 4.5)
+                if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                    
+                    Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                    dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                    
+                    app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                end
             end
             
             if isempty(app.Integrations.Background.Names)
@@ -274,16 +285,16 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 waitfor(Signal_Selector(app,app.Data,'Manual','Background'));
                 
                 
-                
+                app.Integrations.Background = app.ExchangeFormator;
                 
                 % app.ExchangeFormator
                 
                 % HereWeAre
                 
-                keyboard
+                % keyboard
                 
-                close(app.WaitBar);
-                return  
+                %close(app.WaitBar);
+                %return  
             end
             
             BackListName = app.Integrations.Background.Names;
@@ -299,7 +310,9 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             for i = 1:length(BackListName)
                 p = uitreenode(app.Node_Background,'Text',char(BackListName{i}),'NodeData',[1,i]);
             end
+            
             expand(app.Node_Background);
+            
         end
         
         function ExtractTimeIntegration_backup_v4_3(app)
@@ -2267,10 +2280,21 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         TableLOG.Y_um_ = TableLOG.X;
                     end
                     if ~isempty(find(strcmp('SpotSize',TableLOG.Properties.VariableNames)))
-                        TableLOG.SpotSize_um_ = TableLOG.X;
+                        TableLOG.SpotSize_um_ = TableLOG.SpotSize;
                     end
                     if ~isempty(find(strcmp('ScanVelocity',TableLOG.Properties.VariableNames)))
-                        TableLOG.ScanVelocity_um_s_ = TableLOG.X;
+                        TableLOG.ScanVelocity_um_s_ = TableLOG.ScanVelocity;
+                    end
+                    
+                    if iscell(TableLOG.SpotSize_um_(1))
+                        % We need to convert the spotsize format (maybe a
+                        % slit was used)
+                        NewSpotSize = zeros(size(TableLOG.SpotSize_um_));
+                        for i = 1:length(TableLOG.SpotSize_um_)
+                            Str = strread(char(TableLOG.SpotSize_um_(i)),'%s');
+                            NewSpotSize(i) = str2num(Str{1});   % this should be x
+                        end
+                        TableLOG.SpotSize_um_ = NewSpotSize;
                     end
                     %
                                         
@@ -2546,12 +2570,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     end
                     
                     % new version (4.4) with no outlier rejection
-                    SelectedBackgroundPlot = find(Yi > 0);
+                    SelectedSignalPlot = find(Yi > 0);
                     
-                    if ~isempty(SelectedBackgroundPlot)
+                    if ~isempty(SelectedSignalPlot)
                         
-                        YValue = mean(Yi(SelectedBackgroundPlot));
-                        YStd = std(Yi(SelectedBackgroundPlot));
+                        YValue = mean(Yi(SelectedSignalPlot));
+                        YStd = std(Yi(SelectedSignalPlot));
                         
                         if YStd < 0.1
                             YStd = 0.1 * YValue;
@@ -2569,8 +2593,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         p=fill(app.Plot,[Xinterval(1) Xinterval(2) Xinterval(2) Xinterval(1)],[YValue+0.5*YStd YValue+0.5*YStd YValue-0.5*YStd YValue-0.5*YStd],'r');
                         p.FaceAlpha = 0.5;
                         
-                        app.Position_Min.Value = app.Integrations.Background.Positions(NodeData(2),1);
-                        app.Position_Max.Value = app.Integrations.Background.Positions(NodeData(2),2);
+                        % New limits (4.5) for compatibility with absence of background measurements:
+                        if NodeData(1) > 1
+                            app.Position_Min.Value = app.Integrations.Measurements(ValuePs).Positions(NodeData(2),1);
+                            app.Position_Max.Value = app.Integrations.Measurements(ValuePs).Positions(NodeData(2),2);
+                        else
+                            app.Position_Min.Value = app.Integrations.Background.Positions(NodeData(2),1); 
+                            app.Position_Max.Value = app.Integrations.Background.Positions(NodeData(2),2);
+                        end
                         
                         app.SweepLabel.Visible = 'on';
                         app.Position_Min.Visible = 'on';
@@ -2584,8 +2614,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         app.Plot.XLim = [PositionInter-3*DurationInter PositionInter+3*DurationInter];
                         
                         if ModeLarge
-                            Min = min(Yi(SelectedBackgroundPlot)) - 0.1 * min(Yi(SelectedBackgroundPlot));
-                            Max = max(Yi(SelectedBackgroundPlot)) + 0.1 * max(Yi(SelectedBackgroundPlot));
+                            Min = min(Yi(SelectedSignalPlot)) - 0.1 * min(Yi(SelectedSignalPlot));
+                            Max = max(Yi(SelectedSignalPlot)) + 0.1 * max(Yi(SelectedSignalPlot));
                         else
                             Min = YValue-0.5*YValue;
                             if Min <= 0
@@ -2873,17 +2903,26 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     ValuePs = app.PrimaryStd_List.Value;
                     
                     if Idx
+                        
+                        % HEREWEARE
+                        
+                        disp(app.Integrations.Measurements(ValuePs).Times(Idx,1:2))
+                        disp(app.Integrations.Measurements(ValuePs).Positions(Idx,1))
+                        
                         app.Integrations.Measurements(ValuePs).Positions(Idx,1) = app.Position_Min.Value;
                         app.Integrations.Measurements(ValuePs).Positions(Idx,2) = app.Position_Max.Value;
                         
                         app.Integrations.Measurements(ValuePs).Times(Idx,1:2) = [app.Data.time_DT(app.Integrations.Measurements(ValuePs).Positions(Idx,1)),app.Data.time_DT(app.Integrations.Measurements(ValuePs).Positions(Idx,2))];
                         
+                        disp(app.Integrations.Measurements(ValuePs).Times(Idx,1:2))
+                        disp(app.Integrations.Measurements(ValuePs).Positions(Idx,1))
+                        
+                        % keyboard
                     end
                     PlotMenuDropDownValueChanged(app, 0);
                     
                     
             end
-            
             
         end
 

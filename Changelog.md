@@ -16,6 +16,7 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
+  - Correction of an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
   
 
 
