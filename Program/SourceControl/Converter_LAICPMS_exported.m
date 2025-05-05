@@ -76,6 +76,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         OptionsLabel                    matlab.ui.control.Label
         DebugMode                       matlab.ui.control.CheckBox
         TestMode                        matlab.ui.control.CheckBox
+        ByPassSelector                  matlab.ui.control.CheckBox
         Plot                            matlab.ui.control.UIAxes
         ContextMenu                     matlab.ui.container.ContextMenu
         CopyMenu                        matlab.ui.container.Menu
@@ -86,7 +87,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         XMapToolsApp
         LastDir         % from XMapTools (startup)
         DataFiles       % Data not organised from different files
-        Data            % Data clean
         
         TimeShiftCorrData   % Data from the automated time shift correction
         Integrations
@@ -114,12 +114,255 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
     properties (Access = public)
         Log             % Data from the log file
         ExchangeFormator
+        ExchangeSelector
+        
+        Data            % Data clean
         
     end
     
     methods (Access = private)
         
         function ExtractTimeIntegration(app)
+            
+            t = app.Data.tsec;
+            
+            %List_Type = '';
+            Type = zeros(size(t));
+            SeqN = zeros(size(t));
+            SeqListName = {};
+            StartSeq = zeros(size(t));
+            BackMeas = zeros(size(t));
+            BackMeasID = zeros(size(t));
+            SignalMeas = zeros(size(t));
+            SignalMeasTotal = zeros(size(t));
+            SignalMeasID = zeros(size(t));
+            
+            ComptScan = 0;
+            
+            app.Integrations.SeqListName = '';
+            
+            app.Integrations.Background.Names = {};
+            app.Integrations.Background.PositionsOri = [];
+            app.Integrations.Background.Positions = [];
+            app.Integrations.Background.Times = NaT(1);
+            %app.Integrations.Background.ROI(1).ROI = [];
+            
+            app.Integrations.TypeNames = '';
+            app.Integrations.Measurements(1).Names = {};
+            app.Integrations.Measurements(1).PositionsOri = [];
+            app.Integrations.Measurements(1).Positions = [];
+            app.Integrations.Measurements(1).Times = NaT(1);
+            
+            app.Integrations.Measurements(1).X1 = [];
+            app.Integrations.Measurements(1).Y1 = [];
+            app.Integrations.Measurements(1).X2 = [];
+            app.Integrations.Measurements(1).Y2 = [];
+            app.Integrations.Measurements(1).SpotSize = [];
+            app.Integrations.Measurements(1).ScanVel = [];
+            
+            %app.Integrations.Measurements(1).Distance = [];
+            %app.Integrations.Measurements(1).Slope = [];
+            %app.Integrations.Measurements(1).Intercept = [];
+            
+            %figure, hold on
+            
+            CountMeasurements = zeros(10);
+            ComptBackground = 0;
+            
+            % Sequence
+            SqIndex = find(~isnan(app.Log.Table.SequenceNumber));
+            for i = 1:length(SqIndex)
+                
+                Id1 = SqIndex(i);
+                t1 = app.Log.DT_Log_Corr(Id1);
+                if i < length(SqIndex)
+                    Id2 = SqIndex(i+1);
+                    t2 = app.Log.DT_Log_Corr(Id2);
+                else
+                    Id2 = length(app.Log.Table.SequenceNumber);
+                    t2 = app.Log.DT_Log_Corr(Id2);
+                end
+                
+                tf = find(isbetween(app.Data.time_DT,t1,t2));
+                SeqN(tf) = i*ones(size(tf));
+                
+                SeqLaserState = app.Log.Table.LaserState(Id1:Id2);
+                IsLaserOn = find(ismember(SeqLaserState,'On'));
+                
+                StartSeq(tf(1)) = 1;
+                for j = Id1:Id2
+                    if isequal(app.Log.Table.LaserState{j},'On')
+                        tback = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)),app.Log.DT_Log_Corr(j)));
+                        % we filter 10%
+                        %Filter = round(length(tback)*0.05);
+                        %BackMeas(tback(Filter:end-Filter)) = ones(size(tback(Filter:end-Filter)));
+                        %BackMeasID(tback(Filter:end-Filter)) = i*ones(size(tback(Filter:end-Filter)));
+                        break
+                    end
+                end
+                
+                SeqName = app.Log.Table.Comment{SqIndex(i)};  
+                %if isequal(length(SeqName{1}),3)         
+                %    AnaID = str2num(SeqName{1}{3}); 
+                %else 
+                %    AnaID = 0;
+                %end
+                
+                if isequal(app.NameFormatDropDown.Value,'Format 1 (Name - ID)')
+                    SeqName = textscan(SeqName,'%s'); 
+                    SeqName = SeqName{1}{1};
+                end
+                
+                if isequal(app.NameFormatDropDown.Value,'Format 2 (Name-ID)')
+                    SeqName = textscan(SeqName,'%s','delimiter','-'); 
+                    if length(SeqName{1}) > 2
+                        SeqName = strcat(SeqName{1}{1:end-1});
+                    else
+                        SeqName = SeqName{1}{1};
+                    end
+                end
+                
+                if isequal(app.NameFormatDropDown.Value,'Format 3 (Name_ID)')
+                    SeqName = textscan(SeqName,'%s','delimiter','_'); 
+                    SeqName = SeqName{1}{1};
+                end
+                
+                % TEMPORARY 4.5
+                % disp(SeqName)
+                
+                IsSeq = find(ismember(app.Integrations.TypeNames,SeqName));
+                if ~isempty(IsSeq)
+                    Type(tf) = IsSeq*ones(size(tf));
+                else
+                    app.Integrations.TypeNames{end+1} = SeqName;
+                    IsSeq = length(app.Integrations.TypeNames);
+                    Type(tf) = IsSeq*ones(size(tf));
+                end
+                
+                % Detect problem with format:
+                if isequal(length(app.Integrations.TypeNames),7) && isequal(i,length(app.Integrations.TypeNames))
+                    
+                    choice = uiconfirm(app.ConverterLAICPMS,[{'It seems that XMapTools has trouble identifying the measurement names and that the format selected is not appropriate. Here are the names of the first files after cleaning the analysis ID: '},{' '},app.Integrations.TypeNames],'Error – XMapTools','Options',{'Cancel', 'Continue'},'DefaultOption','Cancel','Icon', 'Error');
+                    
+                    if isequal(choice,'Cancel')
+                        app.Integrations.SeqListName = ''; 
+                        
+                        app.Integrations.Background.Names = {};
+                        app.Integrations.Background.PositionsOri = [];
+                        app.Integrations.Background.Positions = [];
+                        app.Integrations.Background.Times = NaT(1);
+                        %app.Integrations.Background.ROI(1).ROI = [];
+                        
+                        app.Integrations.TypeNames = '';
+                        app.Integrations.Measurements(1).Names = {};
+                        app.Integrations.Measurements(1).PositionsOri = [];
+                        app.Integrations.Measurements(1).Positions = [];
+                        app.Integrations.Measurements(1).Times = NaT(1);
+                        
+                        app.Integrations.Measurements(1).X1 = [];
+                        app.Integrations.Measurements(1).Y1 = [];
+                        app.Integrations.Measurements(1).X2 = [];
+                        app.Integrations.Measurements(1).Y2 = [];
+                        app.Integrations.Measurements(1).SpotSize = [];
+                        app.Integrations.Measurements(1).ScanVel = [];
+                        
+                        return
+                    end
+                end
+                
+                SeqListName{i} = SeqName;
+                
+                % BACKGROUND (4.5)
+                if length(tback) > 1
+                    ComptBackground = ComptBackground + 1;
+                    app.Integrations.Background.Names{ComptBackground} = SeqName;
+                    app.Integrations.Background.PositionsOri(ComptBackground,1:2) = [tback(1),tback(end)];
+                    app.Integrations.Background.Positions(ComptBackground,1:2) = [tback(1),tback(end)];
+                    app.Integrations.Background.Times(ComptBackground,1:2) = [app.Data.time_DT(tback(1)),app.Data.time_DT(tback(end))];
+                end
+                
+                % SIGNAL
+                CountMeasurements(IsSeq) =  CountMeasurements(IsSeq) + 1; 
+                IdxCount = CountMeasurements(IsSeq);
+                
+                app.Integrations.Measurements(IsSeq).Names{IdxCount} = SeqName;
+                
+                tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1))));
+                
+                app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
+                
+                % add later the coordinates and scan speed, etc...
+                app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1));
+                app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
+                app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
+                
+                % Check scan velocity (v 4.5)
+                if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                    
+                    Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                    dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                    
+                    app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                end
+            end
+            
+            if isempty(app.Integrations.Background.Names)
+                % Here we have no Background measurements detected...
+                
+                waitfor(Signal_Selector(app,app.Data,'Manual','Background')); 
+                
+                if isempty(app.ExchangeSelector)
+                    app.Integrations.SeqListName = '';
+                    
+                    app.Integrations.Background.Names = {};
+                    app.Integrations.Background.PositionsOri = [];
+                    app.Integrations.Background.Positions = [];
+                    app.Integrations.Background.Times = NaT(1);
+                    
+                    app.Integrations.TypeNames = '';
+                    app.Integrations.Measurements(1).Names = {};
+                    app.Integrations.Measurements(1).PositionsOri = [];
+                    app.Integrations.Measurements(1).Positions = [];
+                    app.Integrations.Measurements(1).Times = NaT(1);
+                    
+                    app.Integrations.Measurements(1).X1 = [];
+                    app.Integrations.Measurements(1).Y1 = [];
+                    app.Integrations.Measurements(1).X2 = [];
+                    app.Integrations.Measurements(1).Y2 = [];
+                    app.Integrations.Measurements(1).SpotSize = [];
+                    app.Integrations.Measurements(1).ScanVel = [];
+                    
+                    return
+                end
+                
+                app.Integrations.Background = app.ExchangeSelector;
+                
+            end
+            
+            BackListName = app.Integrations.Background.Names;
+            
+            app.Integrations.SeqListName = SeqListName;
+            
+            app.Data.BackgroundCorrection = zeros(size(t));
+            
+            UpdateTimeIntegration_Background(app);
+            
+            % UPDATE TREE
+            CleanTree(app,'Background');
+            for i = 1:length(BackListName)
+                p = uitreenode(app.Node_Background,'Text',char(BackListName{i}),'NodeData',[1,i]);
+            end
+            
+            expand(app.Node_Background);
+            
+        end
+        
+        function ExtractTimeIntegration_backup_v4_3(app)
             
             t = app.Data.tsec;
             
@@ -2076,6 +2319,32 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     
                     DtLOG = datetime(TableLOG.Timestamp,'InputFormat',SelFormat);
                     
+                    % Check for compatibility (column name): 
+                    if ~isempty(find(strcmp('X',TableLOG.Properties.VariableNames)))
+                        TableLOG.X_um_ = TableLOG.X;
+                    end
+                    if ~isempty(find(strcmp('Y',TableLOG.Properties.VariableNames)))
+                        TableLOG.Y_um_ = TableLOG.Y;
+                    end
+                    if ~isempty(find(strcmp('SpotSize',TableLOG.Properties.VariableNames)))
+                        TableLOG.SpotSize_um_ = TableLOG.SpotSize;
+                    end
+                    if ~isempty(find(strcmp('ScanVelocity',TableLOG.Properties.VariableNames)))
+                        TableLOG.ScanVelocity_um_s_ = TableLOG.ScanVelocity;
+                    end
+                    
+                    if iscell(TableLOG.SpotSize_um_(1))
+                        % We need to convert the spotsize format (maybe a
+                        % slit was used)
+                        NewSpotSize = zeros(size(TableLOG.SpotSize_um_));
+                        for i = 1:length(TableLOG.SpotSize_um_)
+                            Str = strread(char(TableLOG.SpotSize_um_(i)),'%s');
+                            NewSpotSize(i) = str2num(Str{1});   % this should be x
+                        end
+                        TableLOG.SpotSize_um_ = NewSpotSize;
+                    end
+                    %
+                                        
                 catch ME
                     errordlg('This log file is not a valid file','XMapTools')
                     close(app.WaitBar)
@@ -2240,6 +2509,11 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             ExtractTimeIntegration(app);
             
+            if isempty(app.Integrations.Background.Names)
+                close(app.WaitBar)
+                return
+            end
+            
             app.WaitBar.Message = 'Saving data and preparing display';
             
             app.Background_CorrectionList.Visible = 'On';
@@ -2348,12 +2622,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     end
                     
                     % new version (4.4) with no outlier rejection
-                    SelectedBackgroundPlot = find(Yi > 0);
+                    SelectedSignalPlot = find(Yi > 0);
                     
-                    if ~isempty(SelectedBackgroundPlot)
+                    if ~isempty(SelectedSignalPlot)
                         
-                        YValue = mean(Yi(SelectedBackgroundPlot));
-                        YStd = std(Yi(SelectedBackgroundPlot));
+                        YValue = mean(Yi(SelectedSignalPlot));
+                        YStd = std(Yi(SelectedSignalPlot));
                         
                         if YStd < 0.1
                             YStd = 0.1 * YValue;
@@ -2371,8 +2645,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         p=fill(app.Plot,[Xinterval(1) Xinterval(2) Xinterval(2) Xinterval(1)],[YValue+0.5*YStd YValue+0.5*YStd YValue-0.5*YStd YValue-0.5*YStd],'r');
                         p.FaceAlpha = 0.5;
                         
-                        app.Position_Min.Value = app.Integrations.Background.Positions(NodeData(2),1);
-                        app.Position_Max.Value = app.Integrations.Background.Positions(NodeData(2),2);
+                        % New limits (4.5) for compatibility with absence of background measurements:
+                        if NodeData(1) > 1
+                            app.Position_Min.Value = app.Integrations.Measurements(ValuePs).Positions(NodeData(2),1);
+                            app.Position_Max.Value = app.Integrations.Measurements(ValuePs).Positions(NodeData(2),2);
+                        else
+                            app.Position_Min.Value = app.Integrations.Background.Positions(NodeData(2),1); 
+                            app.Position_Max.Value = app.Integrations.Background.Positions(NodeData(2),2);
+                        end
                         
                         app.SweepLabel.Visible = 'on';
                         app.Position_Min.Visible = 'on';
@@ -2386,8 +2666,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         app.Plot.XLim = [PositionInter-3*DurationInter PositionInter+3*DurationInter];
                         
                         if ModeLarge
-                            Min = min(Yi(SelectedBackgroundPlot)) - 0.1 * min(Yi(SelectedBackgroundPlot));
-                            Max = max(Yi(SelectedBackgroundPlot)) + 0.1 * max(Yi(SelectedBackgroundPlot));
+                            Min = min(Yi(SelectedSignalPlot)) - 0.1 * min(Yi(SelectedSignalPlot));
+                            Max = max(Yi(SelectedSignalPlot)) + 0.1 * max(Yi(SelectedSignalPlot));
                         else
                             Min = YValue-0.5*YValue;
                             if Min <= 0
@@ -2675,6 +2955,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     ValuePs = app.PrimaryStd_List.Value;
                     
                     if Idx
+                        
                         app.Integrations.Measurements(ValuePs).Positions(Idx,1) = app.Position_Min.Value;
                         app.Integrations.Measurements(ValuePs).Positions(Idx,2) = app.Position_Max.Value;
                         
@@ -2685,7 +2966,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     
                     
             end
-            
             
         end
 
@@ -3921,6 +4201,11 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 app.LogfileCheckBox.Value = 0;
             end
         end
+
+        % Value changed function: NameFormatDropDown
+        function NameFormatDropDownValueChanged(app, event)
+            
+        end
     end
 
     % Component initialization
@@ -4046,12 +4331,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create NameFormatDropDown
             app.NameFormatDropDown = uidropdown(app.GridLayout2);
-            app.NameFormatDropDown.Items = {'Format 1 (Name - ID)', 'Format 2 (Name_ID)'};
-            app.NameFormatDropDown.ItemsData = [1 2];
+            app.NameFormatDropDown.Items = {'Format 1 (Name - ID)', 'Format 2 (Name-ID)', 'Format 3 (Name_ID)'};
+            app.NameFormatDropDown.ValueChangedFcn = createCallbackFcn(app, @NameFormatDropDownValueChanged, true);
             app.NameFormatDropDown.FontSize = 10;
             app.NameFormatDropDown.Layout.Row = 1;
             app.NameFormatDropDown.Layout.Column = [16 19];
-            app.NameFormatDropDown.Value = 1;
+            app.NameFormatDropDown.Value = 'Format 1 (Name - ID)';
 
             % Create BACKGROUNDPanel
             app.BACKGROUNDPanel = uipanel(app.GridLayout);
@@ -4474,17 +4759,25 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             % Create DebugMode
             app.DebugMode = uicheckbox(app.GridLayout11);
             app.DebugMode.ValueChangedFcn = createCallbackFcn(app, @DebugModeValueChanged, true);
-            app.DebugMode.Text = 'Debug mode';
+            app.DebugMode.Text = 'Debug';
             app.DebugMode.FontSize = 10;
             app.DebugMode.Layout.Row = 3;
-            app.DebugMode.Layout.Column = [1 4];
+            app.DebugMode.Layout.Column = [1 2];
 
             % Create TestMode
             app.TestMode = uicheckbox(app.GridLayout11);
-            app.TestMode.Text = 'Test mode';
+            app.TestMode.Text = 'Test';
             app.TestMode.FontSize = 10;
             app.TestMode.Layout.Row = 3;
-            app.TestMode.Layout.Column = [5 8];
+            app.TestMode.Layout.Column = [3 4];
+
+            % Create ByPassSelector
+            app.ByPassSelector = uicheckbox(app.GridLayout11);
+            app.ByPassSelector.Text = 'Auto Date/Time';
+            app.ByPassSelector.FontSize = 10;
+            app.ByPassSelector.Layout.Row = 3;
+            app.ByPassSelector.Layout.Column = [5 8];
+            app.ByPassSelector.Value = true;
 
             % Create Plot
             app.Plot = uiaxes(app.GridLayout);
