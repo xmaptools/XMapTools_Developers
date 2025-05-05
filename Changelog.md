@@ -2,7 +2,7 @@
 
 ## XMapTools 4.5 (no build yet)
 
-This version is highly recommended for all users as it includes new features, bug fixes and stability improvements to the software.  
+This version is highly recommended for all users as it includes new features, compatibility enhancements, bug fixes and stability improvements to the software.
 
 - Compatibility information for MacOS users:
 Note that the public compiled version of XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and more recent. The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.5 final release.
@@ -11,7 +11,10 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image. 
 
 - LA-ICP-MS: 
-  - Improve the converter to avoid displaying the file date/time format selection module when the format is automatically detected. Note that the old behaviour can be restored by deselecting the Auto Date/Time option in the converter module.
+  - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
+  - Improve the converter module to display the file date/time format selection module only if the format is not automatically detected. Note that the old behaviour can be restored by deselecting the Auto Date/Time option in the converter module.
+  - Add a new compatible format for automatic identification of the analysis ID. The list of compatible formats is "Name - ID", "Name-ID", "Name_ID".
+  - Add a check to detect if the wrong format of the name has been selected and the analysis ID can not be retrieved.
 
 
 - Other:

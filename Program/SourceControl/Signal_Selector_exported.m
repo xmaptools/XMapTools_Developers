@@ -17,6 +17,14 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         EndEditField              matlab.ui.control.NumericEditField
         AutomatedselectionPanel   matlab.ui.container.Panel
         GridLayout3               matlab.ui.container.GridLayout
+        FindAutomaticallyButton   matlab.ui.control.Button
+        NbSweepEditFieldLabel     matlab.ui.control.Label
+        NbSweepEditField          matlab.ui.control.NumericEditField
+        Label                     matlab.ui.control.Label
+        PlotButton                matlab.ui.control.Button
+        SaveROIsButton            matlab.ui.control.Button
+        SigmaEditFieldLabel       matlab.ui.control.Label
+        SigmaEditField            matlab.ui.control.NumericEditField
         DeleteButton              matlab.ui.control.Button
         PlotMenuDropDownLabel     matlab.ui.control.Label
         PlotMenuDropDown          matlab.ui.control.DropDown
@@ -28,9 +36,15 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
     properties (Access = private)
         CallingApp
         Data
+        
         ROI
         ROI_Listener
+        
+        SeqAuto
+        ROI_auto
+        
         Integrations
+        MaxSweep
     end
     
     methods (Access = private)
@@ -64,12 +78,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             SelectedROI = app.Tree.SelectedNodes.NodeData(1);
             
-            StartSweep = round(app.ROI.Position(1));
-            if StartSweep < 1
-                StartSweep = 1;
-                app.ROI.Position(1) = 1;
-            end
-            EndSweep = round(app.ROI.Position(3));
+            [StartSweep, EndSweep] = CheckLimitsROI(app);
             
             app.Integrations.Data(SelectedROI).Interval = [StartSweep,EndSweep];
             app.Integrations.Data(SelectedROI).Position = app.ROI.Position;
@@ -90,6 +99,49 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
                 plot(app.UIAxes,app.Data.Cps(:,app.PlotMenuDropDown.Value),'.-','MarkerSize',5);
             end
         end
+        
+        function [StartSweep, EndSweep] = CheckLimitsROI(app)
+            
+            StartSweep = round(app.ROI.Position(1));
+            
+            if StartSweep < 1
+                Shift = 1-StartSweep;
+                StartSweep = 1;
+                app.ROI.Position(1) = StartSweep;
+                app.ROI.Position(3) = app.ROI.Position(3) - Shift;
+            end
+            
+            EndSweep = round(app.ROI.Position(1) + app.ROI.Position(3));
+            
+            if EndSweep > app.MaxSweep
+                Shift = EndSweep - app.MaxSweep;
+                EndSweep = app.MaxSweep;
+                app.ROI.Position(3) = app.ROI.Position(3) - Shift;
+            end
+            
+        end
+        
+        function CheckIntegrationSequence(app)
+            
+            IntegrationsCheck = app.Integrations;
+            
+            XPos = zeros(size(IntegrationsCheck.Data));
+            
+            for i = 1:length(IntegrationsCheck.Data)
+                XPos(i) = IntegrationsCheck.Data(i).Position(1);
+            end
+            
+            [Vals,Idx] = sort(XPos);
+            
+            IntegrationsNew = app.Integrations;
+            
+            for i = 1:length(Idx)
+                IntegrationsNew.Names{i} = IntegrationsCheck.Names{Idx(i)};
+                IntegrationsNew.Data(i) = IntegrationsCheck.Data(Idx(i));
+            end
+            
+            app.Integrations = IntegrationsNew;
+        end
     end
     
 
@@ -107,15 +159,21 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.Data = Data;
             
             switch Mode
-                case 'Auto'
+                case 'Auto' % not implemented
                     app.ManualselectionPanel.Visible = 'off';
                     app.AutomatedselectionPanel.Visible = 'off';
                 case 'Manual'
                     app.ManualselectionPanel.Visible = 'on';
-                    app.AutomatedselectionPanel.Visible = 'on';
+                    app.AutomatedselectionPanel.Visible = 'off';
             end
             
+            app.MaxSweep = size(app.Data.Cps,1);
+            
             app.ApplyCloseButton.Visible = 'off';
+            app.DeleteButton.Visible = 'off';
+            app.PlotButton.Visible = 'off';
+            app.SaveROIsButton.Visible = 'off';
+            app.Label.Visible = 'off';
             
             app.NameEditField.Value = DefNameText;
             
@@ -145,28 +203,19 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             ROI_DeleteROI(app);
             
+            app.PlotButton.Visible = 'off';
+            app.SaveROIsButton.Visible = 'off';
+            app.Label.Visible = 'off';
+            
             DeactivatePlotZoomPanOptions(app);
             
             PosROI = length(app.Integrations.Names) + 1;
-            
-            if PosROI > 1
-                app.ApplyCloseButton.Visible = 'on';
-            else
-                app.ApplyCloseButton.Visible = 'off';
-            end
             
             app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
             
             app.Integrations.Names{PosROI} = [app.NameEditField.Value,'_',num2str(PosROI)];
             
-            StartSweep = round(app.ROI.Position(1));
-            if StartSweep < 1
-                Shift = 1-app.ROI.Position(1);
-                StartSweep = 1;
-                app.ROI.Position(1) = 1;
-                app.ROI.Position(3) = app.ROI.Position(3) + Shift;
-            end
-            EndSweep = round(app.ROI.Position(3));
+            [StartSweep, EndSweep] = CheckLimitsROI(app);
             
             app.Integrations.Data(PosROI).Interval = [StartSweep,EndSweep];
             app.Integrations.Data(PosROI).Position = app.ROI.Position;
@@ -188,20 +237,52 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             app.ROI.Label = app.Integrations.Names{PosROI};
             
+            if PosROI > 1
+                app.ApplyCloseButton.Visible = 'on';
+                app.DeleteButton.Visible = 'on';
+            else
+                app.ApplyCloseButton.Visible = 'off';
+                app.DeleteButton.Visible = 'off';
+            end
+            
+            if isequal(PosROI,1)
+                app.AutomatedselectionPanel.Visible = 'on';
+            else
+                app.AutomatedselectionPanel.Visible = 'off';
+            end
+            
         end
 
         % Button pushed function: DeleteButton
         function DeleteButtonPushed(app, event)
             
-        end
-
-        % Callback function
-        function ADDButtonPushed(app, event)
+            ROI_DeleteROI(app);
             
+            SelectedNode = app.Tree.SelectedNodes.NodeData;
             
+            app.Tree.Children(SelectedNode(1)).delete;
             
+            app.Integrations.Names(SelectedNode(1)) = [];
+            app.Integrations.Data(SelectedNode(1)) = [];
             
-            keyboard
+            if isequal(length(app.Integrations.Names),1)
+                app.AutomatedselectionPanel.Visible = 'on';
+                app.ApplyCloseButton.Visible = 'off';
+                app.DeleteButton.Visible = 'off';
+            else
+                app.AutomatedselectionPanel.Visible = 'off';
+                app.DeleteButton.Visible = 'on';
+            end
+            
+            % Adjust NodeData:            
+            for i = 1:length(app.Tree.Children)
+                app.Tree.Children(i).NodeData = [i,0];
+                app.Tree.Children(i).Children(1).NodeData = [i,1];                
+            end
+            
+            app.Tree.SelectedNodes = app.Tree.Children(1);
+            
+            TreeSelectionChanged(app);
             
         end
 
@@ -214,7 +295,11 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
         function TreeSelectionChanged(app, event)
             
             ROI_DeleteROI(app);
-           
+            
+            app.PlotButton.Visible = 'off';
+            app.SaveROIsButton.Visible = 'off';
+            app.Label.Visible = 'off';
+            
             DeactivatePlotZoomPanOptions(app);
             
             SelectedROI = app.Tree.SelectedNodes.NodeData(1);
@@ -228,19 +313,194 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             app.ROI.Label = app.Integrations.Names{SelectedROI};
             
+            if length(app.Tree.Children) > 1
+                app.DeleteButton.Visible = 'on';
+            end
+            
         end
 
         % Button pushed function: ApplyCloseButton
         function ApplyCloseButtonPushed(app, event)
             
+            CheckIntegrationSequence(app);
+            
+            Background.Names = app.Integrations.Names;
+            
+            for i = 1:length(app.Integrations.Data)
+                Background.PositionsOri(i,:) = app.Integrations.Data(i).Interval;
+                Background.Times(i,:) = [app.CallingApp.Data.time_DT(app.Integrations.Data(i).Interval(1)),app.CallingApp.Data.time_DT(app.Integrations.Data(i).Interval(2))];
+            end
+            
+            Background.Positions = Background.PositionsOri;
+            
+            for i = 1:length(app.Integrations.Data)
+                Background.Times(i,:) = [app.CallingApp.Data.time_DT(app.Integrations.Data(i).Interval(1)),app.CallingApp.Data.time_DT(app.Integrations.Data(i).Interval(2))];
+            end
+            
+            app.CallingApp.ExchangeSelector = Background;
+            
+            SignalSelectorGUICloseRequest(app, 1);
+            
+        end
+
+        % Close request function: SignalSelectorGUI
+        function SignalSelectorGUICloseRequest(app, event)
+            delete(app)
+        end
+
+        % Button pushed function: FindAutomaticallyButton
+        function FindAutomaticallyButtonPushed(app, event)
+            ROI_DeleteROI(app);
+            
+            Signal = app.Data.SumData;
+            SelectedSignal = Signal(app.Integrations.Data(1).Interval(1):app.Integrations.Data(1).Interval(2));
+            
+            MeanSignal = mean(SelectedSignal);
+            StdSignal = std(SelectedSignal);
+            
+            Sigma = app.SigmaEditField.Value;
+            
+            WhereSignal = find(Signal >= MeanSignal-Sigma*StdSignal & Signal <= MeanSignal+Sigma*StdSignal);
+            
+            Count = 1;
+            SeqAuto = [1,0,0];
+            
+            for i = 1:length(WhereSignal)-1
+                
+                if isequal(WhereSignal(i+1) - WhereSignal(i),1)
+                    SeqAuto(Count,3) = SeqAuto(Count,3) + 1;
+                else
+                    if SeqAuto(Count,3) >= app.NbSweepEditField.Value
+                        SeqAuto(Count,2) = WhereSignal(i);
+                        Count = Count + 1;
+                        SeqAuto(Count,1) = WhereSignal(i+1);
+                    else
+                        SeqAuto(Count,1) = WhereSignal(i+1);
+                        SeqAuto(Count,3) = 0;
+                    end
+                end
+            end
+            
+            if isequal(SeqAuto(end,2),0)
+                SeqAuto = SeqAuto(1:end-1,:);
+            end
+            
+            app.Label.Text = [num2str(size(SeqAuto,1)),' potential ROI found'];
+            
+            if size(SeqAuto,1) > 1 
+                app.PlotButton.Visible = 'on';
+                app.SaveROIsButton.Visible = 'on';
+                app.Label.Visible = 'on';
+                
+                app.UIAxes.XLimMode = 'auto';
+                app.UIAxes.YLimMode = 'auto';
+                
+                app.SeqAuto = SeqAuto;
+            end
+            
+        end
+
+        % Button pushed function: PlotButton
+        function PlotButtonPushed(app, event)
+            ROI_DeleteROI(app);
+            
+            Signal = app.Data.SumData;
+            
+            for i = 1: size(app.SeqAuto,1)
+                SelectedSignal = Signal(app.SeqAuto(i,1):app.SeqAuto(i,2));
+                SelectedSignalPos = SelectedSignal(find(SelectedSignal));
+                if ~isempty(SelectedSignalPos)
+                    MinValue = min(SelectedSignalPos);
+                else
+                    MinValue = 0.1;
+                end
+                MaxValue = max(SelectedSignalPos);
+                Position = [app.SeqAuto(i,1),MinValue,app.SeqAuto(i,2)-app.SeqAuto(i,1),MaxValue-MinValue];
+                app.ROI_auto(i).ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',Position);
+            end
             
             
+        end
+
+        % Button pushed function: SaveROIsButton
+        function SaveROIsButtonPushed(app, event)
             
+            ROI_DeleteROI(app);
             
+            app.PlotButton.Visible = 'off';
+            app.SaveROIsButton.Visible = 'off';
+            app.Label.Visible = 'off';
             
+            for i = 1:length(app.Tree.Children)
+                app.Tree.Children(i).delete;
+            end
             
+            Signal = app.Data.SumData;
             
-            keyboard
+            for i = 1: size(app.SeqAuto,1)
+                
+                PosROI = i;
+                
+                StartSweep = app.SeqAuto(i,1);
+                EndSweep = app.SeqAuto(i,2);
+                
+                SelectedSignal = Signal(app.SeqAuto(i,1):app.SeqAuto(i,2));
+                SelectedSignalPos = SelectedSignal(find(SelectedSignal));
+                if ~isempty(SelectedSignalPos)
+                    MinValue = min(SelectedSignalPos);
+                else
+                    MinValue = 0.1;
+                end
+                MaxValue = max(SelectedSignalPos);
+                Position = [app.SeqAuto(i,1),MinValue,app.SeqAuto(i,2)-app.SeqAuto(i,1),MaxValue-MinValue];
+                
+                app.Integrations.Names{PosROI} = ['Auto_',num2str(PosROI)];
+                
+                app.Integrations.Data(PosROI).Interval = [StartSweep,EndSweep];
+                app.Integrations.Data(PosROI).Position = Position;
+                app.Integrations.Data(PosROI).XLim = app.UIAxes.XLim;
+                app.Integrations.Data(PosROI).YLim = app.UIAxes.YLim;
+                
+                p = uitreenode(app.Tree,'Text',app.Integrations.Names{PosROI},'NodeData',[PosROI,0]);
+                
+                p1 = uitreenode(p,'Text',['start = ',num2str(StartSweep),' end = ',num2str(EndSweep)],'NodeData',[PosROI,1]);
+                
+                expand(p);
+                
+            end
+            
+            app.Tree.SelectedNodes = app.Tree.Children(1);
+            
+            TreeSelectionChanged(app);
+            
+            if PosROI > 1
+                app.ApplyCloseButton.Visible = 'on';
+                app.DeleteButton.Visible = 'on';
+            else
+                app.ApplyCloseButton.Visible = 'off';
+                app.DeleteButton.Visible = 'off';
+            end
+            
+            if isequal(PosROI,1)
+                app.AutomatedselectionPanel.Visible = 'on';
+            else
+                app.AutomatedselectionPanel.Visible = 'off';
+            end
+            
+        end
+
+        % Value changed function: NbSweepEditField
+        function NbSweepEditFieldValueChanged(app, event)
+            if isequal(app.Label.Visible,'on') || isequal(app.Label.Visible,'On')
+                FindAutomaticallyButtonPushed(app, 1);
+            end
+        end
+
+        % Value changed function: SigmaEditField
+        function SigmaEditFieldValueChanged(app, event)
+            if isequal(app.Label.Visible,'on') || isequal(app.Label.Visible,'On')
+                FindAutomaticallyButtonPushed(app, 1);
+            end
         end
     end
 
@@ -254,6 +514,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.SignalSelectorGUI = uifigure('Visible', 'off');
             app.SignalSelectorGUI.Position = [100 100 1258 616];
             app.SignalSelectorGUI.Name = 'Signal Selector – XMapTools';
+            app.SignalSelectorGUI.CloseRequestFcn = createCallbackFcn(app, @SignalSelectorGUICloseRequest, true);
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.SignalSelectorGUI);
@@ -355,6 +616,68 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             app.GridLayout3.ColumnSpacing = 5;
             app.GridLayout3.RowSpacing = 5;
             app.GridLayout3.Padding = [5 5 5 5];
+
+            % Create FindAutomaticallyButton
+            app.FindAutomaticallyButton = uibutton(app.GridLayout3, 'push');
+            app.FindAutomaticallyButton.ButtonPushedFcn = createCallbackFcn(app, @FindAutomaticallyButtonPushed, true);
+            app.FindAutomaticallyButton.Icon = 'XXX_center_round.png';
+            app.FindAutomaticallyButton.Layout.Row = 2;
+            app.FindAutomaticallyButton.Layout.Column = [1 6];
+            app.FindAutomaticallyButton.Text = 'Find Automatically';
+
+            % Create NbSweepEditFieldLabel
+            app.NbSweepEditFieldLabel = uilabel(app.GridLayout3);
+            app.NbSweepEditFieldLabel.HorizontalAlignment = 'right';
+            app.NbSweepEditFieldLabel.FontSize = 11;
+            app.NbSweepEditFieldLabel.Layout.Row = 2;
+            app.NbSweepEditFieldLabel.Layout.Column = [7 8];
+            app.NbSweepEditFieldLabel.Text = 'Nb Sweep';
+
+            % Create NbSweepEditField
+            app.NbSweepEditField = uieditfield(app.GridLayout3, 'numeric');
+            app.NbSweepEditField.ValueChangedFcn = createCallbackFcn(app, @NbSweepEditFieldValueChanged, true);
+            app.NbSweepEditField.HorizontalAlignment = 'center';
+            app.NbSweepEditField.FontSize = 11;
+            app.NbSweepEditField.Layout.Row = 2;
+            app.NbSweepEditField.Layout.Column = 9;
+            app.NbSweepEditField.Value = 100;
+
+            % Create Label
+            app.Label = uilabel(app.GridLayout3);
+            app.Label.HorizontalAlignment = 'center';
+            app.Label.Layout.Row = 3;
+            app.Label.Layout.Column = [1 7];
+
+            % Create PlotButton
+            app.PlotButton = uibutton(app.GridLayout3, 'push');
+            app.PlotButton.ButtonPushedFcn = createCallbackFcn(app, @PlotButtonPushed, true);
+            app.PlotButton.Layout.Row = 3;
+            app.PlotButton.Layout.Column = [8 9];
+            app.PlotButton.Text = 'Plot';
+
+            % Create SaveROIsButton
+            app.SaveROIsButton = uibutton(app.GridLayout3, 'push');
+            app.SaveROIsButton.ButtonPushedFcn = createCallbackFcn(app, @SaveROIsButtonPushed, true);
+            app.SaveROIsButton.Layout.Row = 3;
+            app.SaveROIsButton.Layout.Column = [10 12];
+            app.SaveROIsButton.Text = 'Save ROIs';
+
+            % Create SigmaEditFieldLabel
+            app.SigmaEditFieldLabel = uilabel(app.GridLayout3);
+            app.SigmaEditFieldLabel.HorizontalAlignment = 'right';
+            app.SigmaEditFieldLabel.FontSize = 11;
+            app.SigmaEditFieldLabel.Layout.Row = 2;
+            app.SigmaEditFieldLabel.Layout.Column = [10 11];
+            app.SigmaEditFieldLabel.Text = 'Sigma';
+
+            % Create SigmaEditField
+            app.SigmaEditField = uieditfield(app.GridLayout3, 'numeric');
+            app.SigmaEditField.ValueChangedFcn = createCallbackFcn(app, @SigmaEditFieldValueChanged, true);
+            app.SigmaEditField.HorizontalAlignment = 'center';
+            app.SigmaEditField.FontSize = 11;
+            app.SigmaEditField.Layout.Row = 2;
+            app.SigmaEditField.Layout.Column = 12;
+            app.SigmaEditField.Value = 5;
 
             % Create DeleteButton
             app.DeleteButton = uibutton(app.GridLayout, 'push');

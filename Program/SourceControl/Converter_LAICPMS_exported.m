@@ -114,6 +114,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
     properties (Access = public)
         Log             % Data from the log file
         ExchangeFormator
+        ExchangeSelector
         
         Data            % Data clean
         
@@ -227,7 +228,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 end
                 
                 % TEMPORARY 4.5
-                disp(SeqName)
+                % disp(SeqName)
                 
                 IsSeq = find(ismember(app.Integrations.TypeNames,SeqName));
                 if ~isempty(IsSeq)
@@ -236,6 +237,37 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     app.Integrations.TypeNames{end+1} = SeqName;
                     IsSeq = length(app.Integrations.TypeNames);
                     Type(tf) = IsSeq*ones(size(tf));
+                end
+                
+                % Detect problem with format:
+                if isequal(length(app.Integrations.TypeNames),7) && isequal(i,length(app.Integrations.TypeNames))
+                    
+                    choice = uiconfirm(app.ConverterLAICPMS,[{'It seems that XMapTools has trouble identifying the measurement names and that the format selected is not appropriate. Here are the names of the first files after cleaning the analysis ID: '},{' '},app.Integrations.TypeNames],'Error – XMapTools','Options',{'Cancel', 'Continue'},'DefaultOption','Cancel','Icon', 'Error');
+                    
+                    if isequal(choice,'Cancel')
+                        app.Integrations.SeqListName = ''; 
+                        
+                        app.Integrations.Background.Names = {};
+                        app.Integrations.Background.PositionsOri = [];
+                        app.Integrations.Background.Positions = [];
+                        app.Integrations.Background.Times = NaT(1);
+                        %app.Integrations.Background.ROI(1).ROI = [];
+                        
+                        app.Integrations.TypeNames = '';
+                        app.Integrations.Measurements(1).Names = {};
+                        app.Integrations.Measurements(1).PositionsOri = [];
+                        app.Integrations.Measurements(1).Positions = [];
+                        app.Integrations.Measurements(1).Times = NaT(1);
+                        
+                        app.Integrations.Measurements(1).X1 = [];
+                        app.Integrations.Measurements(1).Y1 = [];
+                        app.Integrations.Measurements(1).X2 = [];
+                        app.Integrations.Measurements(1).Y2 = [];
+                        app.Integrations.Measurements(1).SpotSize = [];
+                        app.Integrations.Measurements(1).ScanVel = [];
+                        
+                        return
+                    end
                 end
                 
                 SeqListName{i} = SeqName;
@@ -282,19 +314,34 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             if isempty(app.Integrations.Background.Names)
                 % Here we have no Background measurements detected...
                 
-                waitfor(Signal_Selector(app,app.Data,'Manual','Background'));
+                waitfor(Signal_Selector(app,app.Data,'Manual','Background')); 
                 
+                if isempty(app.ExchangeSelector)
+                    app.Integrations.SeqListName = '';
+                    
+                    app.Integrations.Background.Names = {};
+                    app.Integrations.Background.PositionsOri = [];
+                    app.Integrations.Background.Positions = [];
+                    app.Integrations.Background.Times = NaT(1);
+                    
+                    app.Integrations.TypeNames = '';
+                    app.Integrations.Measurements(1).Names = {};
+                    app.Integrations.Measurements(1).PositionsOri = [];
+                    app.Integrations.Measurements(1).Positions = [];
+                    app.Integrations.Measurements(1).Times = NaT(1);
+                    
+                    app.Integrations.Measurements(1).X1 = [];
+                    app.Integrations.Measurements(1).Y1 = [];
+                    app.Integrations.Measurements(1).X2 = [];
+                    app.Integrations.Measurements(1).Y2 = [];
+                    app.Integrations.Measurements(1).SpotSize = [];
+                    app.Integrations.Measurements(1).ScanVel = [];
+                    
+                    return
+                end
                 
-                app.Integrations.Background = app.ExchangeFormator;
+                app.Integrations.Background = app.ExchangeSelector;
                 
-                % app.ExchangeFormator
-                
-                % HereWeAre
-                
-                % keyboard
-                
-                %close(app.WaitBar);
-                %return  
             end
             
             BackListName = app.Integrations.Background.Names;
@@ -2461,6 +2508,11 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             PlotMenuDropDownValueChanged(app,0);
             
             ExtractTimeIntegration(app);
+            
+            if isempty(app.Integrations.Background.Names)
+                close(app.WaitBar)
+                return
+            end
             
             app.WaitBar.Message = 'Saving data and preparing display';
             
