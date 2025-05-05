@@ -2277,7 +2277,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         TableLOG.X_um_ = TableLOG.X;
                     end
                     if ~isempty(find(strcmp('Y',TableLOG.Properties.VariableNames)))
-                        TableLOG.Y_um_ = TableLOG.X;
+                        TableLOG.Y_um_ = TableLOG.Y;
                     end
                     if ~isempty(find(strcmp('SpotSize',TableLOG.Properties.VariableNames)))
                         TableLOG.SpotSize_um_ = TableLOG.SpotSize;
@@ -2904,20 +2904,11 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     
                     if Idx
                         
-                        % HEREWEARE
-                        
-                        disp(app.Integrations.Measurements(ValuePs).Times(Idx,1:2))
-                        disp(app.Integrations.Measurements(ValuePs).Positions(Idx,1))
-                        
                         app.Integrations.Measurements(ValuePs).Positions(Idx,1) = app.Position_Min.Value;
                         app.Integrations.Measurements(ValuePs).Positions(Idx,2) = app.Position_Max.Value;
                         
                         app.Integrations.Measurements(ValuePs).Times(Idx,1:2) = [app.Data.time_DT(app.Integrations.Measurements(ValuePs).Positions(Idx,1)),app.Data.time_DT(app.Integrations.Measurements(ValuePs).Positions(Idx,2))];
                         
-                        disp(app.Integrations.Measurements(ValuePs).Times(Idx,1:2))
-                        disp(app.Integrations.Measurements(ValuePs).Positions(Idx,1))
-                        
-                        % keyboard
                     end
                     PlotMenuDropDownValueChanged(app, 0);
                     
