@@ -14,7 +14,7 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
   - Improve the converter module to display the file date/time format selection module only if the format is not automatically detected. Note that the old behaviour can be restored by deselecting the Auto Date/Time option in the converter module.
   - Add a new compatible format for automatic identification of the analysis ID. The list of compatible formats is "Name - ID", "Name-ID", "Name_ID".
-  - Add a check to detect if the wrong format of the name has been selected and the analysis ID can not be retrieved.
+  - Add a check to detect if the wrong format of the name has been selected and the analysis ID cannot be retrieved.
 
 
 - Other:
