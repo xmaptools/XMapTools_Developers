@@ -26,8 +26,8 @@ classdef Spider_exported < matlab.apps.AppBase
         ROI_Button                 matlab.ui.control.Button
         SamplingToolsLabel         matlab.ui.control.Label
         GridLayout6                matlab.ui.container.GridLayout
-        UIAxes_Plot                matlab.ui.control.UIAxes
         UIAxes_Map                 matlab.ui.control.UIAxes
+        UIAxes_Plot                matlab.ui.control.UIAxes
     end
 
     
@@ -145,7 +145,7 @@ classdef Spider_exported < matlab.apps.AppBase
             if app.ROI_sampling(end).Nb > 1
                 ColorMap = app.XMapToolsApp.CalculateColorMap(app.ColorPaletteDropDown.Value,app.ROI_sampling(end).Nb);
             else
-                ColorMap = [0,0,0];
+                ColorMap = app.XMapToolsApp.GetROIColor;
             end
             
             for i = 1:app.ROI_sampling(end).Nb
@@ -387,7 +387,7 @@ classdef Spider_exported < matlab.apps.AppBase
             
             PosROI = app.ROI_sampling(end).Nb+1;
             
-            app.ROI_sampling(PosROI).ROI = drawcircle(app.UIAxes_Map,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            app.ROI_sampling(PosROI).ROI = drawcircle(app.UIAxes_Map,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling(PosROI).ROI, 'MovingROI', @(varargin)ROI_Value_Extractor(app, app.ROI_sampling));
             
@@ -424,7 +424,7 @@ classdef Spider_exported < matlab.apps.AppBase
             
             PosROI = app.ROI_sampling(end).Nb+1;
             
-            app.ROI_sampling(PosROI).ROI = drawpolygon(app.UIAxes_Map,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            app.ROI_sampling(PosROI).ROI = drawpolygon(app.UIAxes_Map,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling(PosROI).ROI, 'MovingROI', @(varargin)ROI_Value_Extractor(app, app.ROI_sampling));
             
@@ -445,7 +445,7 @@ classdef Spider_exported < matlab.apps.AppBase
             
             DeactivatePlotZoomPanOptions(app);
             
-            app.ROI_samplingPolyline = drawpolyline(app.UIAxes_Map,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            app.ROI_samplingPolyline = drawpolyline(app.UIAxes_Map,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
             
             app.ROI_samplingPolyline_Listener = addlistener(app.ROI_samplingPolyline, 'ROIMoved', @(varargin)ROI_Line_Value_Extractor(app, app.ROI_samplingPolyline));
            
@@ -692,19 +692,19 @@ classdef Spider_exported < matlab.apps.AppBase
             app.GridLayout6.Layout.Row = 4;
             app.GridLayout6.Layout.Column = [2 5];
 
-            % Create UIAxes_Plot
-            app.UIAxes_Plot = uiaxes(app.GridLayout);
-            ylabel(app.UIAxes_Plot, 'Normalized Abundance')
-            app.UIAxes_Plot.PlotBoxAspectRatio = [1.50588235294118 1 1];
-            app.UIAxes_Plot.Layout.Row = [6 11];
-            app.UIAxes_Plot.Layout.Column = [7 10];
-
             % Create UIAxes_Map
             app.UIAxes_Map = uiaxes(app.GridLayout);
             app.UIAxes_Map.XTick = [];
             app.UIAxes_Map.YTick = [];
             app.UIAxes_Map.Layout.Row = [6 11];
             app.UIAxes_Map.Layout.Column = [2 5];
+
+            % Create UIAxes_Plot
+            app.UIAxes_Plot = uiaxes(app.GridLayout);
+            ylabel(app.UIAxes_Plot, 'Normalized Abundance')
+            app.UIAxes_Plot.PlotBoxAspectRatio = [1.50588235294118 1 1];
+            app.UIAxes_Plot.Layout.Row = [6 11];
+            app.UIAxes_Plot.Layout.Column = [7 10];
 
             % Show the figure after all components are created
             app.Spider_GUI.Visible = 'on';

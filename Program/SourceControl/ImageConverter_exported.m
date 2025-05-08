@@ -32,8 +32,8 @@ classdef ImageConverter_exported < matlab.apps.AppBase
         YmaxEditField           matlab.ui.control.NumericEditField
         YmaxEditFieldLabel      matlab.ui.control.Label
         CropImageButton         matlab.ui.control.Button
-        UIAxes                  matlab.ui.control.UIAxes
         UIAxes_2                matlab.ui.control.UIAxes
+        UIAxes                  matlab.ui.control.UIAxes
     end
 
     
@@ -67,7 +67,7 @@ classdef ImageConverter_exported < matlab.apps.AppBase
                 
                 ImagePosition = [1,1,size(app.ImageRawData,2)-1,size(app.ImageRawData,1)-1];
                 
-                app.Crop_ROI = drawrectangle(app.UIAxes,'Position',ImagePosition,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+                app.Crop_ROI = drawrectangle(app.UIAxes,'Position',ImagePosition,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
                 
                 UpdateCropLimits(app);
                 
@@ -501,19 +501,19 @@ classdef ImageConverter_exported < matlab.apps.AppBase
             app.CropImageButton.Layout.Column = [5 6];
             app.CropImageButton.Text = 'Crop Image';
 
-            % Create UIAxes
-            app.UIAxes = uiaxes(app.GridLayout);
-            app.UIAxes.XTick = [];
-            app.UIAxes.YTick = [];
-            app.UIAxes.Layout.Row = [6 13];
-            app.UIAxes.Layout.Column = [2 9];
-
             % Create UIAxes_2
             app.UIAxes_2 = uiaxes(app.GridLayout);
             app.UIAxes_2.XTick = [];
             app.UIAxes_2.YTick = [];
             app.UIAxes_2.Layout.Row = [6 13];
             app.UIAxes_2.Layout.Column = [14 21];
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.GridLayout);
+            app.UIAxes.XTick = [];
+            app.UIAxes.YTick = [];
+            app.UIAxes.Layout.Row = [6 13];
+            app.UIAxes.Layout.Column = [2 9];
 
             % Show the figure after all components are created
             app.ImageConverterGUI.Visible = 'on';

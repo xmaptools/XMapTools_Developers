@@ -95,12 +95,12 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
         Field_Xmax                  matlab.ui.control.NumericEditField
         XmaxLabel                   matlab.ui.control.Label
         HoldaxislimitsCheckBox      matlab.ui.control.CheckBox
-        FigPlot2                    matlab.ui.control.UIAxes
-        FigPlot3                    matlab.ui.control.UIAxes
-        FigPlot1                    matlab.ui.control.UIAxes
-        FigPlot6                    matlab.ui.control.UIAxes
-        FigPlot5                    matlab.ui.control.UIAxes
         FigPlot4                    matlab.ui.control.UIAxes
+        FigPlot5                    matlab.ui.control.UIAxes
+        FigPlot6                    matlab.ui.control.UIAxes
+        FigPlot1                    matlab.ui.control.UIAxes
+        FigPlot3                    matlab.ui.control.UIAxes
+        FigPlot2                    matlab.ui.control.UIAxes
     end
 
     
@@ -1521,7 +1521,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                     app.FigPlot2.Visible = 'On';
                     
                     if isequal(OuiMask,1)
-                        colormap(app.FigPlot2,[0,0,0;0.2,0.3,1;1,0,0])
+                        colormap(app.FigPlot2,[0,0,0;1,1,1;app.XMapToolsApp.GetROIColor])
                         
                         if size(LeMask,2) > size(LeMask,1)
                             colorbar(app.FigPlot2,'XTickLabel',{'Undefined','Unselected (>0)','Selected'},'Location','SouthOutside','XTickMode','manual','XTick',[0.5,1.5,2.5]); 
@@ -2418,7 +2418,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                 if isequal(app.HoldonCheckBox.Value,0)
                     Explore_ResetROI_ButtonPushed(app);
                     
-                    app.ROI_PI_PolygonSingle = drawpolygon(app.FigPlot1,'Color',[1,0,0], 'InteractionsAllowed','all');
+                    app.ROI_PI_PolygonSingle = drawpolygon(app.FigPlot1,'Color',app.XMapToolsApp.GetROIColor, 'InteractionsAllowed','all');
                     app.ROI_PI_PolygonSingle_Listener = addlistener(app.ROI_PI_PolygonSingle, 'ROIMoved', @(varargin)ROI_ShapeChangedSingle(app, app.ROI_PI_PolygonSingle));
                     
                     PixelIndentifier(app,'Single');
@@ -2429,7 +2429,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                 if isequal(app.HoldonCheckBox.Value,1)
                     IdxROI = app.ROI_PI_Multi.Nb + 1;
                     
-                    app.ROI_PI_Multi.ROI(IdxROI).ROI = drawpolygon(app.FigPlot1,'Color',[0.47,0.67,0.19], 'InteractionsAllowed','all');
+                    app.ROI_PI_Multi.ROI(IdxROI).ROI = drawpolygon(app.FigPlot1,'Color',app.XMapToolsApp.GetROIColor, 'InteractionsAllowed','all');
                     app.ROI_PI_Multi_Listener = addlistener(app.ROI_PI_Multi.ROI(IdxROI).ROI, 'ROIMoved', @(varargin)ROI_ShapeChangedMulti(app, app.ROI_PI_Multi));
                     
                     app.ROI_PI_Multi.Nb = IdxROI; 
@@ -3629,47 +3629,16 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.HoldaxislimitsCheckBox.Layout.Row = 12;
             app.HoldaxislimitsCheckBox.Layout.Column = 7;
 
-            % Create FigPlot2
-            app.FigPlot2 = uiaxes(app.GridLayout);
-            title(app.FigPlot2, 'Title')
-            xlabel(app.FigPlot2, 'X')
-            ylabel(app.FigPlot2, 'Y')
-            zlabel(app.FigPlot2, 'Z')
-            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
-            app.FigPlot2.Layout.Row = [7 11];
-            app.FigPlot2.Layout.Column = [7 10];
-
-            % Create FigPlot3
-            app.FigPlot3 = uiaxes(app.GridLayout);
-            title(app.FigPlot3, 'Title')
-            xlabel(app.FigPlot3, 'X')
-            ylabel(app.FigPlot3, 'Y')
-            zlabel(app.FigPlot3, 'Z')
-            app.FigPlot3.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot3.FontSize = 9;
-            app.FigPlot3.Layout.Row = [1 3];
-            app.FigPlot3.Layout.Column = [7 8];
-
-            % Create FigPlot1
-            app.FigPlot1 = uiaxes(app.GridLayout);
-            title(app.FigPlot1, 'Title')
-            xlabel(app.FigPlot1, 'X')
-            ylabel(app.FigPlot1, 'Y')
-            zlabel(app.FigPlot1, 'Z')
-            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
-            app.FigPlot1.Layout.Row = [5 11];
-            app.FigPlot1.Layout.Column = [2 5];
-
-            % Create FigPlot6
-            app.FigPlot6 = uiaxes(app.GridLayout);
-            title(app.FigPlot6, 'Title')
-            xlabel(app.FigPlot6, 'X')
-            ylabel(app.FigPlot6, 'Y')
-            zlabel(app.FigPlot6, 'Z')
-            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot6.FontSize = 9;
-            app.FigPlot6.Layout.Row = [4 6];
-            app.FigPlot6.Layout.Column = [9 10];
+            % Create FigPlot4
+            app.FigPlot4 = uiaxes(app.GridLayout);
+            title(app.FigPlot4, 'Title')
+            xlabel(app.FigPlot4, 'X')
+            ylabel(app.FigPlot4, 'Y')
+            zlabel(app.FigPlot4, 'Z')
+            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot4.FontSize = 9;
+            app.FigPlot4.Layout.Row = [1 3];
+            app.FigPlot4.Layout.Column = [9 10];
 
             % Create FigPlot5
             app.FigPlot5 = uiaxes(app.GridLayout);
@@ -3682,16 +3651,47 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.FigPlot5.Layout.Row = [4 6];
             app.FigPlot5.Layout.Column = [7 8];
 
-            % Create FigPlot4
-            app.FigPlot4 = uiaxes(app.GridLayout);
-            title(app.FigPlot4, 'Title')
-            xlabel(app.FigPlot4, 'X')
-            ylabel(app.FigPlot4, 'Y')
-            zlabel(app.FigPlot4, 'Z')
-            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot4.FontSize = 9;
-            app.FigPlot4.Layout.Row = [1 3];
-            app.FigPlot4.Layout.Column = [9 10];
+            % Create FigPlot6
+            app.FigPlot6 = uiaxes(app.GridLayout);
+            title(app.FigPlot6, 'Title')
+            xlabel(app.FigPlot6, 'X')
+            ylabel(app.FigPlot6, 'Y')
+            zlabel(app.FigPlot6, 'Z')
+            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot6.FontSize = 9;
+            app.FigPlot6.Layout.Row = [4 6];
+            app.FigPlot6.Layout.Column = [9 10];
+
+            % Create FigPlot1
+            app.FigPlot1 = uiaxes(app.GridLayout);
+            title(app.FigPlot1, 'Title')
+            xlabel(app.FigPlot1, 'X')
+            ylabel(app.FigPlot1, 'Y')
+            zlabel(app.FigPlot1, 'Z')
+            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
+            app.FigPlot1.Layout.Row = [5 11];
+            app.FigPlot1.Layout.Column = [2 5];
+
+            % Create FigPlot3
+            app.FigPlot3 = uiaxes(app.GridLayout);
+            title(app.FigPlot3, 'Title')
+            xlabel(app.FigPlot3, 'X')
+            ylabel(app.FigPlot3, 'Y')
+            zlabel(app.FigPlot3, 'Z')
+            app.FigPlot3.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot3.FontSize = 9;
+            app.FigPlot3.Layout.Row = [1 3];
+            app.FigPlot3.Layout.Column = [7 8];
+
+            % Create FigPlot2
+            app.FigPlot2 = uiaxes(app.GridLayout);
+            title(app.FigPlot2, 'Title')
+            xlabel(app.FigPlot2, 'X')
+            ylabel(app.FigPlot2, 'Y')
+            zlabel(app.FigPlot2, 'Z')
+            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
+            app.FigPlot2.Layout.Row = [7 11];
+            app.FigPlot2.Layout.Column = [7 10];
 
             % Show the figure after all components are created
             app.VisualizationTool.Visible = 'on';

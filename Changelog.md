@@ -9,6 +9,7 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
 
 - General:
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image. 
+  - Add an option to change the colour of the ROI drawn in the main windows and modules. The default colour is selected when the program starts, but the user's choice is saved for each project.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
