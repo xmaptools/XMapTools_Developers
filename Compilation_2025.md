@@ -17,7 +17,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Select "Share using a project" in "Manage App Sharing with a MATLAB Project".
 - Edit the name to "XMapTools" and click Ok.
 
-- In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task. 
+- In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task by clicking in XMapTools Standalone Application. 
 - Add the following folders manually (important): 
   - Program/Addons/BingoAntidote/Databases/
   - Program/Addons/BingoAntidote/Dev/
@@ -34,12 +34,6 @@ __Last update 09.05.2025 (Pierre Lanari)__
 
 Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md
 ```
-```
---
-  
-Remember that you need to update permissions on macOS before to run XMapTools: https://resources.xmaptools.ch/installation-macos/
-Open a terminal and type in: chmod -R 755 /Applications/XMapTools/
-```  
   
 - Select the splash screen
 - Select the icon
