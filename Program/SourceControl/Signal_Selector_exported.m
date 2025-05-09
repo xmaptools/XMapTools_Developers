@@ -34,6 +34,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
 
     
     properties (Access = private)
+        XMapToolsApp
         CallingApp
         Data
         
@@ -149,12 +150,13 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
     methods (Access = private)
 
         % Code that executes after component creation
-        function startupFcn(app, CallingApp, Data, Mode, DefNameText)
+        function startupFcn(app, CallingApp, XMapToolsApp, Data, Mode, DefNameText)
             
             app.SignalSelectorGUI.Visible = 'off';
             
             movegui(app.SignalSelectorGUI,"center");
             
+            app.XMapToolsApp = XMapToolsApp;
             app.CallingApp = CallingApp;
             app.Data = Data;
             
@@ -211,7 +213,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             PosROI = length(app.Integrations.Names) + 1;
             
-            app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            app.ROI = drawrectangle(app.UIAxes,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
             
             app.Integrations.Names{PosROI} = [app.NameEditField.Value,'_',num2str(PosROI)];
             
@@ -304,7 +306,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
             
             SelectedROI = app.Tree.SelectedNodes.NodeData(1);
             
-            app.ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all','Position',app.Integrations.Data(SelectedROI).Position);
+            app.ROI = drawrectangle(app.UIAxes,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all','Position',app.Integrations.Data(SelectedROI).Position);
             
             app.UIAxes.XLim = app.Integrations.Data(SelectedROI).XLim;
             app.UIAxes.YLim = app.Integrations.Data(SelectedROI).YLim;
@@ -416,7 +418,7 @@ classdef Signal_Selector_exported < matlab.apps.AppBase
                 end
                 MaxValue = max(SelectedSignalPos);
                 Position = [app.SeqAuto(i,1),MinValue,app.SeqAuto(i,2)-app.SeqAuto(i,1),MaxValue-MinValue];
-                app.ROI_auto(i).ROI = drawrectangle(app.UIAxes,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',Position);
+                app.ROI_auto(i).ROI = drawrectangle(app.UIAxes,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','none','Position',Position);
             end
             
             

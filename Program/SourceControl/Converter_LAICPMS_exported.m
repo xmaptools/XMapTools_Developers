@@ -314,7 +314,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             if isempty(app.Integrations.Background.Names)
                 % Here we have no Background measurements detected...
                 
-                waitfor(Signal_Selector(app,app.Data,'Manual','Background')); 
+                waitfor(Signal_Selector(app,app.XMapToolsApp,app.Data,'Manual','Background')); 
                 
                 if isempty(app.ExchangeSelector)
                     app.Integrations.SeqListName = '';

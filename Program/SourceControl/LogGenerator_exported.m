@@ -532,7 +532,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             
             DeactivatePlotZoomPanOptions(app);
             
-            app.ROI_Object = drawrectangle(app.Plot,'Color',[0.57,0.00,0.69]);
+            app.ROI_Object = drawrectangle(app.Plot,'Color',app.XMapToolsApp.GetROIColor);
             
             app.ROI_Listener = addlistener(app.ROI_Object, 'ROIMoved', @(varargin)ROI_changed(app, app.ROI_Object));
             

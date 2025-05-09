@@ -8,7 +8,9 @@ This version is highly recommended for all users as it includes new features, co
 Note that the public compiled version of XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and more recent. The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.5 final release.
 
 - General:
-  - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image. 
+  - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image.
+  - Enhance the Data Export module with a new mode that randomly selects n pixels to export. This can be combined with other export formats in the same file.
+  - Add an option to change the colour of the ROI drawn in the main windows and modules. The default colour is selected when the program starts, but the user's choice is saved for each project.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.

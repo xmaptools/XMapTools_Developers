@@ -35,6 +35,8 @@ classdef Data_Export_exported < matlab.apps.AppBase
         IncludebothMaskSubMasksCheckBox  matlab.ui.control.CheckBox
         IncludeSubMasksCheckBox      matlab.ui.control.CheckBox
         ExcludezerosCheckBox         matlab.ui.control.CheckBox
+        NumberCheckBox               matlab.ui.control.CheckBox
+        NumberValue                  matlab.ui.control.NumericEditField
         MetadataPanel                matlab.ui.container.Panel
         GridLayout5_2                matlab.ui.container.GridLayout
         SampleNameEditField          matlab.ui.control.EditField
@@ -111,6 +113,9 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     app.Include_PressureCheckBox.Value = 1;
                     app.Include_TemperatureCheckBox.Value = 1;
                     
+                    app.NumberValue.Enable = 'off';
+                    app.NumberCheckBox.Enable = 'off';
+                    
                 case 'MinPlot'
                     app.ModeCheckBox.Value = 0;
                     app.MedianCheckBox.Value = 1;
@@ -122,6 +127,9 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     app.Include_SampleCheckBox.Value = 0;
                     app.Include_PressureCheckBox.Value = 0;
                     app.Include_TemperatureCheckBox.Value = 0;
+                    
+                    app.NumberValue.Enable = 'on';
+                    app.NumberCheckBox.Enable = 'on';
             end
         end
         
@@ -205,6 +213,10 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 NbOutput = NbOutput + 1;
                 PosModes = NbOutput;
             end
+            if app.NumberCheckBox.Value
+                NbOutput = NbOutput + app.NumberValue.Value;
+                PosNumber = [NbOutput-app.NumberValue.Value+1:NbOutput];        
+            end
             
             CellData = cell(NbOutput * length(PhaseList),length(ElemList) + 1);
             
@@ -282,6 +294,20 @@ classdef Data_Export_exported < matlab.apps.AppBase
                         if isequal(app.ExcludezerosCheckBox.Value,1)
                             NumberPixels(NbOutput*(i-1)+Posmean,j) = NbPxTemp;
                             NumberPixelsExcluded(NbOutput*(i-1)+Posmean,j) = NbPxExTemp;
+                        end
+                    end
+                    
+                    if app.NumberCheckBox.Value
+                        if isequal(j,1)
+                            for n = 1:length(PosNumber)
+                                CellData{NbOutput*(i-1)+PosNumber(n),1} = PhaseList{i};
+                                CellData{NbOutput*(i-1)+PosNumber(n),2} = 'randsel(px)';
+                            end
+                            SelectedPx = randi(length(PxData),1,length(PosNumber));
+                        end
+                        
+                        for n = 1:length(PosNumber)
+                            CellData{NbOutput*(i-1)+PosNumber(n),j+2} = PxData(SelectedPx(n));
                         end
                     end
                 end
@@ -809,22 +835,22 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.MeanCheckBox.Text = 'Mean';
             app.MeanCheckBox.FontSize = 11;
             app.MeanCheckBox.Layout.Row = 3;
-            app.MeanCheckBox.Layout.Column = [2 4];
+            app.MeanCheckBox.Layout.Column = [2 3];
 
             % Create MedianCheckBox
             app.MedianCheckBox = uicheckbox(app.GridLayout5);
             app.MedianCheckBox.Text = 'Median';
             app.MedianCheckBox.FontSize = 11;
             app.MedianCheckBox.Layout.Row = 2;
-            app.MedianCheckBox.Layout.Column = [2 4];
+            app.MedianCheckBox.Layout.Column = [2 3];
 
             % Create ModeCheckBox
             app.ModeCheckBox = uicheckbox(app.GridLayout5);
             app.ModeCheckBox.Enable = 'off';
             app.ModeCheckBox.Text = 'Mode';
             app.ModeCheckBox.FontSize = 11;
-            app.ModeCheckBox.Layout.Row = 4;
-            app.ModeCheckBox.Layout.Column = [2 4];
+            app.ModeCheckBox.Layout.Row = 2;
+            app.ModeCheckBox.Layout.Column = [4 5];
 
             % Create ExportedDataLabel
             app.ExportedDataLabel = uilabel(app.GridLayout5);
@@ -835,7 +861,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             % Create UncertaintiesLabel
             app.UncertaintiesLabel = uilabel(app.GridLayout5);
             app.UncertaintiesLabel.Layout.Row = 4;
-            app.UncertaintiesLabel.Layout.Column = [6 9];
+            app.UncertaintiesLabel.Layout.Column = [7 10];
             app.UncertaintiesLabel.Text = 'Uncertainties:';
 
             % Create StandarddeviationCheckBox
@@ -843,10 +869,11 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.StandarddeviationCheckBox.Text = 'Standard deviation';
             app.StandarddeviationCheckBox.FontSize = 11;
             app.StandarddeviationCheckBox.Layout.Row = 5;
-            app.StandarddeviationCheckBox.Layout.Column = [7 11];
+            app.StandarddeviationCheckBox.Layout.Column = [8 11];
 
             % Create BRCCheckBox
             app.BRCCheckBox = uicheckbox(app.GridLayout5);
+            app.BRCCheckBox.Tooltip = {'Activate border-removing correction (see Lanari et al. 2019)'};
             app.BRCCheckBox.Text = 'BRC';
             app.BRCCheckBox.FontSize = 11;
             app.BRCCheckBox.Layout.Row = 7;
@@ -865,6 +892,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.SizeEditField.Limits = [1 100];
             app.SizeEditField.ValueChangedFcn = createCallbackFcn(app, @SizeEditFieldValueChanged, true);
             app.SizeEditField.HorizontalAlignment = 'center';
+            app.SizeEditField.FontSize = 10;
             app.SizeEditField.Layout.Row = 7;
             app.SizeEditField.Layout.Column = 4;
             app.SizeEditField.Value = 3;
@@ -880,6 +908,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ThresholdEditField = uieditfield(app.GridLayout5, 'numeric');
             app.ThresholdEditField.Limits = [1 100];
             app.ThresholdEditField.HorizontalAlignment = 'center';
+            app.ThresholdEditField.FontSize = 10;
             app.ThresholdEditField.Layout.Row = 7;
             app.ThresholdEditField.Layout.Column = [7 8];
             app.ThresholdEditField.Value = 80;
@@ -895,7 +924,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             % Create MasksSubmasksLabel
             app.MasksSubmasksLabel = uilabel(app.GridLayout5);
             app.MasksSubmasksLabel.Layout.Row = 1;
-            app.MasksSubmasksLabel.Layout.Column = [6 9];
+            app.MasksSubmasksLabel.Layout.Column = [7 10];
             app.MasksSubmasksLabel.Text = 'Masks & Submasks';
 
             % Create IncludebothMaskSubMasksCheckBox
@@ -904,7 +933,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.IncludebothMaskSubMasksCheckBox.Text = 'Include both';
             app.IncludebothMaskSubMasksCheckBox.FontSize = 11;
             app.IncludebothMaskSubMasksCheckBox.Layout.Row = 3;
-            app.IncludebothMaskSubMasksCheckBox.Layout.Column = [7 11];
+            app.IncludebothMaskSubMasksCheckBox.Layout.Column = [8 11];
 
             % Create IncludeSubMasksCheckBox
             app.IncludeSubMasksCheckBox = uicheckbox(app.GridLayout5);
@@ -912,7 +941,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.IncludeSubMasksCheckBox.Text = 'Include submasks';
             app.IncludeSubMasksCheckBox.FontSize = 11;
             app.IncludeSubMasksCheckBox.Layout.Row = 2;
-            app.IncludeSubMasksCheckBox.Layout.Column = [7 11];
+            app.IncludeSubMasksCheckBox.Layout.Column = [8 11];
             app.IncludeSubMasksCheckBox.Value = true;
 
             % Create ExcludezerosCheckBox
@@ -921,6 +950,23 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ExcludezerosCheckBox.FontSize = 11;
             app.ExcludezerosCheckBox.Layout.Row = 6;
             app.ExcludezerosCheckBox.Layout.Column = [1 5];
+
+            % Create NumberCheckBox
+            app.NumberCheckBox = uicheckbox(app.GridLayout5);
+            app.NumberCheckBox.Text = 'Number';
+            app.NumberCheckBox.FontSize = 11;
+            app.NumberCheckBox.Layout.Row = 4;
+            app.NumberCheckBox.Layout.Column = [2 3];
+
+            % Create NumberValue
+            app.NumberValue = uieditfield(app.GridLayout5, 'numeric');
+            app.NumberValue.Limits = [1 1000000];
+            app.NumberValue.ValueDisplayFormat = '%.0f';
+            app.NumberValue.HorizontalAlignment = 'center';
+            app.NumberValue.FontSize = 10;
+            app.NumberValue.Layout.Row = 4;
+            app.NumberValue.Layout.Column = 4;
+            app.NumberValue.Value = 20;
 
             % Create MetadataPanel
             app.MetadataPanel = uipanel(app.GridLayout);

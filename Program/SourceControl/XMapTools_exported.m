@@ -199,16 +199,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         OrderLabel_2                    matlab.ui.control.Label
         Segment_InterpOrderFilterGBSpinner  matlab.ui.control.Spinner
         Segment_ExportROI_TXT           matlab.ui.control.Button
-        ADDONSTab                       matlab.ui.container.Tab
-        GridLayout_AddonsTab            matlab.ui.container.GridLayout
-        AddonsTab_help                  matlab.ui.control.Button
-        Addons_BingoAntidote_2          matlab.ui.control.Button
-        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
-        Image_32                        matlab.ui.control.Image
-        Image_33                        matlab.ui.control.Image
-        OTHERTOOLSLabel                 matlab.ui.control.Label
-        Tool_ExportCompositions         matlab.ui.control.Button
-        Tool_ExportCompositions_2       matlab.ui.control.Button
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -237,6 +227,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Image_34                        matlab.ui.control.Image
         UnskmeanLabel                   matlab.ui.control.Label
         Options_KmeansAlgorithm         matlab.ui.control.DropDown
+        ROIcolorDropDownLabel           matlab.ui.control.Label
+        Options_ROIcolorDropDown        matlab.ui.control.DropDown
         ColorMapPreview                 matlab.ui.control.UIAxes
         DEVELOPERTab                    matlab.ui.container.Tab
         GridLayout5                     matlab.ui.container.GridLayout
@@ -250,6 +242,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Image_28                        matlab.ui.control.Image
         PlotEngineDropDownLabel         matlab.ui.control.Label
         PlotEngineDropDown              matlab.ui.control.DropDown
+        ADDONSTab                       matlab.ui.container.Tab
+        GridLayout_AddonsTab            matlab.ui.container.GridLayout
+        AddonsTab_help                  matlab.ui.control.Button
+        Addons_BingoAntidote_2          matlab.ui.control.Button
+        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
+        Image_32                        matlab.ui.control.Image
+        Image_33                        matlab.ui.control.Image
+        OTHERTOOLSLabel                 matlab.ui.control.Label
+        Tool_ExportCompositions         matlab.ui.control.Button
+        Tool_ExportCompositions_2       matlab.ui.control.Button
         GridLayout_Bottom               matlab.ui.container.GridLayout
         MapSlider                       matlab.ui.control.Slider
         Value_MapSlider                 matlab.ui.control.NumericEditField
@@ -449,6 +451,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         ColorMapValues
         ColorMapValues_noMask
         ActiveColorbar                      % Variable to know the active colorbar
+        ROIColorData                        % Colors for ROI
         
         ElOxDataDef                         % Variable containing all element and oxide definitions
         DensityData                         % Variable containing the density data
@@ -1216,6 +1219,60 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.MineralColorData.RGB = ColorDataNORM;
         end
         
+        
+        function ReadROIColorFile(app)
+            
+            fid = fopen('XMap_ROIColors.txt','r');
+            
+            Compt = 0;
+            
+            tline = fgetl(fid);
+            
+            ROIColorsNames = {};
+            ColorData = [];
+            
+            while 1
+                if length(tline > 1)
+                    if isequal(tline(1),'>')
+                        while 1
+                            tline = fgetl(fid);
+                            
+                            if isequal(tline,-1)
+                                break
+                            end
+                            
+                            if length(tline > 5)
+                                
+                                TheStr = textscan(tline,'%s');
+                                TheStr = TheStr{1};
+                                
+                                Compt = Compt+1;
+                                
+                                ROIColorsNames{Compt} = TheStr{1};
+                                ColorData(Compt,:) = [str2num(TheStr{2}),str2num(TheStr{3}),str2num(TheStr{4})];
+                                
+                            end
+                        end
+                    end
+                end
+                
+                tline = fgetl(fid);
+                
+                if isequal(tline,-1)
+                    break
+                end
+                
+                
+            end
+            fclose(fid);
+            
+            app.Options_ROIcolorDropDown.Items = ROIColorsNames;
+            app.ROIColorData = ColorData;
+            
+        end
+        
+        
+        
         function UpdateGUI_Function_Other(app)
             
             switch app.Other_MethodList.Value
@@ -1237,7 +1294,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         
         function LoadProjectFile(app,ProjectPath,ProjectName)
             
-            %app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
             app.WaitBar = uiprogressdlg(app.XMapTools_GUI,'Title','XMapTools','Indeterminate','on');
             app.WaitBar.Message = 'Preparing the interface';
             
@@ -1817,6 +1873,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 if isfield(Options,'MaskSelectionForMerged')
                     app.Options_MaskSelectionForMerged.Value = Options.MaskSelectionForMerged;
                 end
+                
+                % ROI color (version 4.5 – added 08.05.2025)
+                if isfield(Options,'ROIColorData')
+                    try
+                        app.Options_ROIcolorDropDown.Value = Options.ROIColorData;
+                    catch ME
+                        % This is for the case the ROI color name has
+                        % changed or is not available.
+                    end
+                end
+                
             end
             
             app.CurrentProject = [ProjectPath,'/',ProjectName];
@@ -1887,6 +1954,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Options.Colormap_LowerLayerColor = app.Options_LowerColor.Value;
             Options.Colormap_UpperLayer = app.Options_UpperCheckBox.Value;
             Options.Colormap_UpperLayerColor = app.Options_UpperColor.Value;
+            
+            Options.ROIColorData = app.Options_ROIcolorDropDown.Value;
             
             Options.DisplayNegativeValues = app.Options_DispNegativeValues.Value;
             Options.ApplyAutoContrast = app.Options_ApplyAutoContrast.Value;
@@ -2795,27 +2864,27 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 %                 if IsROI
                 %                     switch ROI_Type
                 %                         case 'polyline'
-                %                             app.ROI_sampling = drawpolyline(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','Position',ROI_Position);
+                %                             app.ROI_sampling = drawpolyline(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','Position',ROI_Position);
                 %                             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_line(app, app.ROI_sampling));
                 %                             %Sampling_ROI_changed_line(app,app.ROI_sampling);
                 %
                 %                             app.SaveResultsMenu.Enable = 'on';
                 %                         case 'circle'
-                %                             app.ROI_sampling = drawcircle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','Center',ROI_Center,'Radius',ROI_Radius);
+                %                             app.ROI_sampling = drawcircle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','Center',ROI_Center,'Radius',ROI_Radius);
                 %                             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_shape(app, app.ROI_sampling));
                 %                             %Sampling_ROI_changed_shape(app,app.ROI_sampling);
                 %
                 %                             app.SaveResultsMenu.Enable = 'on';
                 %
                 %                         case 'polygon'
-                %                             app.ROI_sampling = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','Position',ROI_Position);
+                %                             app.ROI_sampling = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','Position',ROI_Position);
                 %                             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_shape(app, app.ROI_sampling));
                 %                             %Sampling_ROI_changed_line(app,app.ROI_sampling);
                 %
                 %                             app.SaveResultsMenu.Enable = 'on';
                 %
                 %                         case 'rectangle'
-                %                             app.ROI_sampling = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'Rotatable',1,'InteractionsAllowed','all','Position',ROI_Position,'RotationAngle',ROI_Angle);
+                %                             app.ROI_sampling = drawrectangle(app.FigMain,'Color',GetROIColor(app),'Rotatable',1,'InteractionsAllowed','all','Position',ROI_Position,'RotationAngle',ROI_Angle);
                 %                             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_strip(app, app.ROI_sampling));
                 %                             %Sampling_ROI_changed_line(app,app.ROI_sampling);
                 %
@@ -2936,7 +3005,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             if PosMainPeak > DataMin + 0.03*(DataMax-DataMin)
                 %app.EditField_LivePeak.Visible = 'on';
                 %app.EditField_LivePeak.Value = num2str(PosMainPeak,'%3.4g');
-                %app.SliderPeakHandle = xline(app.FigHistLive, double(PosMainPeak),'-','LineWidth',3,'Color',[0.57,0.00,0.69],'hittest','off');
+                %app.SliderPeakHandle = xline(app.FigHistLive, double(PosMainPeak),'-','LineWidth',3,'Color',GetROIColor(app),'hittest','off');
                 
                 app.EditField_LivePosition.Value = PosMainPeak;
             else
@@ -2952,7 +3021,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %app.SliderMinHandle.ButtonDownFcn = @app.dragObject;
             %app.SliderMaxHandle.ButtonDownFcn = @app.dragObject;
             
-            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',[0.57,0.00,0.69]),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',3),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',3)];
+            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',GetROIColor(app)),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',3),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',3)];
             set(app.hVerticalLines, 'hittest', 'off'); % Nils: it took me a while to figure this one out they need to be untouchable otherwise we get no values from the button down function
             app.hLineToDrag = [];
             
@@ -5317,7 +5386,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.EditField_LivePeak.Visible = 'on';
             
             DataSelected = ImageData(Ind);
-            histogram(app.Sampling_Plot1,DataSelected(:))
+            histogram(app.Sampling_Plot1,DataSelected(:), 'FaceColor', GetROIColor(app))
             xlabel(app.Sampling_Plot1,'Value')
             ylabel(app.Sampling_Plot1,'#')
             title(app.Sampling_Plot1,['Px selected = ',num2str(numel(Ind))])
@@ -5328,7 +5397,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %             if ~isempty(app.SliderPeakHandle)
             %                 app.SliderPeakHandle.Value = mean(ImageData(Ind));
             %             else
-            %                 app.SliderPeakHandle = xline(app.FigHistLive, double(mean(ImageData(Ind))),'-','LineWidth',3,'Color',[0.57,0.00,0.69]);
+            %                 app.SliderPeakHandle = xline(app.FigHistLive, double(mean(ImageData(Ind))),'-','LineWidth',3,'Color',GetROIColor(app));
             %             end
             
         end
@@ -7111,6 +7180,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
             fclose(fid);
         end
         
+        function RGB = GetROIColor(app)
+            
+            SelectedColor = find(ismember(app.Options_ROIcolorDropDown.Items,app.Options_ROIcolorDropDown.Value));
+            RGB = app.ROIColorData(SelectedColor,:);
+            
+        end
+        
     end
     
 
@@ -7344,6 +7420,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             ReadDefFiles(app);
             ReadDensityDataFile(app);
             ReadColorDataFile(app);
+            ReadROIColorFile(app);
             
             % Load Functions
             app.ExternalFunctions = Core_Function_Indexing;
@@ -8631,13 +8708,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                     switch Method
                         case 'Rectangle ROI'
-                            app.SelectedROI = drawrectangle(app.FigMain,'Position',Coordinates,'Color',[0.57,0.00,0.69]);
+                            app.SelectedROI = drawrectangle(app.FigMain,'Position',Coordinates,'Color',GetROIColor(app));
                         case 'Polygon ROI'
-                            app.SelectedROI = drawpolygon(app.FigMain,'Position',Coordinates,'Color',[0.57,0.00,0.69]);
+                            app.SelectedROI = drawpolygon(app.FigMain,'Position',Coordinates,'Color',GetROIColor(app));
                         case 'Ellipse ROI'
-                            app.SelectedROI = drawellipse(app.FigMain,'Center',Coordinates(1:2),'SemiAxes',Coordinates(3:4),'RotationAngle',Coordinates(5),'Color',[0.57,0.00,0.69]);
+                            app.SelectedROI = drawellipse(app.FigMain,'Center',Coordinates(1:2),'SemiAxes',Coordinates(3:4),'RotationAngle',Coordinates(5),'Color',GetROIColor(app));
                         case 'Circle ROI'
-                            app.SelectedROI = drawcircle(app.FigMain,'Center',Coordinates(1:2),'Radius',Coordinates(3),'Color',[0.57,0.00,0.69]);
+                            app.SelectedROI = drawcircle(app.FigMain,'Center',Coordinates(1:2),'Radius',Coordinates(3),'Color',GetROIColor(app));
                     end
                     
                     if EditMode
@@ -9106,6 +9183,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SaveRequired = 1;
         end
 
+        % Value changed function: Options_ROIcolorDropDown
+        function Options_ROIcolorDropDownValueChanged(app, event)
+            ROI_DeleteROI(app);
+            app.SaveRequired = 1;
+        end
+
         % Callback function: ProjectSave, SaveProjectMenu
         function ProjectSaveButtonPushed(app, event)
             if ~isempty(app.CurrentProject)
@@ -9331,22 +9414,22 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 switch Method
                     case 'Rectangle ROI'
                         DrawingMode(app,'on','Rectangle');
-                        app.SelectedROI = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69]);
+                        app.SelectedROI = drawrectangle(app.FigMain,'Color',GetROIColor(app));
                         DrawingMode(app,'off');
                         TrainingSet.Data(Idx).ROI(NodeData(3)).Data(PositionROI).Coordinates = app.SelectedROI.Position;
                     case 'Polygon ROI'
                         DrawingMode(app,'on','Polygon');
-                        app.SelectedROI = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69]);
+                        app.SelectedROI = drawpolygon(app.FigMain,'Color',GetROIColor(app));
                         DrawingMode(app,'off');
                         TrainingSet.Data(Idx).ROI(NodeData(3)).Data(PositionROI).Coordinates = app.SelectedROI.Position;
                     case 'Ellipse ROI'
                         DrawingMode(app,'on','Ellipse');
-                        app.SelectedROI = drawellipse(app.FigMain,'Color',[0.57,0.00,0.69]);
+                        app.SelectedROI = drawellipse(app.FigMain,'Color',GetROIColor(app));
                         DrawingMode(app,'off');
                         TrainingSet.Data(Idx).ROI(NodeData(3)).Data(PositionROI).Coordinates = [app.SelectedROI.Center,app.SelectedROI.SemiAxes,app.SelectedROI.RotationAngle];
                     case 'Circle ROI'
                         DrawingMode(app,'on','Circle');
-                        app.SelectedROI = drawcircle(app.FigMain,'Color',[0.57,0.00,0.69]);
+                        app.SelectedROI = drawcircle(app.FigMain,'Color',GetROIColor(app));
                         DrawingMode(app,'off');
                         TrainingSet.Data(Idx).ROI(NodeData(3)).Data(PositionROI).Coordinates = [app.SelectedROI.Center,app.SelectedROI.Radius];
                 end
@@ -9952,13 +10035,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         
                         switch Method
                             case 'Rectangle ROI'
-                                ROI = drawrectangle(app.FigMain,'Position',Coordinates,'Color',[0.57,0.00,0.69]);
+                                ROI = drawrectangle(app.FigMain,'Position',Coordinates,'Color',GetROIColor(app));
                             case 'Polygon ROI'
-                                ROI = drawpolygon(app.FigMain,'Position',Coordinates,'Color',[0.57,0.00,0.69]);
+                                ROI = drawpolygon(app.FigMain,'Position',Coordinates,'Color',GetROIColor(app));
                             case 'Ellipse ROI'
-                                ROI = drawellipse(app.FigMain,'Center',Coordinates(1:2),'SemiAxes',Coordinates(3:4),'RotationAngle',Coordinates(5),'Color',[0.57,0.00,0.69]);
+                                ROI = drawellipse(app.FigMain,'Center',Coordinates(1:2),'SemiAxes',Coordinates(3:4),'RotationAngle',Coordinates(5),'Color',GetROIColor(app));
                             case 'Circle ROI'
-                                ROI = drawcircle(app.FigMain,'Center',Coordinates(1:2),'Radius',Coordinates(3),'Color',[0.57,0.00,0.69]);
+                                ROI = drawcircle(app.FigMain,'Center',Coordinates(1:2),'Radius',Coordinates(3),'Color',GetROIColor(app));
                         end
                         
                         Mask = createMask(ROI,Resolution(1,1),Resolution(1,2));
@@ -11115,12 +11198,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             switch app.Classify_Modes_ROI_menu.Value
                 case 'Rectangle ROI'
                     DrawingMode(app,'on','Rectangle');
-                    app.ROI_Modes = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_Modes = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Polygon ROI'
                     DrawingMode(app,'on','Polygon');
-                    app.ROI_Modes = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_Modes = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
             end
             
@@ -11462,7 +11545,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             ROI_DeleteROI(app);
             
             DrawingMode(app,'on','Rectangle');
-            app.ROI_SelectionTool = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+            app.ROI_SelectionTool = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
             DrawingMode(app,'off');
             
             app.CropMenu.Enable = 'on';
@@ -11647,7 +11730,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Menu_Sampling_ResetROIMenuSelected(app);
             
             DrawingMode(app,'on','Polygon');
-            app.ROI_sampling = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+            app.ROI_sampling = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
             DrawingMode(app,'off');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_shape(app, app.ROI_sampling));
@@ -11667,7 +11750,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Menu_Sampling_ResetROIMenuSelected(app);
             
             DrawingMode(app,'on','Circle');
-            app.ROI_sampling = drawcircle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+            app.ROI_sampling = drawcircle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
             DrawingMode(app,'off');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_shape(app, app.ROI_sampling));
@@ -11688,7 +11771,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Menu_Sampling_ResetROIMenuSelected(app);
             
             DrawingMode(app,'on','Line');
-            app.ROI_sampling = drawpolyline(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+            app.ROI_sampling = drawpolyline(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
             DrawingMode(app,'off');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_line(app, app.ROI_sampling));
@@ -11709,7 +11792,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Menu_Sampling_ResetROIMenuSelected(app);
             
             DrawingMode(app,'on','Rectangle');
-            app.ROI_sampling = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'Rotatable',1,'InteractionsAllowed','all','Label','>>','LabelTextColor','w');
+            app.ROI_sampling = drawrectangle(app.FigMain,'Color',GetROIColor(app),'Rotatable',1,'InteractionsAllowed','all','Label','>>','LabelTextColor','w');
             DrawingMode(app,'off');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)Sampling_ROI_changed_strip(app, app.ROI_sampling));
@@ -13473,12 +13556,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             switch app.Calibrate_ROI_menu.Value
                 case 'Rectangle ROI'
                     DrawingMode(app,'on','Rectangle');
-                    app.ROI_LBC(iROI).ROI = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LBC(iROI).ROI = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Polygon ROI'
                     DrawingMode(app,'on','Polygon');
-                    app.ROI_LBC(iROI).ROI = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LBC(iROI).ROI = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
             end
             
@@ -14729,17 +14812,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
             switch app.SF_ROI_menu.Value
                 case 'Circle ROI'
                     DrawingMode(app,'on','Circle');
-                    app.ROI_COMP = drawcircle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_COMP = drawcircle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Rectangle ROI'
                     DrawingMode(app,'on','Rectangle');
-                    app.ROI_COMP = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_COMP = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Polygon ROI'
                     DrawingMode(app,'on','Polygon');
-                    app.ROI_COMP = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_COMP = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
             end
@@ -14977,17 +15060,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 switch app.Other_ROI_menu.Value
                     case 'Circle ROI'
                         DrawingMode(app,'on','Circle');
-                        app.ROI_EXTFCT(i).ROI = drawcircle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','label',Min{i});
+                        app.ROI_EXTFCT(i).ROI = drawcircle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','label',Min{i});
                         DrawingMode(app,'off');
                         
                     case 'Rectangle ROI'
                         DrawingMode(app,'on','Rectangle');
-                        app.ROI_EXTFCT(i).ROI = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','label',Min{i});
+                        app.ROI_EXTFCT(i).ROI = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','label',Min{i});
                         DrawingMode(app,'off');
                         
                     case 'Polygon ROI'
                         DrawingMode(app,'on','Polygon');
-                        app.ROI_EXTFCT(i).ROI = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all','label',Min{i});
+                        app.ROI_EXTFCT(i).ROI = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all','label',Min{i});
                         DrawingMode(app,'off');
                 end
                 app.ROI_EXTFCT_Listener = addlistener(app.ROI_EXTFCT(i).ROI, 'ROIMoved', @(varargin)EXTFCT_ROI_changed_shape(app, app.ROI_EXTFCT(i).ROI));
@@ -15614,12 +15697,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             switch app.Calibrate_LOD_menu.Value
                 case 'Rectangle ROI'
                     DrawingMode(app,'on','Rectangle');
-                    app.ROI_LOD = drawrectangle(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LOD = drawrectangle(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
                     
                 case 'Polygon ROI'
                     DrawingMode(app,'on','Polygon');
-                    app.ROI_LOD = drawpolygon(app.FigMain,'Color',[0.57,0.00,0.69],'InteractionsAllowed','all');
+                    app.ROI_LOD = drawpolygon(app.FigMain,'Color',GetROIColor(app),'InteractionsAllowed','all');
                     DrawingMode(app,'off');
             end
             
@@ -16000,8 +16083,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.SaveRequired = 1;
             
-            
-            
             %keyboard
             
         end
@@ -16010,12 +16091,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function Tool_ExportCompositionsButtonPushed(app, event)
             
             Data_Export(app);
-            
-            
-            
-            
-            
-            
             
         end
 
@@ -17722,94 +17797,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Segment_ExportROI_TXT.Layout.Column = 24;
             app.Segment_ExportROI_TXT.Text = '';
 
-            % Create ADDONSTab
-            app.ADDONSTab = uitab(app.TabButtonGroup);
-            app.ADDONSTab.AutoResizeChildren = 'off';
-            app.ADDONSTab.Title = 'ADD-ONS';
-
-            % Create GridLayout_AddonsTab
-            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
-            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
-            app.GridLayout_AddonsTab.ColumnSpacing = 4;
-            app.GridLayout_AddonsTab.RowSpacing = 4;
-            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
-            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
-
-            % Create AddonsTab_help
-            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
-            app.AddonsTab_help.Icon = '061-info.png';
-            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
-            app.AddonsTab_help.Layout.Row = 1;
-            app.AddonsTab_help.Layout.Column = 35;
-            app.AddonsTab_help.Text = '';
-
-            % Create Addons_BingoAntidote_2
-            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
-            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
-            app.Addons_BingoAntidote_2.IconAlignment = 'top';
-            app.Addons_BingoAntidote_2.FontSize = 6;
-            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
-            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
-            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
-            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
-
-            % Create THERMODYNAMICMODELINGLabel
-            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
-            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
-            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
-            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
-            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
-            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
-            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
-            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
-
-            % Create Image_32
-            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_32.Layout.Row = [1 4];
-            app.Image_32.Layout.Column = 11;
-            app.Image_32.ImageSource = 'ImageDelimiter.png';
-
-            % Create Image_33
-            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_33.Layout.Row = [1 4];
-            app.Image_33.Layout.Column = 22;
-            app.Image_33.ImageSource = 'ImageDelimiter.png';
-
-            % Create OTHERTOOLSLabel
-            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
-            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
-            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
-            app.OTHERTOOLSLabel.FontSize = 9;
-            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
-            app.OTHERTOOLSLabel.Layout.Row = 4;
-            app.OTHERTOOLSLabel.Layout.Column = [1 10];
-            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
-
-            % Create Tool_ExportCompositions
-            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
-            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
-            app.Tool_ExportCompositions.IconAlignment = 'top';
-            app.Tool_ExportCompositions.FontSize = 8;
-            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions.Layout.Row = [1 2];
-            app.Tool_ExportCompositions.Layout.Column = [1 2];
-            app.Tool_ExportCompositions.Text = 'Export';
-
-            % Create Tool_ExportCompositions_2
-            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
-            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
-            app.Tool_ExportCompositions_2.IconAlignment = 'top';
-            app.Tool_ExportCompositions_2.FontSize = 8;
-            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
-            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
-            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
-
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);
             app.OPTIONSTab.AutoResizeChildren = 'off';
@@ -17890,10 +17877,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Options_Colorbar_Inverse = uicheckbox(app.OptionsGridLayout);
             app.Options_Colorbar_Inverse.ValueChangedFcn = createCallbackFcn(app, @Options_Colorbar_InverseValueChanged, true);
             app.Options_Colorbar_Inverse.Tooltip = {'Use a log colormap'};
-            app.Options_Colorbar_Inverse.Text = 'Reverse color palette';
-            app.Options_Colorbar_Inverse.FontSize = 11;
-            app.Options_Colorbar_Inverse.Layout.Row = 3;
-            app.Options_Colorbar_Inverse.Layout.Column = [1 6];
+            app.Options_Colorbar_Inverse.Text = 'Reverse';
+            app.Options_Colorbar_Inverse.FontSize = 10;
+            app.Options_Colorbar_Inverse.Layout.Row = 1;
+            app.Options_Colorbar_Inverse.Layout.Column = [11 13];
 
             % Create Options_ColormapResEditField
             app.Options_ColormapResEditField = uieditfield(app.OptionsGridLayout, 'numeric');
@@ -17919,10 +17906,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create Options_DispNegativeValues
             app.Options_DispNegativeValues = uicheckbox(app.OptionsGridLayout);
-            app.Options_DispNegativeValues.Text = 'Disp. negative values';
-            app.Options_DispNegativeValues.FontSize = 11;
-            app.Options_DispNegativeValues.Layout.Row = 3;
-            app.Options_DispNegativeValues.Layout.Column = [7 12];
+            app.Options_DispNegativeValues.Text = 'Show negative';
+            app.Options_DispNegativeValues.FontSize = 10;
+            app.Options_DispNegativeValues.Layout.Row = 1;
+            app.Options_DispNegativeValues.Layout.Column = [14 17];
 
             % Create Options_resolutionLabel
             app.Options_resolutionLabel = uilabel(app.OptionsGridLayout);
@@ -17976,7 +17963,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Create Options_Medfilter3DsurfaceSpinnerLabel
             app.Options_Medfilter3DsurfaceSpinnerLabel = uilabel(app.OptionsGridLayout);
             app.Options_Medfilter3DsurfaceSpinnerLabel.HorizontalAlignment = 'right';
-            app.Options_Medfilter3DsurfaceSpinnerLabel.FontSize = 11;
+            app.Options_Medfilter3DsurfaceSpinnerLabel.FontSize = 10;
             app.Options_Medfilter3DsurfaceSpinnerLabel.Layout.Row = 2;
             app.Options_Medfilter3DsurfaceSpinnerLabel.Layout.Column = [26 29];
             app.Options_Medfilter3DsurfaceSpinnerLabel.Text = 'Med-filter 3D surf';
@@ -17993,10 +17980,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create Options_ApplyAutoContrast
             app.Options_ApplyAutoContrast = uicheckbox(app.OptionsGridLayout);
-            app.Options_ApplyAutoContrast.Text = 'Apply auto-contrast';
-            app.Options_ApplyAutoContrast.FontSize = 11;
+            app.Options_ApplyAutoContrast.Text = 'Apply ACC auto';
+            app.Options_ApplyAutoContrast.FontSize = 10;
             app.Options_ApplyAutoContrast.Layout.Row = 3;
-            app.Options_ApplyAutoContrast.Layout.Column = [13 17];
+            app.Options_ApplyAutoContrast.Layout.Column = [1 5];
 
             % Create Options_ColormapResEditField_2
             app.Options_ColormapResEditField_2 = uieditfield(app.OptionsGridLayout, 'numeric');
@@ -18021,7 +18008,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Create Options_MaskSelectionForMerged
             app.Options_MaskSelectionForMerged = uicheckbox(app.OptionsGridLayout);
             app.Options_MaskSelectionForMerged.Text = 'Mask selection (merged)';
-            app.Options_MaskSelectionForMerged.FontSize = 11;
+            app.Options_MaskSelectionForMerged.FontSize = 10;
             app.Options_MaskSelectionForMerged.Layout.Row = 3;
             app.Options_MaskSelectionForMerged.Layout.Column = [19 24];
 
@@ -18047,6 +18034,23 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Options_KmeansAlgorithm.Layout.Column = [21 24];
             app.Options_KmeansAlgorithm.Value = 'sqeuclidean';
 
+            % Create ROIcolorDropDownLabel
+            app.ROIcolorDropDownLabel = uilabel(app.OptionsGridLayout);
+            app.ROIcolorDropDownLabel.HorizontalAlignment = 'right';
+            app.ROIcolorDropDownLabel.FontSize = 10;
+            app.ROIcolorDropDownLabel.Layout.Row = 3;
+            app.ROIcolorDropDownLabel.Layout.Column = [5 7];
+            app.ROIcolorDropDownLabel.Text = 'ROI color';
+
+            % Create Options_ROIcolorDropDown
+            app.Options_ROIcolorDropDown = uidropdown(app.OptionsGridLayout);
+            app.Options_ROIcolorDropDown.Items = {};
+            app.Options_ROIcolorDropDown.ValueChangedFcn = createCallbackFcn(app, @Options_ROIcolorDropDownValueChanged, true);
+            app.Options_ROIcolorDropDown.FontSize = 10;
+            app.Options_ROIcolorDropDown.Layout.Row = 3;
+            app.Options_ROIcolorDropDown.Layout.Column = [8 10];
+            app.Options_ROIcolorDropDown.Value = {};
+
             % Create ColorMapPreview
             app.ColorMapPreview = uiaxes(app.OptionsGridLayout);
             app.ColorMapPreview.PlotBoxAspectRatio = [7.67441860465116 1 1];
@@ -18056,7 +18060,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.ColorMapPreview.YTick = [];
             app.ColorMapPreview.ZColor = 'none';
             app.ColorMapPreview.FontSize = 12;
-            app.ColorMapPreview.Layout.Row = [1 2];
+            app.ColorMapPreview.Layout.Row = [2 3];
             app.ColorMapPreview.Layout.Column = [11 17];
 
             % Create DEVELOPERTab
@@ -18156,6 +18160,94 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PlotEngineDropDown.Layout.Row = 1;
             app.PlotEngineDropDown.Layout.Column = [17 19];
             app.PlotEngineDropDown.Value = '4.4';
+
+            % Create ADDONSTab
+            app.ADDONSTab = uitab(app.TabButtonGroup);
+            app.ADDONSTab.AutoResizeChildren = 'off';
+            app.ADDONSTab.Title = 'ADD-ONS';
+
+            % Create GridLayout_AddonsTab
+            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
+            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
+            app.GridLayout_AddonsTab.ColumnSpacing = 4;
+            app.GridLayout_AddonsTab.RowSpacing = 4;
+            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
+            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
+
+            % Create AddonsTab_help
+            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
+            app.AddonsTab_help.Icon = '061-info.png';
+            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
+            app.AddonsTab_help.Layout.Row = 1;
+            app.AddonsTab_help.Layout.Column = 35;
+            app.AddonsTab_help.Text = '';
+
+            % Create Addons_BingoAntidote_2
+            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
+            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
+            app.Addons_BingoAntidote_2.IconAlignment = 'top';
+            app.Addons_BingoAntidote_2.FontSize = 6;
+            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
+            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
+            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
+            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
+
+            % Create THERMODYNAMICMODELINGLabel
+            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
+            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
+            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
+            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
+            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
+            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
+            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
+            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
+
+            % Create Image_32
+            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_32.Layout.Row = [1 4];
+            app.Image_32.Layout.Column = 11;
+            app.Image_32.ImageSource = 'ImageDelimiter.png';
+
+            % Create Image_33
+            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_33.Layout.Row = [1 4];
+            app.Image_33.Layout.Column = 22;
+            app.Image_33.ImageSource = 'ImageDelimiter.png';
+
+            % Create OTHERTOOLSLabel
+            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
+            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
+            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
+            app.OTHERTOOLSLabel.FontSize = 9;
+            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
+            app.OTHERTOOLSLabel.Layout.Row = 4;
+            app.OTHERTOOLSLabel.Layout.Column = [1 10];
+            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
+
+            % Create Tool_ExportCompositions
+            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
+            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
+            app.Tool_ExportCompositions.IconAlignment = 'top';
+            app.Tool_ExportCompositions.FontSize = 8;
+            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions.Layout.Row = [1 2];
+            app.Tool_ExportCompositions.Layout.Column = [1 2];
+            app.Tool_ExportCompositions.Text = 'Export';
+
+            % Create Tool_ExportCompositions_2
+            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
+            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
+            app.Tool_ExportCompositions_2.IconAlignment = 'top';
+            app.Tool_ExportCompositions_2.FontSize = 8;
+            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
+            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
+            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
 
             % Create GridLayout_Bottom
             app.GridLayout_Bottom = uigridlayout(app.GridLayout2);
@@ -18284,7 +18376,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Button_FigMain_AutoContrast.ButtonPushedFcn = createCallbackFcn(app, @Button_FigMain_AutoContrastPushed, true);
             app.Button_FigMain_AutoContrast.Icon = 'XXX_magic-wand.png';
             app.Button_FigMain_AutoContrast.IconAlignment = 'center';
-            app.Button_FigMain_AutoContrast.Tooltip = {'Auto Contrast'};
+            app.Button_FigMain_AutoContrast.Tooltip = {'Auto Color Contrast (ACC)'};
             app.Button_FigMain_AutoContrast.Layout.Row = 1;
             app.Button_FigMain_AutoContrast.Layout.Column = 1;
             app.Button_FigMain_AutoContrast.Text = '';

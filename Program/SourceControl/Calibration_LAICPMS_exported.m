@@ -41,9 +41,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SaveunfilteredmapsCheckBox      matlab.ui.control.CheckBox
         BydefaultLODfilteredmapsaresavedLabel  matlab.ui.control.Label
         LODfilteringLabel               matlab.ui.control.Label
-        Plot1                           matlab.ui.control.UIAxes
-        Plot3                           matlab.ui.control.UIAxes
         Plot2                           matlab.ui.control.UIAxes
+        Plot3                           matlab.ui.control.UIAxes
+        Plot1                           matlab.ui.control.UIAxes
         PixelReconstructionandImprovedPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
@@ -1482,7 +1482,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             
             DeactivatePlotZoomPanOptions(app);
             
-            app.ROI_sampling = drawcircle(app.Plot1,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+            app.ROI_sampling = drawcircle(app.Plot1,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
             
             app.ROI_sampling_Listener = addlistener(app.ROI_sampling, 'ROIMoved', @(varargin)ROI_Value_Extractor(app, app.ROI_sampling));
             app.ROI_sampling_Listener2 = addlistener(app.ROI_sampling, 'MovingROI', @(varargin)DeactivatePlotZoomPanOptions(app));
@@ -1629,20 +1629,20 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             switch app.PRIP_MenuROI.Value
                 
                 case 'Circle'
-                    app.PRIP_ROIs.ROI(PosROI).ROI = drawcircle(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+                    app.PRIP_ROIs.ROI(PosROI).ROI = drawcircle(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
                     
                     app.PRIP_ROIs.ROI_Data(PosROI).Type = 'Circle';
                     app.PRIP_ROIs.ROI_Data(PosROI).Center = app.PRIP_ROIs.ROI(PosROI).ROI.Center;
                     app.PRIP_ROIs.ROI_Data(PosROI).Radius = app.PRIP_ROIs.ROI(PosROI).ROI.Radius;
                     
                 case 'Rectangle'
-                    app.PRIP_ROIs.ROI(PosROI).ROI = drawrectangle(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+                    app.PRIP_ROIs.ROI(PosROI).ROI = drawrectangle(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
                     
                     app.PRIP_ROIs.ROI_Data(PosROI).Type = 'Rectangle';
                     app.PRIP_ROIs.ROI_Data(PosROI).Position = app.PRIP_ROIs.ROI(PosROI).ROI.Position;
                     
                 case 'Polygon'
-                    app.PRIP_ROIs.ROI(PosROI).ROI = drawpolygon(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all');
+                    app.PRIP_ROIs.ROI(PosROI).ROI = drawpolygon(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all');
                     
                     app.PRIP_ROIs.ROI_Data(PosROI).Type = 'Polygon';
                     app.PRIP_ROIs.ROI_Data(PosROI).Position = app.PRIP_ROIs.ROI(PosROI).ROI.Position;
@@ -1723,13 +1723,13 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 switch app.PRIP_ROIs.ROI_Data(i).Type
                     
                     case 'Circle'
-                        drawcircle(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Center',app.PRIP_ROIs.ROI_Data(i).Center,'Radius',app.PRIP_ROIs.ROI_Data(i).Radius,'Label',num2str(i));
+                        drawcircle(ax2,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','none','Center',app.PRIP_ROIs.ROI_Data(i).Center,'Radius',app.PRIP_ROIs.ROI_Data(i).Radius,'Label',num2str(i));
                         
                     case 'Rectangle'
-                        drawrectangle(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
+                        drawrectangle(ax2,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
                         
                     case 'Polygon'
-                        drawpolygon(ax2,'Color',[0.47,0.67,0.19],'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
+                        drawpolygon(ax2,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','none','Position',app.PRIP_ROIs.ROI_Data(i).Position,'Label',num2str(i));
                 end
             end
             
@@ -1751,13 +1751,13 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             switch app.PRIP_ROIs.ROI_Data(SelROI).Type
                 
                 case 'Circle'
-                    app.PRIP_ROIs.ROI(SelROI).ROI = drawcircle(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all','Center',app.PRIP_ROIs.ROI_Data(SelROI).Center,'Radius',app.PRIP_ROIs.ROI_Data(SelROI).Radius);
+                    app.PRIP_ROIs.ROI(SelROI).ROI = drawcircle(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all','Center',app.PRIP_ROIs.ROI_Data(SelROI).Center,'Radius',app.PRIP_ROIs.ROI_Data(SelROI).Radius);
                     
                 case 'Rectangle'
-                    app.PRIP_ROIs.ROI(SelROI).ROI = drawrectangle(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all','Position',app.PRIP_ROIs.ROI_Data(SelROI).Position);
+                    app.PRIP_ROIs.ROI(SelROI).ROI = drawrectangle(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all','Position',app.PRIP_ROIs.ROI_Data(SelROI).Position);
                     
                 case 'Polygon'
-                    app.PRIP_ROIs.ROI(SelROI).ROI = drawpolygon(app.PRIP_Plot,'Color',[0.47,0.67,0.19],'InteractionsAllowed','all','Position',app.PRIP_ROIs.ROI_Data(SelROI).Position);
+                    app.PRIP_ROIs.ROI(SelROI).ROI = drawpolygon(app.PRIP_Plot,'Color',app.XMapToolsApp.GetROIColor,'InteractionsAllowed','all','Position',app.PRIP_ROIs.ROI_Data(SelROI).Position);
             end
             
             app.PRIP_ROIs_Listener = addlistener(app.PRIP_ROIs.ROI(SelROI).ROI, 'ROIMoved', @(varargin)PRIP_ROIs_DataExtraction(app, app.PRIP_ROIs));
@@ -2485,14 +2485,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.LODfilteringLabel.Layout.Column = [1 4];
             app.LODfilteringLabel.Text = 'LOD filtering';
 
-            % Create Plot1
-            app.Plot1 = uiaxes(app.GridLayout6);
-            title(app.Plot1, 'Title')
-            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot1.XTick = [];
-            app.Plot1.YTick = [];
-            app.Plot1.Layout.Row = [7 12];
-            app.Plot1.Layout.Column = [1 3];
+            % Create Plot2
+            app.Plot2 = uiaxes(app.GridLayout6);
+            title(app.Plot2, 'Title')
+            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot2.XTick = [];
+            app.Plot2.YTick = [];
+            app.Plot2.Layout.Row = [7 12];
+            app.Plot2.Layout.Column = [7 9];
 
             % Create Plot3
             app.Plot3 = uiaxes(app.GridLayout6);
@@ -2503,14 +2503,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.Plot3.Layout.Row = [7 12];
             app.Plot3.Layout.Column = [4 6];
 
-            % Create Plot2
-            app.Plot2 = uiaxes(app.GridLayout6);
-            title(app.Plot2, 'Title')
-            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot2.XTick = [];
-            app.Plot2.YTick = [];
-            app.Plot2.Layout.Row = [7 12];
-            app.Plot2.Layout.Column = [7 9];
+            % Create Plot1
+            app.Plot1 = uiaxes(app.GridLayout6);
+            title(app.Plot1, 'Title')
+            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot1.XTick = [];
+            app.Plot1.YTick = [];
+            app.Plot1.Layout.Row = [7 12];
+            app.Plot1.Layout.Column = [1 3];
 
             % Create PixelReconstructionandImprovedPrecisionPRIPTab
             app.PixelReconstructionandImprovedPrecisionPRIPTab = uitab(app.TabGroup);
