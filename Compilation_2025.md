@@ -1,30 +1,32 @@
-# Deployment of a new release of XMapTools on MacOS with MATLAB 2025a
+# Deployment of a new release of XMapTools on MacOS with MATLAB 2025a. Note that the deployment tool has changed from previous versions.
 
-__Last update 05.05.2025 (Pierre Lanari)__
+__Last update 09.05.2025 (Pierre Lanari)__
 
-
-- Run the program RESET_CONFIG.
-- Run Install_XMapTools_MATLAB.m if you work from a new directory (recommended).
-- Run CleanDirectory.m to perform the pre-compilation cleaning tasks.
+- Copy the XMapTools files into a compilation folder.
+- Run RESET_CONFIG.
+- Run Install_XMapTools_MATLAB.
+- Run CleanDirectory to perform pre-compile cleanup tasks (compatibility not tested with this release).
 - Open the App Designer (open XMapTools or start XMapTools); the code will automatically be updated to the MATLAB version.
 
-- Change hardcoded version in the startup function.
-- Save the project (to update code version).
+- Change the hardcoded version in the startup function.
+- Save the project to update the version and code.
 
-- Click "Share" > "Standalone Desktop App" 
-- Add the Splash Screen and the Icon
-- Add the Program folder to "Files required for the app to run"
+- Click "Share" > "Standalone Desktop App". 
+- Add the Splash Screen and the Icon.
+- Add the Program folder to "Files required for the app to run" (apparently not really useful).
 - Select "Share using a project" in "Manage App Sharing with a MATLAB Project".
 - Edit the name to "XMapTools" and click Ok.
 
 - In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task. 
-- Add the following folders manually: 
-  - BingoAntidote/Databases/
-  - Dev/Data_Std_LAICPMS/
-  - Dev/help
-  - Dev/help/img
+- Add the following folders manually (important): 
+  - Program/Addons/BingoAntidote/Databases/
+  - Program/Addons/BingoAntidote/Dev/
+  - Program/Core/
+  - Program/Dev/Data_Std_LAICPMS/
+  - Program/Dev/help
+  - Program/Dev/help/img
   
-- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS_Intel or XMapToolsInstaller_macOS_AppleSilicon_2025 or XMapToolsInstaller_WIN  
+- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS_Intel or XMapToolsInstaller_macOS_AppleSilicon_2025 or XMapToolsInstaller_WIN.  
 
 - Update the Installer Notes: 
 ```

@@ -199,16 +199,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         OrderLabel_2                    matlab.ui.control.Label
         Segment_InterpOrderFilterGBSpinner  matlab.ui.control.Spinner
         Segment_ExportROI_TXT           matlab.ui.control.Button
-        ADDONSTab                       matlab.ui.container.Tab
-        GridLayout_AddonsTab            matlab.ui.container.GridLayout
-        AddonsTab_help                  matlab.ui.control.Button
-        Addons_BingoAntidote_2          matlab.ui.control.Button
-        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
-        Image_32                        matlab.ui.control.Image
-        Image_33                        matlab.ui.control.Image
-        OTHERTOOLSLabel                 matlab.ui.control.Label
-        Tool_ExportCompositions         matlab.ui.control.Button
-        Tool_ExportCompositions_2       matlab.ui.control.Button
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -252,6 +242,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Image_28                        matlab.ui.control.Image
         PlotEngineDropDownLabel         matlab.ui.control.Label
         PlotEngineDropDown              matlab.ui.control.DropDown
+        ADDONSTab                       matlab.ui.container.Tab
+        GridLayout_AddonsTab            matlab.ui.container.GridLayout
+        AddonsTab_help                  matlab.ui.control.Button
+        Addons_BingoAntidote_2          matlab.ui.control.Button
+        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
+        Image_32                        matlab.ui.control.Image
+        Image_33                        matlab.ui.control.Image
+        OTHERTOOLSLabel                 matlab.ui.control.Label
+        Tool_ExportCompositions         matlab.ui.control.Button
+        Tool_ExportCompositions_2       matlab.ui.control.Button
         GridLayout_Bottom               matlab.ui.container.GridLayout
         MapSlider                       matlab.ui.control.Slider
         Value_MapSlider                 matlab.ui.control.NumericEditField
@@ -300,8 +300,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -325,8 +325,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -16083,8 +16083,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.SaveRequired = 1;
             
-            
-            
             %keyboard
             
         end
@@ -16093,12 +16091,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function Tool_ExportCompositionsButtonPushed(app, event)
             
             Data_Export(app);
-            
-            
-            
-            
-            
-            
             
         end
 
@@ -17805,94 +17797,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Segment_ExportROI_TXT.Layout.Column = 24;
             app.Segment_ExportROI_TXT.Text = '';
 
-            % Create ADDONSTab
-            app.ADDONSTab = uitab(app.TabButtonGroup);
-            app.ADDONSTab.AutoResizeChildren = 'off';
-            app.ADDONSTab.Title = 'ADD-ONS';
-
-            % Create GridLayout_AddonsTab
-            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
-            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
-            app.GridLayout_AddonsTab.ColumnSpacing = 4;
-            app.GridLayout_AddonsTab.RowSpacing = 4;
-            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
-            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
-
-            % Create AddonsTab_help
-            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
-            app.AddonsTab_help.Icon = '061-info.png';
-            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
-            app.AddonsTab_help.Layout.Row = 1;
-            app.AddonsTab_help.Layout.Column = 35;
-            app.AddonsTab_help.Text = '';
-
-            % Create Addons_BingoAntidote_2
-            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
-            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
-            app.Addons_BingoAntidote_2.IconAlignment = 'top';
-            app.Addons_BingoAntidote_2.FontSize = 6;
-            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
-            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
-            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
-            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
-
-            % Create THERMODYNAMICMODELINGLabel
-            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
-            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
-            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
-            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
-            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
-            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
-            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
-            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
-
-            % Create Image_32
-            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_32.Layout.Row = [1 4];
-            app.Image_32.Layout.Column = 11;
-            app.Image_32.ImageSource = 'ImageDelimiter.png';
-
-            % Create Image_33
-            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_33.Layout.Row = [1 4];
-            app.Image_33.Layout.Column = 22;
-            app.Image_33.ImageSource = 'ImageDelimiter.png';
-
-            % Create OTHERTOOLSLabel
-            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
-            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
-            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
-            app.OTHERTOOLSLabel.FontSize = 9;
-            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
-            app.OTHERTOOLSLabel.Layout.Row = 4;
-            app.OTHERTOOLSLabel.Layout.Column = [1 10];
-            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
-
-            % Create Tool_ExportCompositions
-            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
-            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
-            app.Tool_ExportCompositions.IconAlignment = 'top';
-            app.Tool_ExportCompositions.FontSize = 8;
-            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions.Layout.Row = [1 2];
-            app.Tool_ExportCompositions.Layout.Column = [1 2];
-            app.Tool_ExportCompositions.Text = 'Export';
-
-            % Create Tool_ExportCompositions_2
-            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
-            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
-            app.Tool_ExportCompositions_2.IconAlignment = 'top';
-            app.Tool_ExportCompositions_2.FontSize = 8;
-            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
-            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
-            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
-
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);
             app.OPTIONSTab.AutoResizeChildren = 'off';
@@ -18256,6 +18160,94 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PlotEngineDropDown.Layout.Row = 1;
             app.PlotEngineDropDown.Layout.Column = [17 19];
             app.PlotEngineDropDown.Value = '4.4';
+
+            % Create ADDONSTab
+            app.ADDONSTab = uitab(app.TabButtonGroup);
+            app.ADDONSTab.AutoResizeChildren = 'off';
+            app.ADDONSTab.Title = 'ADD-ONS';
+
+            % Create GridLayout_AddonsTab
+            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
+            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
+            app.GridLayout_AddonsTab.ColumnSpacing = 4;
+            app.GridLayout_AddonsTab.RowSpacing = 4;
+            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
+            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
+
+            % Create AddonsTab_help
+            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
+            app.AddonsTab_help.Icon = '061-info.png';
+            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
+            app.AddonsTab_help.Layout.Row = 1;
+            app.AddonsTab_help.Layout.Column = 35;
+            app.AddonsTab_help.Text = '';
+
+            % Create Addons_BingoAntidote_2
+            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
+            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
+            app.Addons_BingoAntidote_2.IconAlignment = 'top';
+            app.Addons_BingoAntidote_2.FontSize = 6;
+            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
+            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
+            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
+            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
+
+            % Create THERMODYNAMICMODELINGLabel
+            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
+            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
+            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
+            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
+            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
+            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
+            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
+            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
+
+            % Create Image_32
+            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_32.Layout.Row = [1 4];
+            app.Image_32.Layout.Column = 11;
+            app.Image_32.ImageSource = 'ImageDelimiter.png';
+
+            % Create Image_33
+            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_33.Layout.Row = [1 4];
+            app.Image_33.Layout.Column = 22;
+            app.Image_33.ImageSource = 'ImageDelimiter.png';
+
+            % Create OTHERTOOLSLabel
+            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
+            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
+            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
+            app.OTHERTOOLSLabel.FontSize = 9;
+            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
+            app.OTHERTOOLSLabel.Layout.Row = 4;
+            app.OTHERTOOLSLabel.Layout.Column = [1 10];
+            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
+
+            % Create Tool_ExportCompositions
+            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
+            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
+            app.Tool_ExportCompositions.IconAlignment = 'top';
+            app.Tool_ExportCompositions.FontSize = 8;
+            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions.Layout.Row = [1 2];
+            app.Tool_ExportCompositions.Layout.Column = [1 2];
+            app.Tool_ExportCompositions.Text = 'Export';
+
+            % Create Tool_ExportCompositions_2
+            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
+            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
+            app.Tool_ExportCompositions_2.IconAlignment = 'top';
+            app.Tool_ExportCompositions_2.FontSize = 8;
+            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
+            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
+            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
 
             % Create GridLayout_Bottom
             app.GridLayout_Bottom = uigridlayout(app.GridLayout2);
@@ -18654,19 +18646,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18848,16 +18840,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -18867,6 +18849,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);
