@@ -41,4 +41,11 @@ Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Cha
 
 - Click "Build and Package"
 
+- Zip the installer for macOS using: 
+```
+ditto -c -k --sequesterRsrc --keepParent "XMapToolsInstaller_macOS.app" "XMapToolsInstaller_macOS.zip"
+```
+```
+ditto -c -k --sequesterRsrc --keepParent "XMapTools.app" "XMapTools_macOS.zip"
+```
 - If this is a public version, update the version online!  
