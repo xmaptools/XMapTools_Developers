@@ -95,12 +95,13 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
         Field_Xmax                  matlab.ui.control.NumericEditField
         XmaxLabel                   matlab.ui.control.Label
         HoldaxislimitsCheckBox      matlab.ui.control.CheckBox
-        FigPlot4                    matlab.ui.control.UIAxes
-        FigPlot5                    matlab.ui.control.UIAxes
-        FigPlot6                    matlab.ui.control.UIAxes
-        FigPlot1                    matlab.ui.control.UIAxes
-        FigPlot3                    matlab.ui.control.UIAxes
+        PlotBulkCheckBox            matlab.ui.control.CheckBox
         FigPlot2                    matlab.ui.control.UIAxes
+        FigPlot3                    matlab.ui.control.UIAxes
+        FigPlot1                    matlab.ui.control.UIAxes
+        FigPlot6                    matlab.ui.control.UIAxes
+        FigPlot5                    matlab.ui.control.UIAxes
+        FigPlot4                    matlab.ui.control.UIAxes
     end
 
     
@@ -505,7 +506,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                 end
                 
                 Text2Disp_Statistics = '';
-                Text2Disp_Statistics = [Text2Disp_Statistics,'Histogram (',Labels_X,' vs ',Labels_Y,') \n\n'];
+                Text2Disp_Statistics = [Text2Disp_Statistics,'Binary (',Labels_X,' vs ',Labels_Y,') \n\n'];
                 
                 app.WaitBar.Message = 'Plotting data';
                 
@@ -581,9 +582,20 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                         app.FigPlot1.Children(1).YData = SelData_Y(Idx);
                     end
                     app.FigPlot1.Color = [1,1,1]; 
+                    
+                    if app.PlotBulkCheckBox.Value 
+                        hold(app.FigPlot1,'on')
+                        plot(app.FigPlot1,mean(SelData_X(Idx)),mean(SelData_Y(Idx)),'o','MarkerFaceColor','red',"MarkerEdgeColor",'red','markersize',10)
+                        % plot(app.FigPlot1,median(SelData_X(Idx)),median(SelData_Y(Idx)),'o','MarkerFaceColor','blue',"MarkerEdgeColor",'blue','markersize',10)
+                        hold(app.FigPlot1,'off')
+                        
+                        Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (average): ',Labels_X,'=',num2str(mean(SelData_X(Idx))),' ',Labels_Y,'=',num2str(mean(SelData_Y(Idx))),' \n'];
+                        Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (std): ',Labels_X,'=',num2str(std(SelData_X(Idx))),' ',Labels_Y,'=',num2str(std(SelData_Y(Idx))),' \n\n'];
+                        % Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (median): ',Labels_X,'=',num2str(median(SelData_X(Idx))),' ',Labels_Y,'=',num2str(median(SelData_Y(Idx))),' \n\n'];
+                    end
                 end
                 
-                if app.log_X_CheckBox.Value
+                if app.log_X_CheckBox.Value 
                     app.FigPlot1.XScale = 'log';
                 else
                     app.FigPlot1.XScale = 'linear';
@@ -835,6 +847,17 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                     
                     plot(app.FigPlot1,Xc(Idx)+(1-(Xc(Idx)+Xa(Idx)))./2,Xb(Idx),'.k','markersize',1)
                     app.FigPlot1.Color = [1,1,1];
+                    
+                    if app.PlotBulkCheckBox.Value 
+                        hold(app.FigPlot1,'on')
+                        plot(app.FigPlot1,mean(Xc(Idx)+(1-(Xc(Idx)+Xa(Idx)))./2),mean(Xb(Idx)),'o','MarkerFaceColor','red',"MarkerEdgeColor",'red','markersize',10)
+                        hold(app.FigPlot1,'off')
+                        
+                        Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (average): ',Labels_X,'=',num2str(mean(SelData_X(Idx))),' ',Labels_Y,'=',num2str(mean(SelData_Y(Idx))),' ',Labels_Z,'=',num2str(mean(SelData_Z(Idx))),' \n'];
+                        Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (std): ',Labels_X,'=',num2str(std(SelData_X(Idx))),' ',Labels_Y,'=',num2str(std(SelData_Y(Idx))),' ',Labels_Z,'=',num2str(std(SelData_Z(Idx))),' \n\n'];
+                        
+                        Text2Disp_Statistics = [Text2Disp_Statistics,'Bulk Value (fraction): ',Labels_X,'=',num2str(mean(Xa(Idx))),' ',Labels_Y,'=',num2str(mean(Xb(Idx))),' ',Labels_Z,'=',num2str(mean(Xc(Idx))),' \n\n'];
+                    end
                 end
                 ht = toc;
                 Text2Disp_Report = [Text2Disp_Report,'Size of dataset: ',num2str(length(Idx)),' data points (',num2str(round(Percentage)),'%% plotted)\n'];
@@ -2899,6 +2922,11 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
         function HoldonCheckBoxValueChanged(app, event)
             Explore_ResetROI_ButtonPushed(app);
         end
+
+        % Value changed function: PlotBulkCheckBox
+        function PlotBulkCheckBoxValueChanged(app, event)
+            PlotData(app);
+        end
     end
 
     % Component initialization
@@ -3149,7 +3177,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.Label_Maks_2.FontWeight = 'bold';
             app.Label_Maks_2.Layout.Row = 6;
             app.Label_Maks_2.Layout.Column = [17 21];
-            app.Label_Maks_2.Text = 'Low resource mode ';
+            app.Label_Maks_2.Text = 'Low Resource Mode ';
 
             % Create CheckBox_LowRessourcesMode
             app.CheckBox_LowRessourcesMode = uicheckbox(app.GridLayout7_8);
@@ -3629,48 +3657,22 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.HoldaxislimitsCheckBox.Layout.Row = 12;
             app.HoldaxislimitsCheckBox.Layout.Column = 7;
 
-            % Create FigPlot4
-            app.FigPlot4 = uiaxes(app.GridLayout);
-            title(app.FigPlot4, 'Title')
-            xlabel(app.FigPlot4, 'X')
-            ylabel(app.FigPlot4, 'Y')
-            zlabel(app.FigPlot4, 'Z')
-            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot4.FontSize = 9;
-            app.FigPlot4.Layout.Row = [1 3];
-            app.FigPlot4.Layout.Column = [9 10];
+            % Create PlotBulkCheckBox
+            app.PlotBulkCheckBox = uicheckbox(app.GridLayout);
+            app.PlotBulkCheckBox.ValueChangedFcn = createCallbackFcn(app, @PlotBulkCheckBoxValueChanged, true);
+            app.PlotBulkCheckBox.Text = 'Plot "Bulk Value" (Average)';
+            app.PlotBulkCheckBox.Layout.Row = 12;
+            app.PlotBulkCheckBox.Layout.Column = [3 4];
 
-            % Create FigPlot5
-            app.FigPlot5 = uiaxes(app.GridLayout);
-            title(app.FigPlot5, 'Title')
-            xlabel(app.FigPlot5, 'X')
-            ylabel(app.FigPlot5, 'Y')
-            zlabel(app.FigPlot5, 'Z')
-            app.FigPlot5.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot5.FontSize = 9;
-            app.FigPlot5.Layout.Row = [4 6];
-            app.FigPlot5.Layout.Column = [7 8];
-
-            % Create FigPlot6
-            app.FigPlot6 = uiaxes(app.GridLayout);
-            title(app.FigPlot6, 'Title')
-            xlabel(app.FigPlot6, 'X')
-            ylabel(app.FigPlot6, 'Y')
-            zlabel(app.FigPlot6, 'Z')
-            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot6.FontSize = 9;
-            app.FigPlot6.Layout.Row = [4 6];
-            app.FigPlot6.Layout.Column = [9 10];
-
-            % Create FigPlot1
-            app.FigPlot1 = uiaxes(app.GridLayout);
-            title(app.FigPlot1, 'Title')
-            xlabel(app.FigPlot1, 'X')
-            ylabel(app.FigPlot1, 'Y')
-            zlabel(app.FigPlot1, 'Z')
-            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
-            app.FigPlot1.Layout.Row = [5 11];
-            app.FigPlot1.Layout.Column = [2 5];
+            % Create FigPlot2
+            app.FigPlot2 = uiaxes(app.GridLayout);
+            title(app.FigPlot2, 'Title')
+            xlabel(app.FigPlot2, 'X')
+            ylabel(app.FigPlot2, 'Y')
+            zlabel(app.FigPlot2, 'Z')
+            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
+            app.FigPlot2.Layout.Row = [7 11];
+            app.FigPlot2.Layout.Column = [7 10];
 
             % Create FigPlot3
             app.FigPlot3 = uiaxes(app.GridLayout);
@@ -3683,15 +3685,48 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.FigPlot3.Layout.Row = [1 3];
             app.FigPlot3.Layout.Column = [7 8];
 
-            % Create FigPlot2
-            app.FigPlot2 = uiaxes(app.GridLayout);
-            title(app.FigPlot2, 'Title')
-            xlabel(app.FigPlot2, 'X')
-            ylabel(app.FigPlot2, 'Y')
-            zlabel(app.FigPlot2, 'Z')
-            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
-            app.FigPlot2.Layout.Row = [7 11];
-            app.FigPlot2.Layout.Column = [7 10];
+            % Create FigPlot1
+            app.FigPlot1 = uiaxes(app.GridLayout);
+            title(app.FigPlot1, 'Title')
+            xlabel(app.FigPlot1, 'X')
+            ylabel(app.FigPlot1, 'Y')
+            zlabel(app.FigPlot1, 'Z')
+            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
+            app.FigPlot1.Layout.Row = [5 11];
+            app.FigPlot1.Layout.Column = [2 5];
+
+            % Create FigPlot6
+            app.FigPlot6 = uiaxes(app.GridLayout);
+            title(app.FigPlot6, 'Title')
+            xlabel(app.FigPlot6, 'X')
+            ylabel(app.FigPlot6, 'Y')
+            zlabel(app.FigPlot6, 'Z')
+            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot6.FontSize = 9;
+            app.FigPlot6.Layout.Row = [4 6];
+            app.FigPlot6.Layout.Column = [9 10];
+
+            % Create FigPlot5
+            app.FigPlot5 = uiaxes(app.GridLayout);
+            title(app.FigPlot5, 'Title')
+            xlabel(app.FigPlot5, 'X')
+            ylabel(app.FigPlot5, 'Y')
+            zlabel(app.FigPlot5, 'Z')
+            app.FigPlot5.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot5.FontSize = 9;
+            app.FigPlot5.Layout.Row = [4 6];
+            app.FigPlot5.Layout.Column = [7 8];
+
+            % Create FigPlot4
+            app.FigPlot4 = uiaxes(app.GridLayout);
+            title(app.FigPlot4, 'Title')
+            xlabel(app.FigPlot4, 'X')
+            ylabel(app.FigPlot4, 'Y')
+            zlabel(app.FigPlot4, 'Z')
+            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot4.FontSize = 9;
+            app.FigPlot4.Layout.Row = [1 3];
+            app.FigPlot4.Layout.Column = [9 10];
 
             % Show the figure after all components are created
             app.VisualizationTool.Visible = 'on';
