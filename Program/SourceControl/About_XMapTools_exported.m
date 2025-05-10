@@ -93,7 +93,7 @@ classdef About_XMapTools_exported < matlab.apps.AppBase
             app.Information.FontSize = 11;
             app.Information.Layout.Row = [7 10];
             app.Information.Layout.Column = [2 7];
-            app.Information.Text = {'XMapTools is a free software solution for the analysis of chemical maps developed by Prof. Pierre Lanari at the University of Lausanne, Switzerland.  '; ''; 'Main contributors: Pierre Lanari, Philip Hartmeir, Thorsten Markmann, Joshua Laughton, and Mahyra Tedeschi  '; ''; 'License: GNU General Public License v3.0'; ''; '  Website: https://xmaptools.ch '; 'Resources: https://resources.xmaptools.ch'; ' Github: https://github.com/xmaptools '; 'PTtoolbox (by J. Laughton): https://github.com/JoshuaLaughton/PTtoolbox '};
+            app.Information.Text = {'XMapTools is a free software solution for the analysis of chemical maps currently developed by Prof. Pierre Lanari at the University of Lausanne, Switzerland.  and previously at the University of Bern.'; ''; 'Main contributors: Pierre Lanari, Thorsten Markmann, Renée Tamblyn, Joshua Laughton, Philip Hartmeir, and Mahyra Tedeschi  '; ''; 'License: GNU General Public License v3.0'; ''; '  Website: https://xmaptools.ch '; 'Resources: https://resources.xmaptools.ch'; ' Github: https://github.com/xmaptools '; 'PTtoolbox (by J. Laughton): https://github.com/JoshuaLaughton/PTtoolbox '};
 
             % Show the figure after all components are created
             app.XMapTools_Info.Visible = 'on';

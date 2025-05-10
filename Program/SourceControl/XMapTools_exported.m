@@ -300,8 +300,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -325,8 +325,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -446,6 +446,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         XMapTools_VER                       % Version Updated in the startup function
         XMapTools_LastDir                   % Last directory
         XMapTools_Position
+        
+        XMapTools_SkipUpdate                % Variable used to skip an update
         
         ColorMaps                           % Variable containing all colormaps
         ColorMapValues
@@ -7248,7 +7250,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.5 beta 1 build 250506';
+            app.XMapTools_VER = 'XMapTools 4.5 beta 1 build 250511';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -7265,6 +7267,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     disp(' ')
                     disp('Update is available')
                     toc
+                    
                     if isdeployed
                         if ispc
                             buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (WINDOWS)','Remind me later','Download XMapTools installer (WINDOWS)');
@@ -18646,19 +18649,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18840,16 +18843,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -18859,6 +18852,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);
