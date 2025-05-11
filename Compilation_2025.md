@@ -9,6 +9,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Open the App Designer (open XMapTools or start XMapTools); the code will automatically be updated to the MATLAB version.
 
 - Change the hardcoded version in the startup function.
+- Change the version in the Sharing Details of the main XMapTools object. 
 - Save the project to update the version and code.
 
 - Click "Share" > "Standalone Desktop App". 
