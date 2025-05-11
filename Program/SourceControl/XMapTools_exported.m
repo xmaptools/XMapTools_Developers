@@ -60,6 +60,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         IMPORTMAPSIMAGESLabel           matlab.ui.control.Label
         ButtonConvertLaserData          matlab.ui.control.Button
         mapsizeLabel                    matlab.ui.control.Label
+        UpdateNowButton                 matlab.ui.control.Button
+        UPDATEAVAILABLELabel            matlab.ui.control.Label
         CLASSIFYTab                     matlab.ui.container.Tab
         GridLayout4                     matlab.ui.container.GridLayout
         Classify_AddTrainingSet         matlab.ui.control.Button
@@ -300,8 +302,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -325,8 +327,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -7264,63 +7266,81 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 if release_signature > xmaptools_signature    % must be >
                     % An update is available
+                    
                     disp(' ')
                     disp('Update is available')
                     toc
                     
-                    if isdeployed
-                        if ispc
-                            buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (WINDOWS)','Remind me later','Download XMapTools installer (WINDOWS)');
-                        else
-                            buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (macOS)','Remind me later','Download XMapTools installer (macOS)');
-                        end
-                    else
-                        buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools (MATLAB)','Remind me later','Download XMapTools (MATLAB)');
-                    end
+                    app.UPDATEAVAILABLELabel.Visible = 'on';
+                    app.UpdateNowButton.Visible = 'on';
                     
-                    WebAdress = '';
-                    switch buttonName
-                        case 'Remind me later'
-                            
-                        case 'Download XMapTools installer (WINDOWS)'
-                            WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_WIN.exe.zip';
-                        case 'Download XMapTools installer (macOS)'
-                            WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_macOS.app.zip';
-                            
-                        otherwise
-                            web('https://github.com/xmaptools/XMapTools_Public');
-                            delete(app.XMapTools_GUI);
-                            return
-                    end
+                    % New module for XMapTools Update implemented in 4.5 
+                    app.XMapTools_SkipUpdate = 0;
                     
-                    if length(WebAdress) > 10
-                        
-                        directoryname = uigetdir(cd, 'Pick a directory to download the installer');
-                        
-                        if isequal(directoryname,0)
-                            delete(app.XMapTools_GUI);
-                            return
-                        end
-                        
-                        cd(directoryname)
-                        
-                        unzip(WebAdress);
-                        
-                        if isdir('__MACOSX')
-                            [status,msg,msgID] = rmdir('__MACOSX', 's');
-                        end
-                        
-                        if ispc
-                            web('https://xmaptools.ch/update-windows/');
-                        else
-                            web('https://xmaptools.ch/update-macos/');
-                        end
-                        delete(app.XMapTools_GUI);
+                    waitfor(Update_XMapTools(app));
+                    
+                    if ~isequal(app.XMapTools_SkipUpdate,1)
+                        delete(app);
                         return
                     end
+                    
+%                     if isdeployed
+%                         if ispc
+%                             buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (WINDOWS)','Remind me later','Download XMapTools installer (WINDOWS)');
+%                         else
+%                             buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (macOS)','Remind me later','Download XMapTools installer (macOS)');
+%                         end
+%                     else
+%                         buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools (MATLAB)','Remind me later','Download XMapTools (MATLAB)');
+%                     end
+%                     
+%                     WebAdress = '';
+%                     switch buttonName
+%                         case 'Remind me later'
+%                             
+%                         case 'Download XMapTools installer (WINDOWS)'
+%                             WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_WIN.exe.zip';
+%                         case 'Download XMapTools installer (macOS)'
+%                             WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_macOS.app.zip';
+%                             
+%                         otherwise
+%                             web('https://github.com/xmaptools/XMapTools_Public');
+%                             delete(app.XMapTools_GUI);
+%                             return
+%                     end
+%                     
+%                     if length(WebAdress) > 10
+%                         
+%                         directoryname = uigetdir(cd, 'Pick a directory to download the installer');
+%                         
+%                         if isequal(directoryname,0)
+%                             delete(app.XMapTools_GUI);
+%                             return
+%                         end
+%                         
+%                         cd(directoryname)
+%                         
+%                         unzip(WebAdress);
+%                         
+%                         if isdir('__MACOSX')
+%                             [status,msg,msgID] = rmdir('__MACOSX', 's');
+%                         end
+%                         
+%                         if ispc
+%                             web('https://xmaptools.ch/update-windows/');
+%                         else
+%                             web('https://xmaptools.ch/update-macos/');
+%                         end
+%                         delete(app.XMapTools_GUI);
+%                         return
+%                     end
+                else
+                    app.UPDATEAVAILABLELabel.Visible = 'off';
+                    app.UpdateNowButton.Visible = 'off';
                 end
             end
             % Check for Updates ------------------------------------------
+            
             %disp('Update checked'),toc
             app.XMapTools_LastDir = cd;
             app.XMapTools_GUI.Name = [app.XMapTools_VER,' - ',char(app.XMapTools_LastDir)];
@@ -16103,6 +16123,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             ImageConverter(app);
             
         end
+
+        % Button pushed function: UpdateNowButton
+        function UpdateNowButtonPushed(app, event)
+            app.XMapTools_SkipUpdate = 0;
+            waitfor(Update_XMapTools(app));
+            if isequal(app.XMapTools_SkipUpdate,1)
+                delete(app);
+            end
+        end
     end
 
     % Component initialization
@@ -16574,6 +16603,26 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.mapsizeLabel.Layout.Row = 3;
             app.mapsizeLabel.Layout.Column = [29 35];
             app.mapsizeLabel.Text = 'map size:';
+
+            % Create UpdateNowButton
+            app.UpdateNowButton = uibutton(app.GridLayout_ImportTab, 'push');
+            app.UpdateNowButton.ButtonPushedFcn = createCallbackFcn(app, @UpdateNowButtonPushed, true);
+            app.UpdateNowButton.Icon = '113-server.png';
+            app.UpdateNowButton.IconAlignment = 'top';
+            app.UpdateNowButton.FontSize = 9;
+            app.UpdateNowButton.Layout.Row = [1 2];
+            app.UpdateNowButton.Layout.Column = [21 23];
+            app.UpdateNowButton.Text = 'Update Now';
+
+            % Create UPDATEAVAILABLELabel
+            app.UPDATEAVAILABLELabel = uilabel(app.GridLayout_ImportTab);
+            app.UPDATEAVAILABLELabel.HorizontalAlignment = 'center';
+            app.UPDATEAVAILABLELabel.VerticalAlignment = 'bottom';
+            app.UPDATEAVAILABLELabel.FontSize = 9;
+            app.UPDATEAVAILABLELabel.FontColor = [0.149 0.149 0.149];
+            app.UPDATEAVAILABLELabel.Layout.Row = 4;
+            app.UPDATEAVAILABLELabel.Layout.Column = [20 24];
+            app.UPDATEAVAILABLELabel.Text = 'UPDATE AVAILABLE';
 
             % Create CLASSIFYTab
             app.CLASSIFYTab = uitab(app.TabButtonGroup);
@@ -18649,19 +18698,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18843,16 +18892,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -18862,6 +18901,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);
