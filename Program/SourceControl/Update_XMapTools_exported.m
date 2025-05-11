@@ -7,20 +7,27 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
         Image                  matlab.ui.control.Image
         AnewreleaseofXMapToolsisavailableLabel  matlab.ui.control.Label
         Copyright              matlab.ui.control.Label
-        EditField              matlab.ui.control.EditField
+        CodeToCopyEditField    matlab.ui.control.EditField
         CopythecodebelowLabel  matlab.ui.control.Label
         CopyCodeButton         matlab.ui.control.Button
-        PressCloseopenaterminalandpastethecodeLabel  matlab.ui.control.Label
+        InstructionsLabel      matlab.ui.control.Label
         AbortandresumeusingXMapToolnotrecommendedButton  matlab.ui.control.Button
-        CloseButton            matlab.ui.control.Button
-        UpgradenowtoXXXLabel   matlab.ui.control.Label
+        CloseXMapToolsButton   matlab.ui.control.Button
+        UpgradenowtothelatestversionLabel  matlab.ui.control.Label
     end
+
+    
+    properties (Access = private)
+        XMapToolsApp 
+        SkipOption
+    end
+    
 
     % Callbacks that handle component events
     methods (Access = private)
 
         % Code that executes after component creation
-        function startupFcn(app, XMapToolsapp)
+        function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
             % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
@@ -38,12 +45,16 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             % You should have received a copy of the GNU General Public License
             % along with XMapTools. If not, see https://www.gnu.org/licenses.
             
-            
             app.Update_XMapTools_GUI.Visible = 'off';
             
-            app.AnewreleaseofXMapToolsisavailableLabel.Text = XMapToolsapp.XMapTools_version.Text;
-            
             movegui(app.Update_XMapTools_GUI,'center');
+            
+            if ispc
+                app.CodeToCopyEditField.Value = 'Windows updates not implemented yet!';
+            else
+                app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
+                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools','- open a terminal, and paste the code to update'};
+            end
             
             app.Update_XMapTools_GUI.Visible = 'on';
         end
@@ -51,17 +62,30 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
         % Button pushed function: CopyCodeButton
         function CopyCodeButtonPushed(app, event)
             
+            clipboard('copy',app.CodeToCopyEditField.Value);
+            
         end
 
-        % Button pushed function: CloseButton
-        function CloseButtonPushed(app, event)
-            
+        % Button pushed function: CloseXMapToolsButton
+        function CloseXMapToolsButtonPushed(app, event)
+            if ispc
+                web('https://xmaptools.ch/install-update/#update-windows')
+            else
+                web('https://xmaptools.ch/install-update/#update-macos')
+            end
+            delete(app);
         end
 
         % Button pushed function: 
         % AbortandresumeusingXMapToolnotrecommendedButton
         function AbortandresumeusingXMapToolnotrecommendedButtonPushed(app, event)
-            
+            app.XMapToolsApp.XMapTools_SkipUpdate = 1;
+            delete(app);
+        end
+
+        % Close request function: Update_XMapTools_GUI
+        function Update_XMapTools_GUICloseRequest(app, event)
+            delete(app);
         end
     end
 
@@ -74,8 +98,9 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             % Create Update_XMapTools_GUI and hide until all components are created
             app.Update_XMapTools_GUI = uifigure('Visible', 'off');
             app.Update_XMapTools_GUI.Position = [100 100 778 549];
-            app.Update_XMapTools_GUI.Name = 'About – XMapTools';
+            app.Update_XMapTools_GUI.Name = 'Update – XMapTools';
             app.Update_XMapTools_GUI.Icon = 'xmaptools_ios_icon_HR.png';
+            app.Update_XMapTools_GUI.CloseRequestFcn = createCallbackFcn(app, @Update_XMapTools_GUICloseRequest, true);
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.Update_XMapTools_GUI);
@@ -94,7 +119,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.AnewreleaseofXMapToolsisavailableLabel.FontSize = 18;
             app.AnewreleaseofXMapToolsisavailableLabel.Layout.Row = 2;
             app.AnewreleaseofXMapToolsisavailableLabel.Layout.Column = [8 14];
-            app.AnewreleaseofXMapToolsisavailableLabel.Text = 'A new release of XMapTools is available!';
+            app.AnewreleaseofXMapToolsisavailableLabel.Text = 'A new release of XMapTools is available.';
 
             % Create Copyright
             app.Copyright = uilabel(app.GridLayout);
@@ -105,14 +130,14 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.Copyright.Layout.Column = [2 14];
             app.Copyright.Text = '© 2021-2025, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
 
-            % Create EditField
-            app.EditField = uieditfield(app.GridLayout, 'text');
-            app.EditField.Editable = 'off';
-            app.EditField.HorizontalAlignment = 'center';
-            app.EditField.FontSize = 14;
-            app.EditField.Layout.Row = 6;
-            app.EditField.Layout.Column = [3 11];
-            app.EditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
+            % Create CodeToCopyEditField
+            app.CodeToCopyEditField = uieditfield(app.GridLayout, 'text');
+            app.CodeToCopyEditField.Editable = 'off';
+            app.CodeToCopyEditField.HorizontalAlignment = 'center';
+            app.CodeToCopyEditField.FontSize = 14;
+            app.CodeToCopyEditField.Layout.Row = 6;
+            app.CodeToCopyEditField.Layout.Column = [3 11];
+            app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
 
             % Create CopythecodebelowLabel
             app.CopythecodebelowLabel = uilabel(app.GridLayout);
@@ -131,40 +156,39 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.CopyCodeButton.Layout.Column = [12 13];
             app.CopyCodeButton.Text = 'Copy Code';
 
-            % Create PressCloseopenaterminalandpastethecodeLabel
-            app.PressCloseopenaterminalandpastethecodeLabel = uilabel(app.GridLayout);
-            app.PressCloseopenaterminalandpastethecodeLabel.FontSize = 16;
-            app.PressCloseopenaterminalandpastethecodeLabel.FontWeight = 'bold';
-            app.PressCloseopenaterminalandpastethecodeLabel.Layout.Row = 8;
-            app.PressCloseopenaterminalandpastethecodeLabel.Layout.Column = [3 11];
-            app.PressCloseopenaterminalandpastethecodeLabel.Text = 'Press Close, open a terminal, and paste the code';
+            % Create InstructionsLabel
+            app.InstructionsLabel = uilabel(app.GridLayout);
+            app.InstructionsLabel.FontSize = 16;
+            app.InstructionsLabel.FontWeight = 'bold';
+            app.InstructionsLabel.Layout.Row = [8 9];
+            app.InstructionsLabel.Layout.Column = [3 11];
+            app.InstructionsLabel.Text = {'Instructions:'; '- Press the button Close XMapTools'; '- open a terminal, and paste the code to update'};
 
             % Create AbortandresumeusingXMapToolnotrecommendedButton
             app.AbortandresumeusingXMapToolnotrecommendedButton = uibutton(app.GridLayout, 'push');
             app.AbortandresumeusingXMapToolnotrecommendedButton.ButtonPushedFcn = createCallbackFcn(app, @AbortandresumeusingXMapToolnotrecommendedButtonPushed, true);
             app.AbortandresumeusingXMapToolnotrecommendedButton.FontSize = 16;
-            app.AbortandresumeusingXMapToolnotrecommendedButton.FontWeight = 'bold';
             app.AbortandresumeusingXMapToolnotrecommendedButton.Layout.Row = 11;
             app.AbortandresumeusingXMapToolnotrecommendedButton.Layout.Column = [3 13];
             app.AbortandresumeusingXMapToolnotrecommendedButton.Text = 'Abort and resume using XMapTool (not recommended)';
 
-            % Create CloseButton
-            app.CloseButton = uibutton(app.GridLayout, 'push');
-            app.CloseButton.ButtonPushedFcn = createCallbackFcn(app, @CloseButtonPushed, true);
-            app.CloseButton.FontSize = 15;
-            app.CloseButton.FontWeight = 'bold';
-            app.CloseButton.Layout.Row = 8;
-            app.CloseButton.Layout.Column = [12 13];
-            app.CloseButton.Text = 'Close';
+            % Create CloseXMapToolsButton
+            app.CloseXMapToolsButton = uibutton(app.GridLayout, 'push');
+            app.CloseXMapToolsButton.ButtonPushedFcn = createCallbackFcn(app, @CloseXMapToolsButtonPushed, true);
+            app.CloseXMapToolsButton.FontSize = 15;
+            app.CloseXMapToolsButton.FontWeight = 'bold';
+            app.CloseXMapToolsButton.Layout.Row = [8 9];
+            app.CloseXMapToolsButton.Layout.Column = [12 13];
+            app.CloseXMapToolsButton.Text = {'Close'; 'XMapTools'};
 
-            % Create UpgradenowtoXXXLabel
-            app.UpgradenowtoXXXLabel = uilabel(app.GridLayout);
-            app.UpgradenowtoXXXLabel.HorizontalAlignment = 'center';
-            app.UpgradenowtoXXXLabel.FontSize = 14;
-            app.UpgradenowtoXXXLabel.FontAngle = 'italic';
-            app.UpgradenowtoXXXLabel.Layout.Row = 3;
-            app.UpgradenowtoXXXLabel.Layout.Column = [8 14];
-            app.UpgradenowtoXXXLabel.Text = 'Upgrade now to XXX';
+            % Create UpgradenowtothelatestversionLabel
+            app.UpgradenowtothelatestversionLabel = uilabel(app.GridLayout);
+            app.UpgradenowtothelatestversionLabel.HorizontalAlignment = 'center';
+            app.UpgradenowtothelatestversionLabel.FontSize = 14;
+            app.UpgradenowtothelatestversionLabel.FontAngle = 'italic';
+            app.UpgradenowtothelatestversionLabel.Layout.Row = 3;
+            app.UpgradenowtothelatestversionLabel.Layout.Column = [8 14];
+            app.UpgradenowtothelatestversionLabel.Text = 'Upgrade now to the latest version!';
 
             % Show the figure after all components are created
             app.Update_XMapTools_GUI.Visible = 'on';
