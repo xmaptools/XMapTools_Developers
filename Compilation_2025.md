@@ -27,7 +27,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
   - Program/Dev/help
   - Program/Dev/help/img
   
-- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS or XMapToolsInstaller_WIN.  
+- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS or XMapToolsInstaller_Windows.  
 
 - Update the Installer Notes: 
 ```
