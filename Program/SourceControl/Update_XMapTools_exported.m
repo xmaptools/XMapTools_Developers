@@ -14,6 +14,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
         AbortandresumeusingXMapToolnotrecommendedButton  matlab.ui.control.Button
         CloseXMapToolsButton   matlab.ui.control.Button
         UpgradenowtothelatestversionLabel  matlab.ui.control.Label
+        OpenhelpwebCheckBox    matlab.ui.control.CheckBox
     end
 
     
@@ -46,14 +47,18 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             % along with XMapTools. If not, see https://www.gnu.org/licenses.
             
             app.Update_XMapTools_GUI.Visible = 'off';
+            app.XMapToolsApp = XMapToolsApp;
             
             movegui(app.Update_XMapTools_GUI,'center');
             
             if ispc
-                app.CodeToCopyEditField.Value = 'Windows updates not implemented yet!';
+                app.CodeToCopyEditField.Value = 'iex ((New-Object System.Net.WebClient).DownloadString(''https://xmaptools.ch/update.ps1''))';
+                app.CodeToCopyEditField.FontSize = 12;
+                app.InstructionsLabel.FontSize = 14;
+                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a PowerShell as an administrator (right-click on the application)','- Paste the code in the terminal and press return to update'};
             else
                 app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
-                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools','- open a terminal, and paste the code to update'};
+                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a terminal, and paste the code to update'};
             end
             
             app.Update_XMapTools_GUI.Visible = 'on';
@@ -68,10 +73,12 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
 
         % Button pushed function: CloseXMapToolsButton
         function CloseXMapToolsButtonPushed(app, event)
-            if ispc
-                web('https://xmaptools.ch/install-update/#update-windows')
-            else
-                web('https://xmaptools.ch/install-update/#update-macos')
+            if isequal(app.OpenhelpwebCheckBox.Value,1)
+                if ispc
+                    web('https://xmaptools.ch/install-update/#update-windows')
+                else
+                    web('https://xmaptools.ch/install-update/#update-macos')
+                end
             end
             delete(app);
         end
@@ -105,7 +112,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             % Create GridLayout
             app.GridLayout = uigridlayout(app.Update_XMapTools_GUI);
             app.GridLayout.ColumnWidth = {'0.1x', '0.5x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.5x', '0.1x'};
-            app.GridLayout.RowHeight = {'0.1x', '1x', '1x', '0.5x', '1x', '1x', '0.5x', '1x', '1x', '1x', '1x', '1x', '1x', '0.1x'};
+            app.GridLayout.RowHeight = {'0.1x', '1x', '1x', '0.5x', '1x', '1x', '0.5x', '1x', '1x', '0.7x', '0.5x', '1x', '0.5x', '1x', '0.1x'};
 
             % Create Image
             app.Image = uiimage(app.GridLayout);
@@ -126,7 +133,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.Copyright.HorizontalAlignment = 'center';
             app.Copyright.VerticalAlignment = 'bottom';
             app.Copyright.FontAngle = 'italic';
-            app.Copyright.Layout.Row = 13;
+            app.Copyright.Layout.Row = 14;
             app.Copyright.Layout.Column = [2 14];
             app.Copyright.Text = '© 2021-2025, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
 
@@ -168,7 +175,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.AbortandresumeusingXMapToolnotrecommendedButton = uibutton(app.GridLayout, 'push');
             app.AbortandresumeusingXMapToolnotrecommendedButton.ButtonPushedFcn = createCallbackFcn(app, @AbortandresumeusingXMapToolnotrecommendedButtonPushed, true);
             app.AbortandresumeusingXMapToolnotrecommendedButton.FontSize = 16;
-            app.AbortandresumeusingXMapToolnotrecommendedButton.Layout.Row = 11;
+            app.AbortandresumeusingXMapToolnotrecommendedButton.Layout.Row = 12;
             app.AbortandresumeusingXMapToolnotrecommendedButton.Layout.Column = [3 13];
             app.AbortandresumeusingXMapToolnotrecommendedButton.Text = 'Abort and resume using XMapTool (not recommended)';
 
@@ -189,6 +196,13 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.UpgradenowtothelatestversionLabel.Layout.Row = 3;
             app.UpgradenowtothelatestversionLabel.Layout.Column = [8 14];
             app.UpgradenowtothelatestversionLabel.Text = 'Upgrade now to the latest version!';
+
+            % Create OpenhelpwebCheckBox
+            app.OpenhelpwebCheckBox = uicheckbox(app.GridLayout);
+            app.OpenhelpwebCheckBox.Text = 'Open help (web)';
+            app.OpenhelpwebCheckBox.Layout.Row = 10;
+            app.OpenhelpwebCheckBox.Layout.Column = [12 14];
+            app.OpenhelpwebCheckBox.Value = true;
 
             % Show the figure after all components are created
             app.Update_XMapTools_GUI.Visible = 'on';

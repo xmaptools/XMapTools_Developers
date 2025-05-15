@@ -7216,6 +7216,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % You should have received a copy of the GNU General Public License
             % along with XMapTools. If not, see https://www.gnu.org/licenses.
             
+            % Attempt to help compilation on Windows (4.5 beta 1): 
+            AddPath_help;
+            AddPath_help_img;
             
             disp(' ')
             %disp(' ')
@@ -7252,7 +7255,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.5 beta 1 build 250511';
+            app.XMapTools_VER = 'XMapTools 4.5 beta 1 build 250515';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -16128,7 +16131,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function UpdateNowButtonPushed(app, event)
             app.XMapTools_SkipUpdate = 0;
             waitfor(Update_XMapTools(app));
-            if isequal(app.XMapTools_SkipUpdate,1)
+            if isequal(app.XMapTools_SkipUpdate,0)
                 delete(app);
             end
         end
