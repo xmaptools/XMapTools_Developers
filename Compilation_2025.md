@@ -13,8 +13,6 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Save the project to update the version and code.
 
 - Click "Share" > "Standalone Desktop App". 
-- Add the Splash Screen and the Icon.
-- Add the Program folder to "Files required for the app to run" (apparently not really useful).
 - Select "Share using a project" in "Manage App Sharing with a MATLAB Project".
 - Edit the name to "XMapTools" and click Ok.
 
@@ -28,13 +26,6 @@ __Last update 09.05.2025 (Pierre Lanari)__
   - Program/Dev/help/img
   
 - Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS or XMapToolsInstaller_Windows.  
-
-- Update the Installer Notes: 
-```
-#### THIS IS A BETA VERSION OF XMAPTOOLS: Some features will only be available in the public release ####
-
-Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md
-```
   
 - Select the splash screen
 - Select the icon
