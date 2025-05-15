@@ -9,6 +9,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Open the App Designer (open XMapTools or start XMapTools); the code will automatically be updated to the MATLAB version.
 
 - Change the hardcoded version in the startup function.
+- Change the version in the Sharing Details of the main XMapTools object. 
 - Save the project to update the version and code.
 
 - Click "Share" > "Standalone Desktop App". 
@@ -17,7 +18,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Select "Share using a project" in "Manage App Sharing with a MATLAB Project".
 - Edit the name to "XMapTools" and click Ok.
 
-- In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task. 
+- In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task by clicking in XMapTools Standalone Application. 
 - Add the following folders manually (important): 
   - Program/Addons/BingoAntidote/Databases/
   - Program/Addons/BingoAntidote/Dev/
@@ -26,7 +27,7 @@ __Last update 09.05.2025 (Pierre Lanari)__
   - Program/Dev/help
   - Program/Dev/help/img
   
-- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS_Intel or XMapToolsInstaller_macOS_AppleSilicon_2025 or XMapToolsInstaller_WIN.  
+- Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS or XMapToolsInstaller_Windows.  
 
 - Update the Installer Notes: 
 ```
@@ -34,12 +35,6 @@ __Last update 09.05.2025 (Pierre Lanari)__
 
 Find out more at https://github.com/xmaptools/XMapTools_Developers/blob/main/Changelog.md
 ```
-```
---
-  
-Remember that you need to update permissions on macOS before to run XMapTools: https://resources.xmaptools.ch/installation-macos/
-Open a terminal and type in: chmod -R 755 /Applications/XMapTools/
-```  
   
 - Select the splash screen
 - Select the icon
@@ -47,4 +42,11 @@ Open a terminal and type in: chmod -R 755 /Applications/XMapTools/
 
 - Click "Build and Package"
 
+- Zip the installer for macOS using: 
+```
+ditto -c -k --sequesterRsrc --keepParent "XMapToolsInstaller_macOS.app" "XMapToolsInstaller_macOS.zip"
+```
+```
+ditto -c -k --sequesterRsrc --keepParent "XMapTools.app" "XMapTools_macOS.zip"
+```
 - If this is a public version, update the version online!  

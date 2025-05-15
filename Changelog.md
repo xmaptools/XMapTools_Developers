@@ -2,14 +2,18 @@
 
 ## XMapTools 4.5 (no build yet)
 
-This version is highly recommended for all users as it includes new features, compatibility enhancements, bug fixes and stability improvements to the software.
+This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
 
-- Compatibility information for MacOS users:
-Note that the public compiled version of XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 24.3, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and more recent. The previous MATLAB runtime version v912 can be removed after upgrading to XMapTools 4.5 final release.
-
+- Major update and compatibility notes:
+  - MacOS compatibility: XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 25.1, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and newer. The previous MATLAB runtime version v912 can be removed after installing this version.
+  - Windows compatibility: XMapTools 4.5 is only compatible with Windows 10 and Windows 11. The previous MATLAB runtime version v912 can be removed after installing this version.
+  - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command "curl -fsSL https://xmaptools.ch/install.sh | bash". In the future, XMapTools updates on MacOS will be distributed using the terminal command "curl -fsSL https://xmaptools.ch/update.sh | bash".
+  - Windows installation and Update: ...
+  
 - General:
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image.
   - Enhance the Data Export module with a new mode that randomly selects n pixels to export. This can be combined with other export formats in the same file.
+  - Add an option to display the "bulk value (average)" of plotted pixels in binary and ternary plots in the Data Visualisation module, improving the statistical output of the plots.
   - Add an option to change the colour of the ROI drawn in the main windows and modules. The default colour is selected when the program starts, but the user's choice is saved for each project.
 
 - LA-ICP-MS: 
@@ -17,7 +21,6 @@ Note that the public compiled version of XMapTools 4.5 runs natively on Apple Si
   - Improve the converter module to display the file date/time format selection module only if the format is not automatically detected. Note that the old behaviour can be restored by deselecting the Auto Date/Time option in the converter module.
   - Add a new compatible format for automatic identification of the analysis ID. The list of compatible formats is "Name - ID", "Name-ID", "Name_ID".
   - Add a check to detect if the wrong format of the name has been selected and the analysis ID cannot be retrieved.
-
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
@@ -242,7 +245,7 @@ Release 4.1 includes new functionalities and updates to XMapTools and improvemen
 
 
 
-## XMapTools 4 beta 4 Developer (no public release yet)
+## XMapTools 4.0 beta 4 Developer (no public release yet)
 - Release notes:
   - Add tools for single-mask classification and the creation of sub-masks. At the moment, it is recommended to use the Random Algorithm forest for creating sub-masks. 
   - Add a point counting tool to evaluate pseudo-modes; XMapTools selects randomly 300 pixels on the map and estimates the modal abundances (in %). A version with uncertainty estimation using Monte-Carlo can be activated in the developer version.
@@ -260,7 +263,7 @@ Release 4.1 includes new functionalities and updates to XMapTools and improvemen
   - Add a mask file signature to ensure data compatibility throughout XMapTools and add-ons  
 
 
-## XMapTools 4 beta 3 Developer (no public release yet)
+## XMapTools 4.0 beta 3 Developer (no public release yet)
 - Release notes:
   - Add the old function to run XMapTools and open immediately a project in the MATLAB version using the command: _XMapTools open ProjectName_
   - ...
