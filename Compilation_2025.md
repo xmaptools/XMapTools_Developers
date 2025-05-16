@@ -17,13 +17,15 @@ __Last update 09.05.2025 (Pierre Lanari)__
 - Edit the name to "XMapTools" and click Ok.
 
 - In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task by clicking in XMapTools Standalone Application. 
-- Add the following folders manually (important): 
+- Add the following folders manually from the project browser using right-click Add to Project Content and Add Label > Additional File: 
   - Program/Addons/BingoAntidote/Databases/
   - Program/Addons/BingoAntidote/Dev/
   - Program/Core/
   - Program/Dev/Data_Std_LAICPMS/
   - Program/Dev/help
   - Program/Dev/help/img
+  
+- Remove the label "artefact" to the html help files and add the label "Additional File".
   
 - Select "Fetch MATLAB Runtime" option and change the name to XMapToolsInstaller_macOS or XMapToolsInstaller_Windows.  
   
