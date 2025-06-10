@@ -1953,6 +1953,63 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.CheckDateTimeFormat = 0;
         end
         
+        function ReadDataFile_PerkinElmer(app,PathName,FileName,Idx)
+            %
+            try
+                TableData = readtable([PathName,FileName],'NumHeaderLines',1);
+                DataCps = table2array(TableData);
+                DataCps = DataCps(1:end-1,2:end); % exclude time
+                
+                file_info = dir([PathName,FileName]);
+                
+                DT_MapEnd = datetime(file_info.date);
+                
+                ElList = TableData.Properties.VariableNames(2:end);
+                
+                for i = 1:length(ElList)
+                    CString = char(ElList{i});
+                    Str = textscan(CString,'%s','Delimiter','_'); 
+                    ElListClean{i} = Str{1}{1};
+                    ElListFormated{i} = CString;
+                end
+                
+                % disp([datestr(StartingDate),' -> ',datestr(DT_MapStart)])
+                
+                t =  TableData.TimeInSeconds(1:end-1);
+                tinv = t(end)-t;
+                DT_Map = DT_MapEnd-seconds(tinv);
+                
+                DT_DN = datenum(DT_Map);
+                
+                % Adjust FileName for multi-phase
+                FileName = AdjustFileName(app,FileName);
+                
+            catch ME
+                uialert(app.ConverterLAICPMS,['Error while reading file: ',FileName],'Error – XMapTools');
+                close(app.WaitBar)
+                app.ErrorTracker = 1;
+            end
+            
+            % Update the variable DataFiles
+            app.DataFiles(Idx).FileName = FileName;
+            app.DataFiles(Idx).DataCps = DataCps;
+            app.DataFiles(Idx).ElListClean = ElListClean;
+            app.DataFiles(Idx).ElList = ElList;
+            app.DataFiles(Idx).ElListFormated = ElListFormated;
+            app.DataFiles(Idx).t  = t;
+            app.DataFiles(Idx).DT_Map = DT_Map;
+            app.DataFiles(Idx).DT_DN = DT_DN;
+            app.DataFiles(Idx).dt = t(2)-t(1);
+            
+            app.CheckDateTimeFormat = 0;
+        end
+        
+        
+        
+        
+        
+        
+        
         
         function ReadDataFile_Thermo(app,PathName,FileName,Idx)
             
@@ -2233,9 +2290,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                             ReadDataFile_Agilent(app,PathName,FileName{i},i);
                         case 'Thermo'
                             ReadDataFile_Thermo(app,PathName,FileName{i},i);
+                        case 'PerkinElmer'
+                            ReadDataFile_PerkinElmer(app,PathName,FileName{i},i);
                     end
                     
-                    % ReadDataFile_Agilent(app,PathName,FileName{i},i);
                     if isequal(app.ErrorTracker,1)
                         app.ErrorTracker = 0;
                         return
@@ -4283,7 +4341,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create TypeOfInstrumentDropDown
             app.TypeOfInstrumentDropDown = uidropdown(app.GridLayout2);
-            app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo'};
+            app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo', 'PerkinElmer'};
             app.TypeOfInstrumentDropDown.Layout.Row = 1;
             app.TypeOfInstrumentDropDown.Layout.Column = [6 8];
             app.TypeOfInstrumentDropDown.Value = 'Agilent';
