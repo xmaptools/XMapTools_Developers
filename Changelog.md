@@ -25,7 +25,8 @@ This release is highly recommended for all users as it includes new features, pe
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
-  - Correction of an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
+  - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
+  - Correct an error that prevented LA-ICP-MS projects generated with XMapTools 4.1 from being opened.
   
 
 
