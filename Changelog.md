@@ -23,6 +23,11 @@ This release is highly recommended for all users as it includes new features, pe
   - Add a new compatible format for automatic identification of the analysis ID. The list of compatible formats is "Name - ID", "Name-ID", "Name_ID".
   - Add a check to detect if the wrong format of the name has been selected and the analysis ID cannot be retrieved.
 
+- Bingo-Antidote:
+  - Add melt detection and filtering in Bingo-Antidote if the option 'Exclude melt' is activated. 
+  - Change the name of the solution model for biotite from BI14 to BIO in DEF_ds62-mb.txt and add Ti and K for the calculation of Qcmp of amphibole. 
+
+
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
