@@ -7502,12 +7502,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
                 Directory = uigetdir(app.config.xmaptools.last_path, 'Select a working directory');
                 close(f);
-                figure(app.XMapTools_GUI);
-                if ~isempty(Directory)
-                    cd(Directory)
-                    app.XMapTools_LastDir = Directory;
-                    app.XMapTools_GUI.Name = [app.XMapTools_VER,' - ',char(app.XMapTools_LastDir)];
+                % figure(app.XMapTools_GUI);
+                if isequal(Directory,0) || isempty(Directory)
+                    delete(app);
+                    return
                 end
+                cd(Directory)
+                app.XMapTools_LastDir = Directory;
+                app.XMapTools_GUI.Name = [app.XMapTools_VER,' - ',char(app.XMapTools_LastDir)];
                 %app.WaitBar.Message = 'XMapTools is almost ready';
             end
             
@@ -7588,6 +7590,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
             if ~isdeployed
                 Check4InputCode(app,varargin);
             end
+            
+            app.XMapTools_GUI.AutoResizeChildren = 'on';
+            
+            
         end
 
         % Close request function: XMapTools_GUI
