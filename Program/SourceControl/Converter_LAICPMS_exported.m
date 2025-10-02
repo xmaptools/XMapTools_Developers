@@ -2275,7 +2275,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
                 cd(app.LastDir);
-                [FileName,PathName,FilterIndex] = uigetfile({'*.csv','CSV-file (*.csv)'; '*.txt','TEXT-file (*.txt)'; ...
+                [FileName,PathName,FilterIndex] = uigetfile({'*.csv','CSV-file (*.csv)'; '*.txt','TEXT-file (*.txt)'; '*.FIN2', 'FIN2-file (*.FIN2)'; ...
                     '*.*',  'All Files (*.*)'},'Select DATA files...','MultiSelect', 'on');
                 delete(f)
                 figure(app.ConverterLAICPMS);
@@ -2397,13 +2397,19 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         NewSpotSize = zeros(size(TableLOG.SpotSize_um_));
                         for i = 1:length(TableLOG.SpotSize_um_)
                             Str = strread(char(TableLOG.SpotSize_um_(i)),'%s');
-                            NewSpotSize(i) = str2num(Str{1});   % this should be x
+                            if ~isempty(Str)
+                                NewSpotSize(i) = str2num(Str{1});   % this should be x
+                            end
                         end
                         TableLOG.SpotSize_um_ = NewSpotSize;
                     end
                     %
                                         
                 catch ME
+                    % Print the error: 
+                    fprintf(2,'The identifier was:\n%s',ME.identifier);
+                    fprintf(2,'There was an error! The message was:\n%s\n',ME.message);
+                    
                     errordlg('This log file is not a valid file','XMapTools')
                     close(app.WaitBar)
                     return
