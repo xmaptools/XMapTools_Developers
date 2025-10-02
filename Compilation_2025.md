@@ -37,9 +37,9 @@ __Last update 09.05.2025 (Pierre Lanari)__
 
 - Zip the installer for macOS using: 
 ```
-ditto -c -k --sequesterRsrc --keepParent "XMapToolsInstaller_macOS.app" "XMapToolsInstaller_macOS.zip"
+ditto -c -k --sequesterRsrc --keepParent "XMapToolsInstaller_macOS.app" "XMapToolsInstaller_macOS_AppleSilicon.zip"
 ```
 ```
-ditto -c -k --sequesterRsrc --keepParent "XMapTools.app" "XMapTools_macOS.zip"
+ditto -c -k --sequesterRsrc --keepParent "XMapTools.app" "XMapTools_macOS_AppleSilicon.zip"
 ```
 - If this is a public version, update the version online!  
