@@ -105,8 +105,8 @@ check_mcr() {
         echo "    - MATLAB Runtime found"
     else
         echo "    - MATLAB Runtime NOT found!"
-        echo "      Please install MATLAB Runtime before launching XMapTools."
-        echo "      Download here: https://xmaptools.ch/runtime"
+        echo "      Please install XMapTools using the installation script:"
+        echo "        curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install"
     fi
     echo ""
 }
@@ -207,7 +207,8 @@ case "$MODE" in
         if [ ! -d "$TARGET_DIR" ]; then
             echo ""
             echo "❌ ERROR: Target directory does not exist: $TARGET_DIR"
-            echo "Please install XMapTools first using the installer script."
+            echo "Please install XMapTools first using the installer script:"
+            echo "  curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install"
             exit 1
         fi
         echo "    - Done"
