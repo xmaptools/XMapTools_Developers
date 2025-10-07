@@ -89,7 +89,7 @@ print_info() {
     echo "    --update  [Intel|Rosetta|AppleSilicon]   Update only the app bundle"
     echo "    --info                                   Show versions & installed MCR"
     echo ""
-    echo " > Note:"
+    echo "> Note:"
     echo "   - If no architecture is specified, the script will try to detect it"
     echo "     automatically (Apple Silicon preferred if available)."
     echo "   - The script may ask for your password to perform installation tasks."
