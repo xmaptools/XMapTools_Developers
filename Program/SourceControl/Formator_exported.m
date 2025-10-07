@@ -61,8 +61,8 @@ classdef Formator_exported < matlab.apps.AppBase
                 app.Image_ok.ImageSource = 'Valid.png';
                 
                 
-                if isprop(app.CallingApp,'ByPassSelector')
-                    if isequal(app.CallingApp.ByPassSelector.Value,1)
+                if isprop(app.CallingApp,'SkipDateTimeformatconfirmationMenu')
+                    if isequal(app.CallingApp.SkipDateTimeformatconfirmationMenu.Checked,1)
                                                 
                         app.CallingApp.ExchangeFormator = app.Tree.SelectedNodes.Text;
             
@@ -73,7 +73,7 @@ classdef Formator_exported < matlab.apps.AppBase
             else
                 app.Tree.SelectedNodes = app.Tree.Children(1);
                 app.Image_ok.ImageSource = 'NotValid.png';
-                app.AutomatedFormatCB.Text = 'Use format from list'
+                app.AutomatedFormatCB.Text = 'Use format from list';
             end
             TreeSelectionChanged(app);
             
