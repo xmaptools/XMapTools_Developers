@@ -57,7 +57,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
                 app.InstructionsLabel.FontSize = 14;
                 app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a PowerShell as an administrator (right-click on the application)','- Paste the code in the terminal and press return to update'};
             else
-                app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
+                app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update';
                 app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a terminal, and paste the code to update'};
             end
             
@@ -144,7 +144,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.CodeToCopyEditField.FontSize = 14;
             app.CodeToCopyEditField.Layout.Row = 6;
             app.CodeToCopyEditField.Layout.Column = [3 11];
-            app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/update.sh | bash';
+            app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update';
 
             % Create CopythecodebelowLabel
             app.CopythecodebelowLabel = uilabel(app.GridLayout);
