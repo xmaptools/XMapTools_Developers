@@ -452,11 +452,16 @@ classdef LogGenerator_exported < matlab.apps.AppBase
         function ApplytoAllButtonPushed(app, event)
             app.WaitBar = uiprogressdlg(app.LogGeneratorGUI,'Title','XMapTools');
             app.WaitBar.Message = 'Applying settings to all, please wait';
-            for i = 1:size(app.UITable.Data(Selected,1))
-                app.UITable.Data(Selected(i,1),3) = {Str};
-                app.WaitBar.Value = i/size(app.UITable.Data(Selected,1));
+            
+            Str = ExtractCodeFromTable(app);
+            
+            for i = 1:size(app.UITable.Data(:,1))
+                app.UITable.Data(i,3) = {Str};
+                app.WaitBar.Value = i/size(app.UITable.Data(:,1),1);
             end
             close(app.WaitBar);
+            
+            CheckTableState(app);
         end
 
         % Button pushed function: ApplytoSelectedButton
