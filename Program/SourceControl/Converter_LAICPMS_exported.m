@@ -3,6 +3,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
     % Properties that correspond to app components
     properties (Access = public)
         ConverterLAICPMS                matlab.ui.Figure
+        ToolsMenu                       matlab.ui.container.Menu
+        ConvertFIN2toCSVMenu            matlab.ui.container.Menu
+        OptionsMenu                     matlab.ui.container.Menu
+        SkipDateTimeformatconfirmationMenu  matlab.ui.container.Menu
         GridLayout                      matlab.ui.container.GridLayout
         Image                           matlab.ui.control.Image
         Tree                            matlab.ui.container.Tree
@@ -76,7 +80,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         OptionsLabel                    matlab.ui.control.Label
         DebugMode                       matlab.ui.control.CheckBox
         TestMode                        matlab.ui.control.CheckBox
-        ByPassSelector                  matlab.ui.control.CheckBox
         Plot                            matlab.ui.control.UIAxes
         ContextMenu                     matlab.ui.container.ContextMenu
         CopyMenu                        matlab.ui.container.Menu
@@ -1915,10 +1918,18 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     PositionAMPM = CheckAM;
                 end
                 
-                if isempty(PositionAMPM)
-                    StartingDate = [Str{3},' ',Str{4},'.000'];
+                if isequal(Str{1},'Monday,') || isequal(Str{1},'Tuesday,') || isequal(Str{1},'Wednesday,') || isequal(Str{1},'Thursday,') || isequal(Str{1},'Friday,') || isequal(Str{1},'Saturday,') || isequal(Str{1},'Sunday,')
+                    if isempty(PositionAMPM)
+                        StartingDate = [TheL,'.000'];
+                    else
+                        StartingDate = [TheL,'.000',' ',Str{PositionAMPM}];
+                    end
                 else
-                    StartingDate = [Str{3},' ',Str{4},'.000',' ',Str{PositionAMPM}];
+                    if isempty(PositionAMPM)
+                        StartingDate = [Str{3},' ',Str{4},'.000'];
+                    else
+                        StartingDate = [Str{3},' ',Str{4},'.000',' ',Str{PositionAMPM}];
+                    end
                 end
                 
                 DT_MapStart = ReadDateTime(app,StartingDate);
@@ -2005,13 +2016,100 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         end
         
         
+        function ReadDataFile_Thermo_fin2(app,PathName,FileName,Idx)
+            
+            try               
+                
+                NumHeaderLines = 7;
+                
+                TableData = readtable([PathName,FileName],'NumHeaderLines',NumHeaderLines);
+                DataCpsRaw = table2array(TableData);
+                DataCps = DataCpsRaw(3:end-1,2:end); % exclude time & first two rows (shit)
+                
+                fid = fopen([PathName,FileName]);
+                for i = 1:NumHeaderLines
+                    if isequal(i,2)
+                        TheL1 = fgetl(fid);
+                    else
+                        TheL = fgetl(fid);
+                    end
+                end
+                TheInput = fgetl(fid);
+                fclose(fid);
+                
+                Str = textscan(TheInput,'%s','Delimiter',',');
+                ElList = Str{1}(2:end);
+                for i = 1:length(ElList)
+                    CString = char(ElList{i});
+                    TF = isletter(CString);
+                    ElListClean{i} = CString(find(TF));
+                    ElListFormated{i} = [CString(find(TF)),'_',CString(find(TF==0))];
+                end
+                
+                Str = textscan(TheL1,'%s');
+                Str = Str{1};
+                
+                % Check for AM or PM in the date
+                PositionAMPM = [];
+                CheckPM = find(ismember(Str,'PM'));
+                if ~isempty(CheckPM)
+                    PositionAMPM = CheckPM;
+                end
+                CheckAM = find(ismember(Str,'AM'));
+                if ~isempty(CheckAM)
+                    PositionAMPM = CheckAM;
+                end
+                
+                if isequal(Str{1},'Monday,') || isequal(Str{1},'Tuesday,') || isequal(Str{1},'Wednesday,') || isequal(Str{1},'Thursday,') || isequal(Str{1},'Friday,') || isequal(Str{1},'Saturday,') || isequal(Str{1},'Sunday,')
+                    if isempty(PositionAMPM)
+                        StartingDate = [TheL1,'.000'];
+                    else
+                        StartingDate = [TheL1,'.000',' ',Str{PositionAMPM}];
+                    end
+                else
+                    if isempty(PositionAMPM)
+                        StartingDate = [Str{3},' ',Str{4},'.000'];
+                    else
+                        StartingDate = [Str{3},' ',Str{4},'.000',' ',Str{PositionAMPM}];
+                    end
+                end
+                
+                DT_MapStart = ReadDateTime(app,StartingDate);
+                
+                % disp([datestr(StartingDate),' -> ',datestr(DT_MapStart)])
+                
+                t =  DataCpsRaw(3:end-1,1);
+                
+                DT_Map = seconds(t)+DT_MapStart;
+                
+                DT_DN = datenum(DT_Map);
+                
+                % Adjust FileName for multi-phase
+                FileName = AdjustFileName(app,FileName);
+                
+            catch ME
+                uialert(app.ConverterLAICPMS,['Error while reading file: ',FileName],'Error – XMapTools');
+                close(app.WaitBar)
+                app.ErrorTracker = 1;
+            end
+            
+            % Update the variable DataFiles
+            app.DataFiles(Idx).FileName = FileName;
+            app.DataFiles(Idx).DataCps = DataCps;
+            app.DataFiles(Idx).ElListClean = ElListClean;
+            app.DataFiles(Idx).ElList = ElList;
+            app.DataFiles(Idx).ElListFormated = ElListFormated;
+            app.DataFiles(Idx).t  = t;
+            app.DataFiles(Idx).DT_Map = DT_Map;
+            app.DataFiles(Idx).DT_DN = DT_DN;
+            app.DataFiles(Idx).dt = t(2)-t(1);
+            
+            app.CheckDateTimeFormat = 0;
+            
+        end
         
         
-        
-        
-        
-        
-        function ReadDataFile_Thermo(app,PathName,FileName,Idx)
+        function ReadDataFile_Thermo_csv(app,PathName,FileName,Idx)
             
             try
                 NumHeaderLines = 13;
@@ -2057,10 +2155,18 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     PositionAMPM = CheckAM;
                 end
                 
-                if isempty(PositionAMPM)
-                    StartingDate = [Str{1},' ',Str{2},'.000'];
+                if isequal(Str{1},'Monday,') || isequal(Str{1},'Tuesday,') || isequal(Str{1},'Wednesday,') || isequal(Str{1},'Thursday,') || isequal(Str{1},'Friday,') || isequal(Str{1},'Saturday,') || isequal(Str{1},'Sunday,')
+                    if isempty(PositionAMPM)
+                        StartingDate = [TheL1,'.000'];
+                    else
+                        StartingDate = [TheL1,'.000',' ',Str{PositionAMPM}];
+                    end
                 else
-                    StartingDate = [Str{1},' ',Str{2},'.000',' ',Str{PositionAMPM}];
+                    if isempty(PositionAMPM)
+                        StartingDate = [Str{1},' ',Str{2},'.000'];
+                    else
+                        StartingDate = [Str{1},' ',Str{2},'.000',' ',Str{PositionAMPM}];
+                    end
                 end
                 
                 DT_MapStart = ReadDateTime(app,StartingDate);
@@ -2128,11 +2234,13 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 'MM-dd-yyyy HH:mm:ss.SSS', ...
                 'dd/MM/yyyy HH:mm:ss.SSS', ...
                 'MM/dd/yyyy HH:mm:ss.SSS', ...
+                'eeee, MMMM dd, yyyy HH:mm:ss.SSS', ...
                 'yyyy-MM-dd hh:mm:ss.SSS a', ...
                 'dd-MM-yyyy hh:mm:ss.SSS a', ...
                 'MM-dd-yyyy hh:mm:ss.SSS a', ...
                 'dd/MM/yyyy hh:mm:ss.SSS a', ...
-                'MM/dd/yyyy hh:mm:ss.SSS a'};
+                'MM/dd/yyyy hh:mm:ss.SSS a', ...
+                'eeee, MMMM dd, yyyy hh:mm:ss.SSS a'};
             
             % - a	    Day period (AM or PM)
             
@@ -2275,10 +2383,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
                 cd(app.LastDir);
-                [FileName,PathName,FilterIndex] = uigetfile({'*.csv','CSV-file (*.csv)'; '*.txt','TEXT-file (*.txt)'; '*.FIN2', 'FIN2-file (*.FIN2)'; ...
+                [FileName,PathName,FilterIndex] = uigetfile({'*.csv','CSV-file (*.csv)'; '*.txt','TEXT-file (*.txt)'; ...
                     '*.*',  'All Files (*.*)'},'Select DATA files...','MultiSelect', 'on');
                 delete(f)
                 figure(app.ConverterLAICPMS);
+                if isequal(FileName,0)
+                    close(app.WaitBar)
+                    return
+                end
                 
                 app.WaitBar.Message = 'Reading data files, please wait';
                 app.WaitBar.Indeterminate = 'off';
@@ -2288,8 +2400,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     switch app.TypeOfInstrumentDropDown.Value
                         case 'Agilent'
                             ReadDataFile_Agilent(app,PathName,FileName{i},i);
-                        case 'Thermo'
-                            ReadDataFile_Thermo(app,PathName,FileName{i},i);
+                        case 'Thermo CSV'
+                            ReadDataFile_Thermo_csv(app,PathName,FileName{i},i);
+                        case 'Thermo FIN2'
+                            ReadDataFile_Thermo_fin2(app,PathName,FileName{i},i);
                         case 'PerkinElmer'
                             ReadDataFile_PerkinElmer(app,PathName,FileName{i},i);
                     end
@@ -2326,6 +2440,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     '*.*',  'All Files (*.*)'},'Select DATA file...');
                 delete(f)
                 figure(app.ConverterLAICPMS);
+                if isequal(FileName,0)
+                    close(app.WaitBar)
+                    return
+                end
                 
                 app.WaitBar.Message = 'Importing the data file, please wait...';
                 
@@ -2334,8 +2452,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     switch app.TypeOfInstrumentDropDown.Value
                         case 'Agilent'
                             ReadDataFile_Agilent(app,PathName,FileName,1);
-                        case 'Thermo'
-                            ReadDataFile_Thermo(app,PathName,FileName,1);
+                        case 'Thermo FIN2'
+                            ReadDataFile_Thermo_fin2(app,PathName,FileName,1);
+                        case 'Thermo CSV'
+                            ReadDataFile_Thermo_csv(app,PathName,FileName,1);
+                        case 'PerkinElmer'
+                            ReadDataFile_PerkinElmer(app,PathName,FileName,1);
                     end
                     
                 catch ME
@@ -2357,6 +2479,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     '*.*',  'All Files (*.*)'},'Select LOG file...');
                 delete(f)
                 figure(app.ConverterLAICPMS);
+                if isequal(FileName,0)
+                    close(app.WaitBar)
+                    return
+                end
                 
                 app.WaitBar.Message = 'Importing the data file, please wait...';
                 
@@ -4270,6 +4396,51 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         function NameFormatDropDownValueChanged(app, event)
             
         end
+
+        % Menu selected function: ConvertFIN2toCSVMenu
+        function ConvertFIN2toCSVMenuSelected(app, event)
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+            
+            app.WaitBar.Message = 'Select a folder containing the data files';
+            
+            f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
+            cd(app.LastDir);
+            selpath = uigetdir(app.LastDir);
+            delete(f)
+            figure(app.ConverterLAICPMS);
+            
+            if isequal(selpath,0)
+                close(app.WaitBar)
+                return
+            end
+            
+            app.WaitBar.Message = 'Copying the data files';
+            
+            FormatSearch = '.FIN2';
+            NewFormat = '.csv';
+            List = dir(selpath);
+            Files = [];
+            Count = 0;
+            for i = 1:length(List)
+                if isequal(List(i).isdir,0)
+                    if length(List(i).name) > length(FormatSearch)
+                        if isequal(List(i).name(end-length(FormatSearch)+1:end),FormatSearch)
+                            Count = Count + 1;
+                            Files(Count).original = fullfile(selpath,List(i).name);
+                            Files(Count).destination = fullfile(selpath,[List(i).name(1:end-length(FormatSearch)),NewFormat]);
+                            Files(Count).date = List(i).date;
+                        end
+                    end
+                end
+            end
+            
+            for i = 1:length(Files)
+                copyfile(Files(i).original,Files(i).destination);
+            end
+            
+            close(app.WaitBar);
+        end
     end
 
     % Component initialization
@@ -4280,9 +4451,27 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create ConverterLAICPMS and hide until all components are created
             app.ConverterLAICPMS = uifigure('Visible', 'off');
-            app.ConverterLAICPMS.Position = [100 100 1258 760];
+            app.ConverterLAICPMS.Position = [100 100 1258 774];
             app.ConverterLAICPMS.Name = 'Converter For LA-ICPMS Data – XMapTools';
             app.ConverterLAICPMS.CloseRequestFcn = createCallbackFcn(app, @ConverterLAICPMSCloseRequest, true);
+
+            % Create ToolsMenu
+            app.ToolsMenu = uimenu(app.ConverterLAICPMS);
+            app.ToolsMenu.Text = 'Tools';
+
+            % Create ConvertFIN2toCSVMenu
+            app.ConvertFIN2toCSVMenu = uimenu(app.ToolsMenu);
+            app.ConvertFIN2toCSVMenu.MenuSelectedFcn = createCallbackFcn(app, @ConvertFIN2toCSVMenuSelected, true);
+            app.ConvertFIN2toCSVMenu.Text = 'Convert FIN2 to CSV';
+
+            % Create OptionsMenu
+            app.OptionsMenu = uimenu(app.ConverterLAICPMS);
+            app.OptionsMenu.Text = 'Options';
+
+            % Create SkipDateTimeformatconfirmationMenu
+            app.SkipDateTimeformatconfirmationMenu = uimenu(app.OptionsMenu);
+            app.SkipDateTimeformatconfirmationMenu.Checked = 'on';
+            app.SkipDateTimeformatconfirmationMenu.Text = 'Skip Date/Time format confirmation';
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.ConverterLAICPMS);
@@ -4347,7 +4536,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create TypeOfInstrumentDropDown
             app.TypeOfInstrumentDropDown = uidropdown(app.GridLayout2);
-            app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo', 'PerkinElmer'};
+            app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo CSV', 'Thermo FIN2', 'PerkinElmer'};
             app.TypeOfInstrumentDropDown.Layout.Row = 1;
             app.TypeOfInstrumentDropDown.Layout.Column = [6 8];
             app.TypeOfInstrumentDropDown.Value = 'Agilent';
@@ -4834,14 +5023,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.TestMode.FontSize = 10;
             app.TestMode.Layout.Row = 3;
             app.TestMode.Layout.Column = [3 4];
-
-            % Create ByPassSelector
-            app.ByPassSelector = uicheckbox(app.GridLayout11);
-            app.ByPassSelector.Text = 'Auto Date/Time';
-            app.ByPassSelector.FontSize = 10;
-            app.ByPassSelector.Layout.Row = 3;
-            app.ByPassSelector.Layout.Column = [5 8];
-            app.ByPassSelector.Value = true;
 
             % Create Plot
             app.Plot = uiaxes(app.GridLayout);
