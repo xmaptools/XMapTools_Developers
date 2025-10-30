@@ -15,6 +15,8 @@ This release is highly recommended for all users as it includes new features, pe
   - Enhance the Data Export module with a new mode that randomly selects n pixels to export. This can be combined with other export formats in the same file.
   - Add an option to display the "bulk value (average)" of plotted pixels in binary and ternary plots in the Data Visualisation module, improving the statistical output of the plots.
   - Add an option to change the colour of the ROI drawn in the main windows and modules. The default colour is selected when the program starts, but the user's choice is saved for each project.
+  - Add an external function for olivine thermobarometry including the calibrations SC13: Shejwalkar and Coogan (2013) and B17: Bussweiler et al (2017). 
+  - Add the monticellite end-member to the olivine structural formula calculation.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
@@ -32,7 +34,6 @@ This release is highly recommended for all users as it includes new features, pe
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
-  - Add Add monticellite end-member to the olivine structural formula.
   - Correct error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
   - Correct an error in the log generator module that was preventing the 'Apply to All' option from being used.  
