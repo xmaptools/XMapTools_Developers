@@ -34,7 +34,8 @@ This release is highly recommended for all users as it includes new features, pe
 
 - Other:
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
-  - Correct error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
+  - Correct an error in the sampling function where the standard error not being calculated correctly. Thank you to Ryo Fukushima for reporting this issue.
+  - Correct an error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
   - Correct an error in the log generator module that was preventing the 'Apply to All' option from being used.  
   - Correct an error that prevented LA-ICP-MS projects generated with XMapTools 4.1 from being opened.
