@@ -1,4 +1,4 @@
-hahaclassdef XMapTools_exported < matlab.apps.AppBase
+classdef XMapTools_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -303,8 +303,8 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -328,8 +328,8 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         CompositionTab                  matlab.ui.container.Tab
         GridLayout9_4                   matlab.ui.container.GridLayout
         CompViewer_DensityMenu          matlab.ui.control.DropDown
@@ -11945,7 +11945,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                     fprintf(fid,'%s\n','Method: Circle');
                     fprintf(fid,'%s\n\n','Columns: Mean | Median | Stdev | Std_err | #_non_zero ');
                     
-                    fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\n',mean(ImageData(Ind)),median(ImageData(Ind)),std(ImageData(Ind)),std(ImageData(Ind))/Nb,Nb);
+                    fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\n',mean(ImageData(Ind)),median(ImageData(Ind)),std(ImageData(Ind)),std(ImageData(Ind))/sqrt(Nb),Nb);
                     fprintf(fid,'\n\n');
                     
                     fprintf(fid,'%s\n\n','All pixel data:');
@@ -11980,7 +11980,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                     
                     Nb = numel(find(ImageData(Ind) > 0));
                     
-                    fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\n',mean(ImageData(Ind)),median(ImageData(Ind)),std(ImageData(Ind)),std(ImageData(Ind))/Nb,Nb);
+                    fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\n',mean(ImageData(Ind)),median(ImageData(Ind)),std(ImageData(Ind)),std(ImageData(Ind))/sqrt(Nb),Nb);
                     fprintf(fid,'\n\n');
                     
                     fprintf(fid,'%s\n\n','All pixel data:');
@@ -12041,7 +12041,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                     fprintf(fid,'%s\n\n','Columns: Distance | Mean | Median | Stdev | Std_err | # | %_non_zero');
                     
                     for i = 1:length(TheMean)
-                        fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\t%12.2f\t\n',Distances(i),TheMean(i),TheMedian(i),TheStd(i),TheStd(i)/Nb(i),Nb(i),FractPer(i));
+                        fprintf(fid,'%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.8f\t%12.0f\t%12.2f\t\n',Distances(i),TheMean(i),TheMedian(i),TheStd(i),TheStd(i)/sqrt(Nb(i)),Nb(i),FractPer(i));
                     end
                     
                     fprintf(fid,'\n\n');
@@ -12260,7 +12260,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                     DataTable(2,1) = median(ImageData(Ind));
                     DataTable(3,1) = std(ImageData(Ind));
                     Nb = numel(find(ImageData(Ind) > 0));
-                    DataTable(4,1) = std(ImageData(Ind))/Nb;
+                    DataTable(4,1) = std(ImageData(Ind))/sqrt(Nb);
                     DataTable(5,1) = Nb;
                     DataAll(1).Data = ImageData(Ind);
                     
@@ -12275,7 +12275,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                         DataTable(2,i) = median(ImageData(Ind));
                         DataTable(3,i) = std(ImageData(Ind));
                         Nb = numel(find(ImageData(Ind) > 0));
-                        DataTable(4,i) = std(ImageData(Ind))/Nb;
+                        DataTable(4,i) = std(ImageData(Ind))/sqrt(Nb);
                         DataTable(5,i) = Nb;
                     end
                     
@@ -12307,7 +12307,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                     DataTable(2,1) = median(ImageData(Ind));
                     DataTable(3,1) = std(ImageData(Ind));
                     Nb = numel(find(ImageData(Ind) > 0));
-                    DataTable(4,1) = std(ImageData(Ind))/Nb;
+                    DataTable(4,1) = std(ImageData(Ind))/sqrt(Nb);
                     DataTable(5,1) = Nb;
                     DataAll(1).Data = ImageData(Ind);
                     
@@ -12322,7 +12322,7 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
                         DataTable(2,i) = median(ImageData(Ind));
                         DataTable(3,i) = std(ImageData(Ind));
                         Nb = numel(find(ImageData(Ind) > 0));
-                        DataTable(4,i) = std(ImageData(Ind))/Nb;
+                        DataTable(4,i) = std(ImageData(Ind))/sqrt(Nb);
                         DataTable(5,i) = Nb;
                     end
                     
@@ -18737,19 +18737,19 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -18931,16 +18931,6 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -18950,6 +18940,16 @@ hahaclassdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create CompositionTab
             app.CompositionTab = uitab(app.TabGroup);
