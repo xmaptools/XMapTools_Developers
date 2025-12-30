@@ -41,9 +41,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SaveunfilteredmapsCheckBox      matlab.ui.control.CheckBox
         BydefaultLODfilteredmapsaresavedLabel  matlab.ui.control.Label
         LODfilteringLabel               matlab.ui.control.Label
-        Plot1                           matlab.ui.control.UIAxes
-        Plot3                           matlab.ui.control.UIAxes
         Plot2                           matlab.ui.control.UIAxes
+        Plot3                           matlab.ui.control.UIAxes
+        Plot1                           matlab.ui.control.UIAxes
         PixelReconstructionandImprovedPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
@@ -383,7 +383,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                         NbAnal = app.MapStandards(SelStd).Data(i).Sweeps_Pixel;         % dimensionless
                         NbBack = app.MapStandards(SelStd).Data(i).Sweeps_Back;          % dimensionless
                         
-                        app.MapCpsData(i).LOD = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack)+2.71))./(NbAnal.*DTi.*Si);    % µg.g-1
+                        app.MapCpsData(i).LOD = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack))+2.71)./(NbAnal.*DTi.*Si);    % µg.g-1
                         
                         % Filter LOD for values with zero intensities for
                         % background (Cavalaire 2023):
@@ -448,7 +448,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                         NbAnal = app.MapStandards(SelStd).Data(i).Sweeps_Pixel;         % dimensionless
                         NbBack = app.MapStandards(SelStd).Data(i).Sweeps_Back;          % dimensionless
                         
-                        app.MapCpsData(i).LOD = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack)+2.71))./(NbAnal.*DTi.*Si);    % µg.g-1
+                        app.MapCpsData(i).LOD = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack))+2.71)./(NbAnal.*DTi.*Si);    % µg.g-1
                         
                         %Con_Unk_mtx = (It_Unk_mtx.*Con_Std_mxt)./(k_mtx.*It_Std_mtx);
                     end
@@ -822,7 +822,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                     NbBack = sum(app.MapStandards(SelStd).Data(i).Sweeps_Back(PxCoordXY_FirstPxRowsIdx));      % dimensionless and much smaller than the wrong number above! (version 4.5)
                     
                     if Bi > 0
-                        LOD_ROI(i) = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack)+2.71))./(NbAnal.*DTi.*Si);    % µg.g-1
+                        LOD_ROI(i) = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack))+2.71)./(NbAnal.*DTi.*Si);    % µg.g-1
                     end
                     % including filter LOD for values with zero intensities for background (Cavalaire 2023)
                     
@@ -947,7 +947,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                         NbBack = sum(app.MapStandards(SelStd).Data(i).Sweeps_Back(PxCoordXY_FirstPxRowsIdx));      % dimensionless and much smaller than the wrong number above! (version 4.5)
                         
                         if Bi > 0
-                            LOD_ROI(i) = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack)+2.71))./(NbAnal.*DTi.*Si);    % µg.g-1
+                            LOD_ROI(i) = (3.29.*sqrt(Bi.*DTi.*NbAnal.*(1+NbAnal./NbBack))+2.71)./(NbAnal.*DTi.*Si);    % µg.g-1
                         end
                         
                     end
@@ -2511,14 +2511,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.LODfilteringLabel.Layout.Column = [1 4];
             app.LODfilteringLabel.Text = 'LOD filtering';
 
-            % Create Plot1
-            app.Plot1 = uiaxes(app.GridLayout6);
-            title(app.Plot1, 'Title')
-            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot1.XTick = [];
-            app.Plot1.YTick = [];
-            app.Plot1.Layout.Row = [7 12];
-            app.Plot1.Layout.Column = [1 3];
+            % Create Plot2
+            app.Plot2 = uiaxes(app.GridLayout6);
+            title(app.Plot2, 'Title')
+            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot2.XTick = [];
+            app.Plot2.YTick = [];
+            app.Plot2.Layout.Row = [7 12];
+            app.Plot2.Layout.Column = [7 9];
 
             % Create Plot3
             app.Plot3 = uiaxes(app.GridLayout6);
@@ -2529,14 +2529,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.Plot3.Layout.Row = [7 12];
             app.Plot3.Layout.Column = [4 6];
 
-            % Create Plot2
-            app.Plot2 = uiaxes(app.GridLayout6);
-            title(app.Plot2, 'Title')
-            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot2.XTick = [];
-            app.Plot2.YTick = [];
-            app.Plot2.Layout.Row = [7 12];
-            app.Plot2.Layout.Column = [7 9];
+            % Create Plot1
+            app.Plot1 = uiaxes(app.GridLayout6);
+            title(app.Plot1, 'Title')
+            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot1.XTick = [];
+            app.Plot1.YTick = [];
+            app.Plot1.Layout.Row = [7 12];
+            app.Plot1.Layout.Column = [1 3];
 
             % Create PixelReconstructionandImprovedPrecisionPRIPTab
             app.PixelReconstructionandImprovedPrecisionPRIPTab = uitab(app.TabGroup);
