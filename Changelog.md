@@ -35,6 +35,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
   - Correct an error in the sampling function where the standard error not being calculated correctly. Thanks to Ryo Fukushima for reporting this issue.
   - Correct an error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
+  - Correct an error in the extraction of the number of sweeps per pixel, which was causing rare errors in the value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation equation with very minor effect on the LOD value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation for the PRIP module. This error only affected the LOD calculated for ROIs, not the LOD for maps or the LOD filter. The LOD was underestimated by about 10–30% depending on the number of pixels in the ROI. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.

@@ -1077,7 +1077,9 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 Vq_BackNbIntegration = griddata(Xi_all,Yi_all,app.Data.BackgroundNbIntegration(Ti_all),X_grid,Y_grid,'nearest');
                 Vq_BackgroundCorrection = griddata(Xi_all,Yi_all,app.Data.BackgroundCorrection(Ti_all,i),X_grid,Y_grid,'nearest');
-                Vq_PixelNbIntegration = NbSwipePerPixel(1).*ones(size(Vq_BackNbIntegration));
+                % Vq_PixelNbIntegration = NbSwipePerPixel(1).*ones(size(Vq_BackNbIntegration));
+                
+                Vq_PixelNbIntegration = MatrixNbSweepPerPixel; % changed in 4.5 to be compatible with PRIP; The first value used above was sometimes wrong (median value should be used instead with the old strategy)
                 
                 app.Data.StdMaps(i).Int_Back = Vq_BackgroundCorrection;
                 app.Data.StdMaps(i).Sweeps_Back = Vq_BackNbIntegration;
@@ -2463,6 +2465,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 catch ME
                    errordlg('This file is not yet a valid file for XMapTools. ','XMapTools')
                    close(app.WaitBar)
+                   return
                 end
                 warning('on','all')
                 
@@ -4085,7 +4088,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             DT_Ok = 10*ones(size(app.Data.ElName));
             
             app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
-            app.WaitBar.Message = 'Saving map and standard files';
+            app.WaitBar.Message = 'Saving map and standard files; this may take a while, but it will get there...';
             for i = 1:length(app.Data.Cps_Maps)
                 app.WaitBar.Value = i/length(app.Data.Cps_Maps);
                 TheMap = app.Data.Cps_Maps(i).Map;
