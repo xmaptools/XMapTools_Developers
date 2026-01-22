@@ -1092,12 +1092,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 end
                 % ----------------------------------------------------------------------------------------------------------------
                 
-                if 0 && isequal(i,36)
-                    figure, imagesc(X_grid(1,:),Y_grid(:,1)',Vq), hold on, scatter(Xi_all,Yi_all,20*ones(size(Xi_all)),PxCompt,'filled'), colorbar
-                    axis([1.2385e+05    1.2643e+05    0.5492e+05    0.5508e+05])
-                    
-                    caxis([0 1000])
-                    colormap([0,0,0;parula(64)]);
+                if 0 % && isequal(i,36)
+%                     figure, imagesc(X_grid(1,:),Y_grid(:,1)',Vq), hold on, scatter(Xi_all,Yi_all,20*ones(size(Xi_all)),PxCompt,'filled'), colorbar
+%                     % axis([1.2385e+05    1.2643e+05    0.5492e+05    0.5508e+05])
+%                     
+%                     % caxis([0 1000])
+%                     colormap([0,0,0;parula(64)]);
                     
                     %figure, imagesc(X_grid(1,:),Y_grid(:,1)',Vq_Std), hold on, scatter(Xi_all,Yi_all,20*ones(size(Xi_all)),PxCompStd,'filled'), colorbar
                     
@@ -1108,19 +1108,32 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     Vq_natural = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'natural');
                     Vq_cubic = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'cubic');
                     
-                    Sel = find(Yi_all > 5.492e4 & Yi_all < 5.493e4);
-                    figure, hold on, plot(Xi_all(Sel),PxCompt(Sel),'.-k'),
-                    Sel = find(Y_grid(:) > 5.492e4 & Y_grid(:) < 5.493e4);
-                    plot(X_grid(Sel),Vq_nearest(Sel),'o-r')
-                    plot(X_grid(Sel),Vq_linear(Sel),'o-b')
-                    %plot(X_grid(Sel),Vq_natural(Sel),'o-g')
-                    plot(X_grid(Sel),Vq_cubic(Sel),'o-m')
-                    plot(X_grid(Sel),Vq_old(Sel),'o-g')
+                    figure,
+                    tiledlayout('flow')
+                    nexttile, imagesc(Vq_nearest), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_nearest'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_linear), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_linear'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_natural), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_natural'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_cubic), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_cubic'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
                     
-                    legend('scan','nearest','linear','cubic','old')
+                    
+                    
+%                     Sel = find(Yi_all > 5.492e4 & Yi_all < 5.493e4);
+%                     figure, hold on, plot(Xi_all(Sel),PxCompt(Sel),'.-k'),
+%                     Sel = find(Y_grid(:) > 5.492e4 & Y_grid(:) < 5.493e4);
+%                     plot(X_grid(Sel),Vq_nearest(Sel),'o-r')
+%                     plot(X_grid(Sel),Vq_linear(Sel),'o-b')
+%                     plot(X_grid(Sel),Vq_natural(Sel),'o-g')
+%                     plot(X_grid(Sel),Vq_cubic(Sel),'o-m')
+%                     % plot(X_grid(Sel),Vq_old(Sel),'o-g')
+%                     
+%                     legend('scan','nearest','linear','cubic','old')
                     %legend('scan','nearest','linear','natural','cubic','old')
                     
-                    keyboard
+                    % keyboard
                 end
                 
             end
@@ -2724,6 +2737,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             close(app.WaitBar)
             
+            app.Background_CorrectionList.Value = 4;
+            Background_CorrectionListValueChanged(app);
+            
+            
         end
 
         % Value changed function: PlotMenuDropDown
@@ -3417,6 +3434,9 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             PrimaryStd_ListValueChanged(app,0);
             
             close(app.WaitBar)
+            
+            app.PrimaryStd_CorrectionList.Value = 3;
+            PrimaryStd_CorrectionListValueChanged(app);
             
         end
 
