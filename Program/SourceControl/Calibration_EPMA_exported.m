@@ -23,9 +23,9 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
         BackgroundManual                matlab.ui.control.NumericEditField
         LegendElistheelementLabel       matlab.ui.control.Label
         TextArea                        matlab.ui.control.TextArea
-        Plot                            matlab.ui.control.UIAxes
-        Map_Total                       matlab.ui.control.UIAxes
         Map_Spec                        matlab.ui.control.UIAxes
+        Map_Total                       matlab.ui.control.UIAxes
+        Plot                            matlab.ui.control.UIAxes
     end
 
     
@@ -48,7 +48,7 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
     
     properties (Access = public)
         ExchangeSelector
-        
+        ExchangeSelectorId
     end
     
     methods (Access = private)
@@ -1763,14 +1763,13 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.TextArea.Layout.Column = [8 13];
             app.TextArea.Value = {'-----------------------------------------------------------------------------'; '                       Check calibration table description'; '-----------------------------------------------------------------------------'; '  - El.                      element'; '  - #(std)                 number of internal standards (spot analyses)'; '  - med(it)               median value of intensity for all pixels'; '  - med(wt)_s         median composition all internal standards'; '  - mode(wt)_m      most frequent composition in calibrated pixels'; '  - k-factor             value of the k factor'; '  - slope                 slope of the calibration curve'; '  - back                  intercept of the calibration curve = background'; '  - sum(wt)             sum of the column'; '  - mode(SumOx)   most frequent sum of the calibrated pixels'; ''};
 
-            % Create Plot
-            app.Plot = uiaxes(app.GridLayout);
-            xlabel(app.Plot, 'wt.%')
-            ylabel(app.Plot, 'Intensity')
-            app.Plot.PlotBoxAspectRatio = [1.39208633093525 1 1];
-            app.Plot.Box = 'on';
-            app.Plot.Layout.Row = [3 8];
-            app.Plot.Layout.Column = [3 7];
+            % Create Map_Spec
+            app.Map_Spec = uiaxes(app.GridLayout);
+            app.Map_Spec.XTick = [];
+            app.Map_Spec.YTick = [];
+            app.Map_Spec.Box = 'on';
+            app.Map_Spec.Layout.Row = [9 12];
+            app.Map_Spec.Layout.Column = [1 3];
 
             % Create Map_Total
             app.Map_Total = uiaxes(app.GridLayout);
@@ -1780,13 +1779,14 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.Map_Total.Layout.Row = [9 12];
             app.Map_Total.Layout.Column = [4 6];
 
-            % Create Map_Spec
-            app.Map_Spec = uiaxes(app.GridLayout);
-            app.Map_Spec.XTick = [];
-            app.Map_Spec.YTick = [];
-            app.Map_Spec.Box = 'on';
-            app.Map_Spec.Layout.Row = [9 12];
-            app.Map_Spec.Layout.Column = [1 3];
+            % Create Plot
+            app.Plot = uiaxes(app.GridLayout);
+            xlabel(app.Plot, 'wt.%')
+            ylabel(app.Plot, 'Intensity')
+            app.Plot.PlotBoxAspectRatio = [1.39208633093525 1 1];
+            app.Plot.Box = 'on';
+            app.Plot.Layout.Row = [3 8];
+            app.Plot.Layout.Column = [3 7];
 
             % Show the figure after all components are created
             app.XMapToolsGlobalStandardization.Visible = 'on';
