@@ -24,6 +24,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Node_Standards                  matlab.ui.container.TreeNode
         Node_MapStandards               matlab.ui.container.TreeNode
         Node_LOD                        matlab.ui.container.TreeNode
+        SpotDatasetNode                 matlab.ui.container.TreeNode
         PrimaryTreeMenuLabel            matlab.ui.control.Label
         SecondaryTreeMenuLabel          matlab.ui.control.Label
         CenterPanel                     matlab.ui.container.Panel
@@ -201,6 +202,18 @@ classdef XMapTools_exported < matlab.apps.AppBase
         OrderLabel_2                    matlab.ui.control.Label
         Segment_InterpOrderFilterGBSpinner  matlab.ui.control.Spinner
         Segment_ExportROI_TXT           matlab.ui.control.Button
+        SPOTDATATab                     matlab.ui.container.Tab
+        GridLayout_SpotData             matlab.ui.container.GridLayout
+        DATASETTOOLSLabel               matlab.ui.control.Label
+        Spotdata_AddDataset             matlab.ui.control.Button
+        EditFieldLabel_2                matlab.ui.control.Label
+        Spotdata_NameField              matlab.ui.control.EditField
+        Spotdata_RandomlyPopulateOption  matlab.ui.control.CheckBox
+        SpotnameLabel                   matlab.ui.control.Label
+        Spotdata_SufixEditField         matlab.ui.control.EditField
+        NbEditFieldLabel                matlab.ui.control.Label
+        Spotdata_NbEditField            matlab.ui.control.NumericEditField
+        Image_35                        matlab.ui.control.Image
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -233,6 +246,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Options_ROIcolorDropDown        matlab.ui.control.DropDown
         UpdateResolutionButton          matlab.ui.control.Button
         ColorMapPreview                 matlab.ui.control.UIAxes
+        ADDONSTab                       matlab.ui.container.Tab
+        GridLayout_AddonsTab            matlab.ui.container.GridLayout
+        AddonsTab_help                  matlab.ui.control.Button
+        Addons_BingoAntidote_2          matlab.ui.control.Button
+        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
+        Image_32                        matlab.ui.control.Image
+        Image_33                        matlab.ui.control.Image
+        OTHERTOOLSLabel                 matlab.ui.control.Label
+        Tool_ExportCompositions         matlab.ui.control.Button
+        Tool_ExportCompositions_2       matlab.ui.control.Button
         DEVELOPERTab                    matlab.ui.container.Tab
         GridLayout5                     matlab.ui.container.GridLayout
         Command_Keyboard                matlab.ui.control.Button
@@ -245,16 +268,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Image_28                        matlab.ui.control.Image
         PlotEngineDropDownLabel         matlab.ui.control.Label
         PlotEngineDropDown              matlab.ui.control.DropDown
-        ADDONSTab                       matlab.ui.container.Tab
-        GridLayout_AddonsTab            matlab.ui.container.GridLayout
-        AddonsTab_help                  matlab.ui.control.Button
-        Addons_BingoAntidote_2          matlab.ui.control.Button
-        THERMODYNAMICMODELINGLabel      matlab.ui.control.Label
-        Image_32                        matlab.ui.control.Image
-        Image_33                        matlab.ui.control.Image
-        OTHERTOOLSLabel                 matlab.ui.control.Label
-        Tool_ExportCompositions         matlab.ui.control.Button
-        Tool_ExportCompositions_2       matlab.ui.control.Button
         GridLayout_Bottom               matlab.ui.container.GridLayout
         MapSlider                       matlab.ui.control.Slider
         Value_MapSlider                 matlab.ui.control.NumericEditField
@@ -479,6 +492,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
         ROI_LOD
         ROI_LOD_Listener
         
+        ROI_SpotData
+        ROI_SpotData_Listener
+        
         ROI_SelectionTool
         
         Id_HelpTool                         % ID of the help tool
@@ -623,6 +639,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LBC_NbSimMC.Enable = 'off';
             app.PxLabel.Enable = 'off';
             app.SimLabel.Enable = 'off';
+            app.Calibrate_ApplyLODfilter.Enable = 'off';
+            app.Calibrate_LOD_CalcButton.Enable = 'off';
             
             app.Calibrate_Merge.Enable = 'off';
             app.Calibrate_AddROIforLBC.Enable = 'off';
@@ -635,6 +653,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Other_ROI_menu.Enable = 'off';
             
             app.SF_ExportMinCompositions.Enable = 'off';
+            
+            % Spot data
+            app.GridLayout_SpotData.Visible = 'off';
+            app.Spotdata_AddDataset.Enable = 'off';
+            
+            % Options
+            app.OptionsGridLayout.Visible = 'off';
+            
+            % Add-ons
+            app.GridLayout_AddonsTab.Visible = 'off';
+            
+            % Segmentation
+            app.GridLayout_SegmentTab.Visible = 'off';
             
             % Menu
             app.EliminateinsideMenu.Enable = 'off';
@@ -789,6 +820,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
             MapData.MaskFile.Masks(1).SubMask(1).Info.Modes = [];
             
             % -------------------------------------------------------------
+            % Initialize SpotData
+            % -------------------------------------------------------------
+            
+            SpotData.Names = '';
+            SpotData.Dataset(1).Names = '';
+            SpotData.Dataset(1).XYCoordinates = [];
+            SpotData.Dataset(1).ColumnNames = '';
+            SpotData.Dataset(1).Data = [];
+            
+            
+            % -------------------------------------------------------------
             % Initialize TrainingSet
             % -------------------------------------------------------------
             
@@ -801,6 +843,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %TrainingSet.Data(1).Types = {};        % changed March 2021
             TrainingSet.Data(1).ROI(1).Types = {};
             TrainingSet.Data(1).ROI(1).Data(1).Coordinates = [];
+            
             
             % -------------------------------------------------------------
             % Initialize SegScheme
@@ -836,6 +879,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.XMapToolsData.TrainingSet = TrainingSet;
             app.XMapToolsData.MapData = MapData;
+            app.XMapToolsData.SpotData = SpotData;
             app.XMapToolsData.MapSizeCheck = MapSizeCheck;
             app.XMapToolsData.Standards = Standards;
             app.XMapToolsData.MapStandards = MapStandards;
@@ -1767,6 +1811,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 end
             end
             
+            % Check for SpotData (4.5)
+            if exist('SpotData','var')
+                app.XMapToolsData.SpotData = SpotData;
+            end
+            % Otherwise it is already initialised above. 
+            
             % Check for PxDataRaw (4.4)
             if ~exist('PxDataRaw','var')
                 [PxDataRaw] = InitializeXMapToolsData_PxDataRaw(app);
@@ -1942,6 +1992,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.WaitBar.Message = 'Saving project';
             
             MapData = app.XMapToolsData.MapData;
+            SpotData = app.XMapToolsData.SpotData;
             TrainingSet = app.XMapToolsData.TrainingSet;
             Standards = app.XMapToolsData.Standards;
             MapStandards = app.XMapToolsData.MapStandards;
@@ -1981,7 +2032,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Options.MaskSelectionForMerged = app.Options_MaskSelectionForMerged.Value;
             
             % SAVE file
-            save([ProjectName],'MapData','TrainingSet','Standards','MapStandards','MapSizeCheck','SegScheme','MapLOD','Options','Version','-v7.3');
+            save([ProjectName],'MapData','SpotData','TrainingSet','Standards','MapStandards','MapSizeCheck','SegScheme','MapLOD','Options','Version','-v7.3');
             
             % 'PxDataRaw' not saved yet because of size problem
             
@@ -2112,6 +2163,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             for k = 1:length(app.Node_LOD.Children(i).Children(j).Children)
                                 app.Node_LOD.Children(i).Children(j).Children(k).NodeData = [16,i,j,k];
                             end
+                        end
+                    end
+                    
+                case 'SpotData'
+                    for i = 1:length(app.SpotDatasetNode.Children)
+                        app.SpotDatasetNode.Children(i).NodeData = [17,i,0];
+                        for j = 1:length(app.SpotDatasetNode.Children(i).Children)
+                            app.SpotDatasetNode.Children(i).Children(j).NodeData = [17,i,j];
                         end
                     end
             end
@@ -2451,6 +2510,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Button_FigMain_OpenNewWindow.Enable = 'on';
             app.Button_FigMain_CopyImage.Enable = 'on';
             app.Button_FigMain_PlotSurface.Enable = 'on';
+            
+            app.GridLayout_SpotData.Visible = 'on';
+            app.OptionsGridLayout.Visible = 'on';
+            app.GridLayout_AddonsTab.Visible = 'on';
+            app.GridLayout_SegmentTab.Visible = 'on';
             
             app.DataCursorMode = 0;
             ApplyCursorMode(app);
@@ -4692,6 +4756,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     app.TreeData_Additional.SelectedNodes = [];
                     RebuildGUI(app,'LOD'); % update indexes
                     
+                case 17
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).Names(NodeData(3)) = [];
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = [];
+                    
+                    app.TreeData_Additional.SelectedNodes.delete;
+                    app.TreeData_Additional.SelectedNodes = [];
+                    RebuildGUI(app,'SpotData'); % update indexes
+                    
             end
             
             app.SaveRequired = 1;
@@ -5269,6 +5342,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %             end
             
         end
+        
+        function SpotData_MovingStdROI_Main(app,ROI)
+            NodeData = app.TreeData_Additional.SelectedNodes.NodeData;
+            
+            app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = round(ROI.Position);
+            
+            TreeData_AdditionalSelectionChanged(app,0);
+            
+        end
+        
         
         function [SegNames,Ranges] = Segmentation_ExtractDetails(app)
             
@@ -6728,6 +6811,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 end
             end
             
+            % Add Spot Data
+            for i = 1:length(app.XMapToolsData.SpotData.Names)
+                p = uitreenode(app.SpotDatasetNode,'Text',char(app.XMapToolsData.SpotData.Names{i}),'NodeData',[17,i,0]);
+                for j = 1:length(app.XMapToolsData.SpotData.Dataset(i).Names)
+                     p1 = uitreenode(p,'Text',char(app.XMapToolsData.SpotData.Dataset(i).Names{j}),'NodeData',[17,i,j]);
+                end
+            end
+            
         end
         
         function ROI_DeleteROI(app)
@@ -6758,6 +6849,23 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.DataCursorMode = 0;
             ApplyCursorMode(app);
         end
+        
+        function ROI_DeleteROI_Fast(app)
+            % This function deletes all the ROI of the main figure
+            % app.FigMain but doesn't interact with the GUI
+            
+            delete(findall(app.FigMain, 'Type',  'images.roi.Rectangle'));
+            delete(findall(app.FigMain, 'Type',  'images.roi.Polygon'));
+            delete(findall(app.FigMain, 'Type',  'images.roi.Ellipse'));
+            delete(findall(app.FigMain, 'Type',  'images.roi.Circle'));
+            delete(findall(app.FigMain, 'Type',  'images.roi.Point'));
+            
+            delete(findall(app.FigMain, 'Type',  'images.roi.Polyline'));
+            
+            app.DataCursorMode = 0;
+            ApplyCursorMode(app);
+        end
+        
         
         function Standard_ApplyXYShift(app,X,Y)
             
@@ -8408,6 +8516,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Calibrate_LOD_menu.Enable = 'off';
             app.Calibrate_LOD_CalcButton.Enable = 'off';
             app.MaskMenu.Enable = 'off';
+            app.Spotdata_AddDataset.Enable = 'off';
             
             if isempty(app.TreeData_Additional.SelectedNodes)
                 
@@ -8539,6 +8648,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                 end
                 
+                if isequal(NodeData(1),17)
+                    
+                    if NodeData(2) > 0 && NodeData(3)> 0
+                        app.SpotDatasetNode.Children(NodeData(2)).Children(NodeData(3)).ContextMenu = app.ContextMenu_AdditionalTree_1_D;
+                    end
+                    
+                end
+                
                 
                 % -------------------------------------------------------------
                 % Update the GUI (MaskFiles)
@@ -8603,8 +8720,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         app.Classify_Button.Tooltip = 'Unsupervised classification';
                     end
                 end
-                
-                
                 
                 % -------------------------------------------------------------
                 % Update the GUI (Segment)
@@ -8791,6 +8906,38 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     app.TreeData_Main.SelectedNodes = [];
                     PlotMap_DisplaySelectedMap(app, -2, SelectedAdditional)
                 end
+                
+            end
+            
+            if isequal(SelectedAdditional(1),17)
+                % First attempt to implement...
+                
+                if isequal(SelectedAdditional(2),0) && isequal(SelectedAdditional(3),0)
+                    app.Spotdata_AddDataset.Enable = 'on';
+                end
+                
+                 if SelectedAdditional(2) > 0
+                     ROI_DeleteROI_Fast(app);
+                     
+                     if isequal(SelectedAdditional(3),0)
+                         % We plot all points
+                         for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
+                             XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
+                            NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
+                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                         end
+                         
+                     else
+                         % We plot a single point
+                         XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(SelectedAdditional(3),:);
+                         NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{SelectedAdditional(3)};
+                         app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                         app.ROI_SpotData_Listener = addlistener(app.ROI_SpotData(1).ROI, 'ROIMoved', @(varargin)SpotData_MovingStdROI_Main(app, app.ROI_SpotData(1).ROI));
+            
+                     end
+                     
+                 end
+                
                 
                 
             end
@@ -16172,7 +16319,66 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
         % Value changed function: ProjectName_DisplayField
         function ProjectName_DisplayFieldValueChanged(app, event)
-            value = app.ProjectName_DisplayField.Value;
+            
+        end
+
+        % Value changed function: Spotdata_RandomlyPopulateOption
+        function Spotdata_RandomlyPopulateOptionValueChanged(app, event)
+            if isequal(app.Spotdata_RandomlyPopulateOption.Value,1)
+                app.Spotdata_SufixEditField.Enable = 'On';
+                app.Spotdata_NbEditField.Enable = 'On';
+            else
+                app.Spotdata_SufixEditField.Enable = 'Off';
+                app.Spotdata_NbEditField.Enable = 'Off';
+            end
+        end
+
+        % Button pushed function: Spotdata_AddDataset
+        function Spotdata_AddDatasetButtonPushed(app, event)
+            
+            app.SaveRequired = 1;
+            
+            SpotData = app.XMapToolsData.SpotData;
+            
+            Idx = numel(SpotData.Names) + 1;
+            
+            SelectedNodes = app.TreeData_Additional.SelectedNodes;
+            if isempty(SelectedNodes)
+                return
+            end
+            NodeData = SelectedNodes.NodeData;
+            
+            SpotData.Names{Idx} = app.Spotdata_NameField.Value;
+            
+            p = uitreenode(app.SpotDatasetNode,'Text',char(SpotData.Names{Idx}),'NodeData',[17,Idx,0]);
+            
+            % Check if spots should be added automatically
+            if isequal(app.Spotdata_RandomlyPopulateOption.Value,1)
+                
+                Nb = app.Spotdata_NbEditField.Value;
+                NbExistingSpots = numel(SpotData.Dataset(1).Names);    % Should be zero
+                
+                for i = 1:Nb
+                    
+                    MapSize = app.XMapToolsData.MapSizeCheck.ActualSize;   % Not sure this is a good idea???
+                    
+                    XYCoordinates = [randi(MapSize(2),1),randi(MapSize(1),1)];
+                    
+                    SpotData.Dataset(Idx).Names{NbExistingSpots+i} = [app.Spotdata_SufixEditField.Value,'_',num2str(NbExistingSpots+i)];
+                    SpotData.Dataset(Idx).XYCoordinates(NbExistingSpots+i,1:2) = XYCoordinates;
+                    
+                    p1 = uitreenode(p,'Text',char(SpotData.Dataset(Idx).Names{NbExistingSpots+i}),'NodeData',[17,Idx,NbExistingSpots+i]);
+                end
+                
+                expand(p1);
+                
+                app.TreeData_Additional.SelectedNodes = p.Children(NbExistingSpots+1);
+                
+                app.XMapToolsData.SpotData = SpotData;
+                
+                TreeData_AdditionalSelectionChanged(app);
+            end
+            
         end
     end
 
@@ -16332,6 +16538,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Node_LOD.NodeData = [16 0 0 0];
             app.Node_LOD.Icon = '030-eject.png';
             app.Node_LOD.Text = 'LOD';
+
+            % Create SpotDatasetNode
+            app.SpotDatasetNode = uitreenode(app.TreeData_Additional);
+            app.SpotDatasetNode.NodeData = [17 0 0];
+            app.SpotDatasetNode.Icon = '197-diamond.png';
+            app.SpotDatasetNode.Text = 'Spot Dataset';
 
             % Create PrimaryTreeMenuLabel
             app.PrimaryTreeMenuLabel = uilabel(app.GridLayout7);
@@ -17892,6 +18104,105 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Segment_ExportROI_TXT.Layout.Column = 24;
             app.Segment_ExportROI_TXT.Text = '';
 
+            % Create SPOTDATATab
+            app.SPOTDATATab = uitab(app.TabButtonGroup);
+            app.SPOTDATATab.Title = 'SPOT DATA';
+
+            % Create GridLayout_SpotData
+            app.GridLayout_SpotData = uigridlayout(app.SPOTDATATab);
+            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_SpotData.RowHeight = {'1x', '1x', '1x', '0.6x'};
+            app.GridLayout_SpotData.ColumnSpacing = 4;
+            app.GridLayout_SpotData.RowSpacing = 4;
+            app.GridLayout_SpotData.Padding = [5 5 5 5];
+
+            % Create DATASETTOOLSLabel
+            app.DATASETTOOLSLabel = uilabel(app.GridLayout_SpotData);
+            app.DATASETTOOLSLabel.HorizontalAlignment = 'center';
+            app.DATASETTOOLSLabel.VerticalAlignment = 'bottom';
+            app.DATASETTOOLSLabel.FontSize = 9;
+            app.DATASETTOOLSLabel.FontColor = [0.149 0.149 0.149];
+            app.DATASETTOOLSLabel.Layout.Row = 4;
+            app.DATASETTOOLSLabel.Layout.Column = [1 7];
+            app.DATASETTOOLSLabel.Text = 'DATASET TOOLS';
+
+            % Create Spotdata_AddDataset
+            app.Spotdata_AddDataset = uibutton(app.GridLayout_SpotData, 'push');
+            app.Spotdata_AddDataset.ButtonPushedFcn = createCallbackFcn(app, @Spotdata_AddDatasetButtonPushed, true);
+            app.Spotdata_AddDataset.Icon = '073-add.png';
+            app.Spotdata_AddDataset.IconAlignment = 'top';
+            app.Spotdata_AddDataset.FontSize = 10;
+            app.Spotdata_AddDataset.Tooltip = {'Create a new Spot Dataset'};
+            app.Spotdata_AddDataset.Layout.Row = [1 2];
+            app.Spotdata_AddDataset.Layout.Column = [1 2];
+            app.Spotdata_AddDataset.Text = 'Add';
+
+            % Create EditFieldLabel_2
+            app.EditFieldLabel_2 = uilabel(app.GridLayout_SpotData);
+            app.EditFieldLabel_2.HorizontalAlignment = 'right';
+            app.EditFieldLabel_2.FontSize = 10;
+            app.EditFieldLabel_2.Layout.Row = 1;
+            app.EditFieldLabel_2.Layout.Column = 4;
+            app.EditFieldLabel_2.Text = 'Edit Field';
+
+            % Create Spotdata_NameField
+            app.Spotdata_NameField = uieditfield(app.GridLayout_SpotData, 'text');
+            app.Spotdata_NameField.HorizontalAlignment = 'center';
+            app.Spotdata_NameField.FontSize = 10;
+            app.Spotdata_NameField.Tooltip = {'Set the name of the new dataset'};
+            app.Spotdata_NameField.Layout.Row = 1;
+            app.Spotdata_NameField.Layout.Column = [3 7];
+            app.Spotdata_NameField.Value = 'MyDataSet';
+
+            % Create Spotdata_RandomlyPopulateOption
+            app.Spotdata_RandomlyPopulateOption = uicheckbox(app.GridLayout_SpotData);
+            app.Spotdata_RandomlyPopulateOption.ValueChangedFcn = createCallbackFcn(app, @Spotdata_RandomlyPopulateOptionValueChanged, true);
+            app.Spotdata_RandomlyPopulateOption.Tooltip = {'Randomly add spots to your dataset'};
+            app.Spotdata_RandomlyPopulateOption.Text = 'Randomly populate spots';
+            app.Spotdata_RandomlyPopulateOption.FontSize = 9;
+            app.Spotdata_RandomlyPopulateOption.Layout.Row = 2;
+            app.Spotdata_RandomlyPopulateOption.Layout.Column = [3 7];
+            app.Spotdata_RandomlyPopulateOption.Value = true;
+
+            % Create SpotnameLabel
+            app.SpotnameLabel = uilabel(app.GridLayout_SpotData);
+            app.SpotnameLabel.HorizontalAlignment = 'right';
+            app.SpotnameLabel.FontSize = 9;
+            app.SpotnameLabel.Layout.Row = 3;
+            app.SpotnameLabel.Layout.Column = [1 2];
+            app.SpotnameLabel.Text = 'Spot name';
+
+            % Create Spotdata_SufixEditField
+            app.Spotdata_SufixEditField = uieditfield(app.GridLayout_SpotData, 'text');
+            app.Spotdata_SufixEditField.FontSize = 10;
+            app.Spotdata_SufixEditField.Tooltip = {'Define the prefix (format: prefix_1)'};
+            app.Spotdata_SufixEditField.Layout.Row = 3;
+            app.Spotdata_SufixEditField.Layout.Column = [3 4];
+            app.Spotdata_SufixEditField.Value = 'Spot';
+
+            % Create NbEditFieldLabel
+            app.NbEditFieldLabel = uilabel(app.GridLayout_SpotData);
+            app.NbEditFieldLabel.HorizontalAlignment = 'right';
+            app.NbEditFieldLabel.FontSize = 10;
+            app.NbEditFieldLabel.Layout.Row = 3;
+            app.NbEditFieldLabel.Layout.Column = 5;
+            app.NbEditFieldLabel.Text = 'Nb';
+
+            % Create Spotdata_NbEditField
+            app.Spotdata_NbEditField = uieditfield(app.GridLayout_SpotData, 'numeric');
+            app.Spotdata_NbEditField.Limits = [1 Inf];
+            app.Spotdata_NbEditField.FontSize = 10;
+            app.Spotdata_NbEditField.Tooltip = {'Set '};
+            app.Spotdata_NbEditField.Layout.Row = 3;
+            app.Spotdata_NbEditField.Layout.Column = [6 7];
+            app.Spotdata_NbEditField.Value = 10;
+
+            % Create Image_35
+            app.Image_35 = uiimage(app.GridLayout_SpotData);
+            app.Image_35.Layout.Row = [1 4];
+            app.Image_35.Layout.Column = 8;
+            app.Image_35.ImageSource = 'ImageDelimiter.png';
+
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);
             app.OPTIONSTab.AutoResizeChildren = 'off';
@@ -18166,6 +18477,94 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.ColorMapPreview.Layout.Row = [2 3];
             app.ColorMapPreview.Layout.Column = [11 17];
 
+            % Create ADDONSTab
+            app.ADDONSTab = uitab(app.TabButtonGroup);
+            app.ADDONSTab.AutoResizeChildren = 'off';
+            app.ADDONSTab.Title = 'ADD-ONS';
+
+            % Create GridLayout_AddonsTab
+            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
+            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
+            app.GridLayout_AddonsTab.ColumnSpacing = 4;
+            app.GridLayout_AddonsTab.RowSpacing = 4;
+            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
+            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
+
+            % Create AddonsTab_help
+            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
+            app.AddonsTab_help.Icon = '061-info.png';
+            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
+            app.AddonsTab_help.Layout.Row = 1;
+            app.AddonsTab_help.Layout.Column = 35;
+            app.AddonsTab_help.Text = '';
+
+            % Create Addons_BingoAntidote_2
+            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
+            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
+            app.Addons_BingoAntidote_2.IconAlignment = 'top';
+            app.Addons_BingoAntidote_2.FontSize = 6;
+            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
+            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
+            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
+            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
+
+            % Create THERMODYNAMICMODELINGLabel
+            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
+            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
+            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
+            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
+            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
+            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
+            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
+            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
+
+            % Create Image_32
+            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_32.Layout.Row = [1 4];
+            app.Image_32.Layout.Column = 11;
+            app.Image_32.ImageSource = 'ImageDelimiter.png';
+
+            % Create Image_33
+            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
+            app.Image_33.Layout.Row = [1 4];
+            app.Image_33.Layout.Column = 22;
+            app.Image_33.ImageSource = 'ImageDelimiter.png';
+
+            % Create OTHERTOOLSLabel
+            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
+            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
+            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
+            app.OTHERTOOLSLabel.FontSize = 9;
+            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
+            app.OTHERTOOLSLabel.Layout.Row = 4;
+            app.OTHERTOOLSLabel.Layout.Column = [1 10];
+            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
+
+            % Create Tool_ExportCompositions
+            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
+            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
+            app.Tool_ExportCompositions.IconAlignment = 'top';
+            app.Tool_ExportCompositions.FontSize = 8;
+            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions.Layout.Row = [1 2];
+            app.Tool_ExportCompositions.Layout.Column = [1 2];
+            app.Tool_ExportCompositions.Text = 'Export';
+
+            % Create Tool_ExportCompositions_2
+            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
+            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
+            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
+            app.Tool_ExportCompositions_2.IconAlignment = 'top';
+            app.Tool_ExportCompositions_2.FontSize = 8;
+            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
+            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
+            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
+            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
+
             % Create DEVELOPERTab
             app.DEVELOPERTab = uitab(app.TabButtonGroup);
             app.DEVELOPERTab.AutoResizeChildren = 'off';
@@ -18263,94 +18662,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PlotEngineDropDown.Layout.Row = 1;
             app.PlotEngineDropDown.Layout.Column = [17 19];
             app.PlotEngineDropDown.Value = '4.5';
-
-            % Create ADDONSTab
-            app.ADDONSTab = uitab(app.TabButtonGroup);
-            app.ADDONSTab.AutoResizeChildren = 'off';
-            app.ADDONSTab.Title = 'ADD-ONS';
-
-            % Create GridLayout_AddonsTab
-            app.GridLayout_AddonsTab = uigridlayout(app.ADDONSTab);
-            app.GridLayout_AddonsTab.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout_AddonsTab.RowHeight = {'1x', '1x', '1x', '0.6x'};
-            app.GridLayout_AddonsTab.ColumnSpacing = 4;
-            app.GridLayout_AddonsTab.RowSpacing = 4;
-            app.GridLayout_AddonsTab.Padding = [5 5 5 5];
-            app.GridLayout_AddonsTab.Tooltip = {'Open Bingo-Antidote'};
-
-            % Create AddonsTab_help
-            app.AddonsTab_help = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.AddonsTab_help.ButtonPushedFcn = createCallbackFcn(app, @Help_AddonsTab_helpButtonPushed, true);
-            app.AddonsTab_help.Icon = '061-info.png';
-            app.AddonsTab_help.Tooltip = {'Help & Documentation'};
-            app.AddonsTab_help.Layout.Row = 1;
-            app.AddonsTab_help.Layout.Column = 35;
-            app.AddonsTab_help.Text = '';
-
-            % Create Addons_BingoAntidote_2
-            app.Addons_BingoAntidote_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Addons_BingoAntidote_2.ButtonPushedFcn = createCallbackFcn(app, @Addons_BingoAntidoteButtonPushed, true);
-            app.Addons_BingoAntidote_2.Icon = 'logo_transparent.png';
-            app.Addons_BingoAntidote_2.IconAlignment = 'top';
-            app.Addons_BingoAntidote_2.FontSize = 6;
-            app.Addons_BingoAntidote_2.Tooltip = {'Start Bingo-Antidote'};
-            app.Addons_BingoAntidote_2.Layout.Row = [1 2];
-            app.Addons_BingoAntidote_2.Layout.Column = [12 13];
-            app.Addons_BingoAntidote_2.Text = 'Bingo-Antidote';
-
-            % Create THERMODYNAMICMODELINGLabel
-            app.THERMODYNAMICMODELINGLabel = uilabel(app.GridLayout_AddonsTab);
-            app.THERMODYNAMICMODELINGLabel.HorizontalAlignment = 'center';
-            app.THERMODYNAMICMODELINGLabel.VerticalAlignment = 'bottom';
-            app.THERMODYNAMICMODELINGLabel.FontSize = 9;
-            app.THERMODYNAMICMODELINGLabel.FontColor = [0.149 0.149 0.149];
-            app.THERMODYNAMICMODELINGLabel.Layout.Row = 4;
-            app.THERMODYNAMICMODELINGLabel.Layout.Column = [12 21];
-            app.THERMODYNAMICMODELINGLabel.Text = 'THERMODYNAMIC MODELING';
-
-            % Create Image_32
-            app.Image_32 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_32.Layout.Row = [1 4];
-            app.Image_32.Layout.Column = 11;
-            app.Image_32.ImageSource = 'ImageDelimiter.png';
-
-            % Create Image_33
-            app.Image_33 = uiimage(app.GridLayout_AddonsTab);
-            app.Image_33.Layout.Row = [1 4];
-            app.Image_33.Layout.Column = 22;
-            app.Image_33.ImageSource = 'ImageDelimiter.png';
-
-            % Create OTHERTOOLSLabel
-            app.OTHERTOOLSLabel = uilabel(app.GridLayout_AddonsTab);
-            app.OTHERTOOLSLabel.HorizontalAlignment = 'center';
-            app.OTHERTOOLSLabel.VerticalAlignment = 'bottom';
-            app.OTHERTOOLSLabel.FontSize = 9;
-            app.OTHERTOOLSLabel.FontColor = [0.149 0.149 0.149];
-            app.OTHERTOOLSLabel.Layout.Row = 4;
-            app.OTHERTOOLSLabel.Layout.Column = [1 10];
-            app.OTHERTOOLSLabel.Text = 'OTHER TOOLS';
-
-            % Create Tool_ExportCompositions
-            app.Tool_ExportCompositions = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositionsButtonPushed, true);
-            app.Tool_ExportCompositions.Icon = 'xmaptools_ios_icon_HR.png';
-            app.Tool_ExportCompositions.IconAlignment = 'top';
-            app.Tool_ExportCompositions.FontSize = 8;
-            app.Tool_ExportCompositions.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions.Layout.Row = [1 2];
-            app.Tool_ExportCompositions.Layout.Column = [1 2];
-            app.Tool_ExportCompositions.Text = 'Export';
-
-            % Create Tool_ExportCompositions_2
-            app.Tool_ExportCompositions_2 = uibutton(app.GridLayout_AddonsTab, 'push');
-            app.Tool_ExportCompositions_2.ButtonPushedFcn = createCallbackFcn(app, @Tool_ExportCompositions_2ButtonPushed, true);
-            app.Tool_ExportCompositions_2.Icon = 'IMGConv_image.png';
-            app.Tool_ExportCompositions_2.IconAlignment = 'top';
-            app.Tool_ExportCompositions_2.FontSize = 8;
-            app.Tool_ExportCompositions_2.Tooltip = {'Open Data Export Module'};
-            app.Tool_ExportCompositions_2.Layout.Row = [1 2];
-            app.Tool_ExportCompositions_2.Layout.Column = [3 4];
-            app.Tool_ExportCompositions_2.Text = 'IMG Converter';
 
             % Create GridLayout_Bottom
             app.GridLayout_Bottom = uigridlayout(app.GridLayout2);
