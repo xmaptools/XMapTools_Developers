@@ -39,6 +39,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Correct an error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
   - Correct an error that occurred in the 'Generate Mosaic (Grid)' function when an 'Import.txt' file was present in a folder containing CSV files. The behaviour of the function has been improved so that it can now automatically detect the presence of a subfolder called 'Mosaic'. Thanks to Yulu Tian for reporting this issue.
   - Correct an error in the calibration for EPMA module that prevented single masks from being selected for calibration. Thanks to Yulu Tian for reporting this issue.
+  - Correct an error in the PRIP-ROI module preventing LOD to be calculated when an empty pixel was selected. Thanks to Renée Tamblyn for reporting this issue. 
   - Correct an error in the extraction of the number of sweeps per pixel, which was causing rare errors in the value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation equation with very minor effect on the LOD value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation for the PRIP module. This error only affected the LOD calculated for ROIs, not the LOD for maps or the LOD filter. The LOD was underestimated by about 10–30% depending on the number of pixels in the ROI. Thanks to Thorsten Markmann for reporting this issue.
