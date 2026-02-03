@@ -60,6 +60,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         ShowButton                      matlab.ui.control.Button
         ExportButton                    matlab.ui.control.Button
         Maps_SelElement                 matlab.ui.control.DropDown
+        Maps_MapInterpolationMethod     matlab.ui.control.DropDown
         GridLayout9                     matlab.ui.container.GridLayout
         SweepLabel                      matlab.ui.control.Label
         Position_Min                    matlab.ui.control.Spinner
@@ -911,6 +912,299 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             end
             
         end
+        
+        function CalculateMapsMatour(app)
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'XMapTools is running numbers';
+            
+            Value = app.Maps_List.Value;
+            
+            X1 = app.Integrations.Measurements(Value).X1;
+            Y1 = app.Integrations.Measurements(Value).Y1;
+            
+            X2 = app.Integrations.Measurements(Value).X2;
+            Y2 = app.Integrations.Measurements(Value).Y2;
+            
+            Slope = (Y2-Y1)./(X2-X1);
+            Int = Y1-Slope.*X1;
+            Distance = sqrt((X2-X1).^2+(Y2-Y1).^2);
+            
+            SpotSize = app.Integrations.Measurements(Value).SpotSize;
+            ScanVel = app.Integrations.Measurements(Value).ScanVel;
+            
+            DurationReal = Distance./ScanVel; % in seconds
+            NbPixels = floor((Distance-SpotSize)./SpotSize); % -SpotSize added because 1/2 spot size is ignored at the begining and at the end
+            
+            DtPixel = seconds(DurationReal./(Distance./SpotSize));  % this is correct to get a constant DtPixel.
+            % DtPixel = seconds(DurationReal./NbPixels);
+            
+            % I don't understand this line below (12.04.22)
+            %NbSwipePerPixel = floor(DurationReal./NbPixels);
+            
+            % To avoid having zeros!
+            %WhereZeros = find(NbSwipePerPixel == 0);
+            %NbSwipePerPixel(WhereZeros) = ones(size(WhereZeros));
+            
+            NbSwipePerPixel = zeros(size(DurationReal));
+            
+            % -------------------------------------------------------------
+            % Map reconstruction (second version Theoule-sur-Mer)
+            Xi_all = [];
+            Yi_all = [];
+            Ti_all = [];
+            
+            %Xi = [];
+            %Yi = [];
+            %TableXY(1).Xi = [];
+            %TableXY(1).Yi = [];
+            %DistanceCheck = zeros(size(Distance));
+            
+            %CountPx = 0;
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
+            app.WaitBar.Message = 'Building raw intensity datasets, please wait';
+            
+            for i = 1:length(X1)
+                
+                % Method: Theoule
+                ti = find(isbetween(app.Data.time_DT,app.Integrations.Measurements(Value).Times(i,1),app.Integrations.Measurements(Value).Times(i,2)))';
+                
+                if isequal(X1(i),X2(i))
+                    xi = X1(i).*ones(size(ti));
+                else
+                    xi = X1(i):(X2(i)-X1(i))/(length(ti)-1):X2(i);
+                end
+                if isequal(Y1(i),Y2(i))
+                    yi = Y1(i).*ones(size(ti));
+                else
+                    yi = Y1(i):(Y2(i)-Y1(i))/(length(ti)-1):Y2(i);
+                end
+                
+                Xi_all(end+1:end+length(xi)) = xi;
+                Yi_all(end+1:end+length(yi)) = yi;
+                Ti_all(end+1:end+length(ti)) = ti;
+                
+                if floor(length(xi)/NbPixels(i)) > 0
+                    NbSwipePerPixel(i) = floor(length(xi)/NbPixels(i));
+                end
+                
+                % The old Wengen method has been deleted in this function (4.4)
+            end
+            
+            [X_grid,Y_grid] = meshgrid([min(Xi_all):SpotSize(1):max(Xi_all)],[min(Yi_all):SpotSize(1):max(Yi_all)]);
+            
+            EdgesX = min(X_grid(:))-0.5*SpotSize(1):SpotSize(1):max(X_grid(:))+0.5*SpotSize(1);
+            EdgesY = min(Y_grid(:))-0.5*SpotSize(1):SpotSize(1):max(Y_grid(:))+0.5*SpotSize(1);
+            
+            xbin = discretize(X_grid(1,:), EdgesX);
+            ybin = discretize(Y_grid(:,1)', EdgesY);
+            
+            
+            % ----------------------------------------------------------------------------------------------------------------
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
+            app.WaitBar.Message = 'Preparing the extraction of sweep data for PRIP [1/2]';
+            
+            % Search for number of sweeps within each pixel (Cassis):
+            PixelIndices = 1:1:prod(size(X_grid));
+            % PixelIndices = reshape(PixelIndices, size(X_grid));
+            
+            app.PxDataRaw.ElNames = app.Data.ElName;
+            app.PxDataRaw.PixelIndices = PixelIndices;
+            app.PxDataRaw.PixelCoordXY = zeros(length(PixelIndices),2);
+            
+            for iEl = 1:size(app.Data.Cps_BackCorr,2)
+                for i = 1:length(PixelIndices)
+                    app.PxDataRaw.ElData(iEl).PxData(i).NbSweep = [];
+                    app.PxDataRaw.ElData(iEl).PxData(i).SweepIndices = [];
+                    app.PxDataRaw.ElData(iEl).PxData(i).Intensity = [];
+                end
+                app.WaitBar.Value = iEl/(size(app.Data.Cps_BackCorr,2));
+            end
+            
+            MatrixNbSweepPerPixel = zeros(size(X_grid));
+            MatrixX = zeros(size(X_grid));
+            MatrixY = zeros(size(X_grid));
+            
+            app.WaitBar.Message = 'Preparing the extraction of sweep data for PRIP [2/2]';
+            app.WaitBar.Value = 0;
+            
+            count = 0;
+            countWB = 0;
+            for i = 1:length(EdgesY)-1
+                
+                countWB = countWB+1;
+                if countWB > 10
+                    app.WaitBar.Value = i/(length(EdgesY)-1);
+                    countWB = 0;
+                end
+                
+                for j = 1:length(EdgesX)-1
+                    SweepIndices = find(Yi_all >= EdgesY(i) & Yi_all < EdgesY(i+1) & Xi_all >= EdgesX(j) & Xi_all < EdgesX(j+1));
+                    MatrixNbSweepPerPixel(i,j) = length(SweepIndices);
+                    
+                    count = count + 1;
+                    app.PxDataRaw.PixelCoordXY(count,1) = j; 
+                    app.PxDataRaw.PixelCoordXY(count,2) = i; 
+                    
+                    MatrixX(i,j) = j;
+                    MatrixY(i,j) = i;
+                    
+                    for iEl = 1:size(app.Data.Cps_BackCorr,2)
+                        app.PxDataRaw.ElData(iEl).PxData(PixelIndices(count)).NbSweep = MatrixNbSweepPerPixel(i,j);
+                        app.PxDataRaw.ElData(iEl).PxData(PixelIndices(count)).SweepIndices = SweepIndices;
+                        app.PxDataRaw.ElData(iEl).PxData(PixelIndices(count)).Intensity = zeros(size(SweepIndices));
+                    end
+                end
+            end
+            % ----------------------------------------------------------------------------------------------------------------
+            
+            MedianNbSweep = median(MatrixNbSweepPerPixel(find(MatrixNbSweepPerPixel)));
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
+            app.WaitBar.Message = {'Interpolation and generation of intensity maps.','It may take a while, so why not make yourself a coffee or tea? Don''t worry, it will eventually get there.'};
+            
+            for i = 1:size(app.Data.Cps_BackCorr,2)
+                
+                app.WaitBar.Value = i/size(app.Data.Cps_BackCorr,2);
+               
+                % Method: Theoule (modified in Matour)
+                app.Data.Cps_Maps(i).Map = zeros(size(X_grid));
+                app.Data.Cps_Maps(i).Std_Map = zeros(size(X_grid));
+                
+                PxCompt = app.Data.Cps_BackCorr(Ti_all,i);
+                IdxOk = find(isnan(PxCompt) == 0); % filter NaN out otherwise interpolation does not work fine
+                
+                % ----------------------------------------------------------------------------------------------------------------
+                % Extract the sweep data                                     New 4.4
+                for IdxPx = 1:length(app.PxDataRaw.PixelIndices)
+                    app.PxDataRaw.ElData(i).PxData(IdxPx).Intensity = PxCompt(app.PxDataRaw.ElData(i).PxData(IdxPx).SweepIndices);
+                end
+                % ----------------------------------------------------------------------------------------------------------------
+                
+                switch app.Maps_MapInterpolationMethod.Value
+                    case '1'
+                        Vq = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'cubic');
+                        app.Data.Cps_Maps(i).Map = Vq;
+                    
+                    case '2'
+                        Vq = nan(size(X_grid));
+                        for j = 1:length(app.PxDataRaw.PixelCoordXY)
+                            if ~isempty(app.PxDataRaw.ElData(i).PxData(j).Intensity)
+                                Sel = find(app.PxDataRaw.ElData(i).PxData(j).Intensity > 0);
+                                Vq(app.PxDataRaw.PixelCoordXY(j,2),app.PxDataRaw.PixelCoordXY(j,1)) = mean(app.PxDataRaw.ElData(i).PxData(j).Intensity(Sel));
+                            end
+                        end
+                        app.Data.Cps_Maps(i).Map = Vq;
+                end
+                
+                for j = 1:length(app.Data.PS)
+                    PxCompStd = app.Data.PS(j).Cps_PrimaryStandard(Ti_all,i);
+                    IdxOk_Std = find(isnan(PxCompStd) == 0);
+                    Vq_Std = griddata(Xi_all(IdxOk_Std),Yi_all(IdxOk_Std),PxCompStd(IdxOk_Std),X_grid,Y_grid);
+                    
+                    app.Data.StdMaps(i).Std_Map(j).Cps = Vq_Std;
+                    app.Data.StdMaps(i).Std_Map(j).Conc = app.Data.PS(j).PrimaryStandard_ElemConc(i).*ones(size(Vq));
+                    app.Data.StdMaps(i).Std_Map(j).StdName = app.SecondaryStd_ListPS.Items{j};
+                end
+                
+                Vq_BackNbIntegration = griddata(Xi_all,Yi_all,app.Data.BackgroundNbIntegration(Ti_all),X_grid,Y_grid,'nearest');
+                Vq_BackgroundCorrection = griddata(Xi_all,Yi_all,app.Data.BackgroundCorrection(Ti_all,i),X_grid,Y_grid,'nearest');
+                % Vq_PixelNbIntegration = NbSwipePerPixel(1).*ones(size(Vq_BackNbIntegration));
+                
+                Vq_PixelNbIntegration = MatrixNbSweepPerPixel; % changed in 4.5 to be compatible with PRIP; The first value used above was sometimes wrong (median value should be used instead with the old strategy)
+                
+                app.Data.StdMaps(i).Int_Back = Vq_BackgroundCorrection;
+                app.Data.StdMaps(i).Sweeps_Back = Vq_BackNbIntegration;
+                app.Data.StdMaps(i).Sweeps_Pixel = Vq_PixelNbIntegration;
+                
+                
+                if 0 % && isequal(i,36)
+%                     figure, imagesc(X_grid(1,:),Y_grid(:,1)',Vq), hold on, scatter(Xi_all,Yi_all,20*ones(size(Xi_all)),PxCompt,'filled'), colorbar
+%                     % axis([1.2385e+05    1.2643e+05    0.5492e+05    0.5508e+05])
+%                     
+%                     % caxis([0 1000])
+%                     colormap([0,0,0;parula(64)]);
+                    
+                    %figure, imagesc(X_grid(1,:),Y_grid(:,1)',Vq_Std), hold on, scatter(Xi_all,Yi_all,20*ones(size(Xi_all)),PxCompStd,'filled'), colorbar
+                    
+                    IdxOk = find(isnan(PxCompt) == 0);
+                    
+                    Vq_nearest = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'nearest');
+                    Vq_linear = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'linear');
+                    Vq_natural = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'natural');
+                    Vq_cubic = griddata(Xi_all(IdxOk),Yi_all(IdxOk),PxCompt(IdxOk),X_grid,Y_grid,'cubic');
+                    
+                    figure,
+                    tiledlayout('flow')
+                    nexttile, imagesc(Vq_nearest), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_nearest'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_linear), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_linear'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_natural), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_natural'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    nexttile, imagesc(Vq_cubic), axis image, colorbar, title([app.PxDataRaw.ElNames{i},' ','Vq_cubic'])
+                    SelFig = gca; SelFig.ColorScale = 'log';
+                    
+                    
+                    
+%                     Sel = find(Yi_all > 5.492e4 & Yi_all < 5.493e4);
+%                     figure, hold on, plot(Xi_all(Sel),PxCompt(Sel),'.-k'),
+%                     Sel = find(Y_grid(:) > 5.492e4 & Y_grid(:) < 5.493e4);
+%                     plot(X_grid(Sel),Vq_nearest(Sel),'o-r')
+%                     plot(X_grid(Sel),Vq_linear(Sel),'o-b')
+%                     plot(X_grid(Sel),Vq_natural(Sel),'o-g')
+%                     plot(X_grid(Sel),Vq_cubic(Sel),'o-m')
+%                     % plot(X_grid(Sel),Vq_old(Sel),'o-g')
+%                     
+%                     legend('scan','nearest','linear','cubic','old')
+                    %legend('scan','nearest','linear','natural','cubic','old')
+                    
+                    % keyboard
+                end
+                
+            end
+            
+            % ----------------------------------------------------------------------------------------------------------------
+            if 0
+                % benchmark test for sweep data extraction
+                ElIdx = 1;   % Si for Jiahui's test dataset
+                
+                TheMapTheoule = app.Data.Cps_Maps(ElIdx).Map;
+                
+                TheMapCassis = zeros(size(TheMapTheoule));
+                
+                for i = 1:length(app.PxDataRaw.PixelCoordXY)
+                    if ~isempty(app.PxDataRaw.ElData(ElIdx).PxData(i).Intensity)
+                        TheMapCassis(app.PxDataRaw.PixelCoordXY(i,2),app.PxDataRaw.PixelCoordXY(i,1)) = mean(app.PxDataRaw.ElData(ElIdx).PxData(i).Intensity);
+                    end
+                end
+                
+                figure,
+                tiledlayout('flow')
+                nexttile
+                imagesc(TheMapTheoule), axis image, colorbar
+                %caxis([3e6,1e7])
+                nexttile
+                imagesc(TheMapCassis), axis image, colorbar
+                %caxis([3e6,1e7])
+            end
+            
+            app.Data.MapGeometryCheck.XY_Spots = [Xi_all;Yi_all]';
+            app.Data.MapGeometryCheck.Radius_Spots = repmat(SpotSize(1)/2,length(Xi_all),1);
+            app.Data.MapGeometryCheck.X_grid = X_grid;
+            app.Data.MapGeometryCheck.Y_grid = Y_grid;
+            app.Data.MapGeometryCheck.xbin = [];            % not used in this version
+            app.Data.MapGeometryCheck.ybin = [];            % not used in this version
+            
+            close(app.WaitBar)
+            
+            return
+            
+        end
+        
+        
+        
         
         function CalculateMapsCassis(app)
             
@@ -3958,10 +4252,12 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         % Button pushed function: Maps_ApplyButton
         function Maps_ApplyButtonPushed(app, event)
             
-            CalculateMapsCassis(app);            % XMapTools 4.4
-            %CalculateMapsTheoule(app);          % XMapTools 4.3
-            %CalculateMaps(app);
-            %CalculateMaps_Wengen(app);
+            
+            CalculateMapsMatour(app);           % XMapTools 4.5
+            %CalculateMapsCassis(app);          % XMapTools 4.4
+            %CalculateMapsTheoule(app);         % XMapTools 4.3
+            %CalculateMaps(app);                % XMapTools 4.1
+            %CalculateMaps_Wengen(app);         % XMapTools 4.0
             
             app.CheckButton.Visible = 'On';
             app.ShowButton.Visible = 'On';
@@ -3974,7 +4270,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.Maps_ApplyButton.Enable = 'Off';
             app.Maps_TimeshiftSpinner.Enable = 'Off';
             app.Maps_List.Enable = 'Off';
-            
+            app.Maps_MapInterpolationMethod.Enable = 'Off';
             
             
         end
@@ -4063,7 +4359,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             if isdir(fullfile(cd,'Maps_cps'))
                 
-                Answer = uiconfirm(app.ConverterLAICPMS, 'Directory is not empty and existing files will be deleted. Would you like to continue?', 'Warning', 'Options', {'Yes','No'});
+                Answer = uiconfirm(app.ConverterLAICPMS, {'Directory is not empty and existing files will be deleted. Would you like to continue?','Note: If you select No, you will be able to select a different directory.'}, 'Warning', 'Options', {'Yes','No'});
                 
                 if isequal(Answer,'Yes')
                     [SUCCESS,MESSAGE,MESSAGEID] = rmdir(fullfile(cd,'Maps_cps'),'s');
@@ -4108,9 +4404,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             DT_Ok = 10*ones(size(app.Data.ElName));
             
             app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
-            app.WaitBar.Message = 'Saving map and standard files; this may take a while, but it will get there...';
+            app.WaitBar.Message = {'Saving map data'};
             for i = 1:length(app.Data.Cps_Maps)
                 app.WaitBar.Value = i/length(app.Data.Cps_Maps);
+                
                 TheMap = app.Data.Cps_Maps(i).Map;
                 save(fullfile(Directory,[char(app.Data.ElNameFormated{i}),'.txt']),'TheMap','-ascii');
                 
@@ -4140,6 +4437,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             % ------------------------------
             % MapStandards_Import: 
             
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
+            app.WaitBar.Message = {'Saving standard data'};
+            app.WaitBar.Indeterminate = 'on';
+            
             MapStandards_Import.StdMaps = app.Data.StdMaps;
             MapStandards_Import.ElName = app.Data.ElName;
             
@@ -4147,6 +4448,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             % ------------------------------
             % SweepData_Import (4.4): 
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools');
+            app.WaitBar.Message = {'Saving sweep data for PRIP.','Almost done — no refill required.'};
+            app.WaitBar.Indeterminate = 'on';
             
             SweepData_Import.PxDataRaw = app.PxDataRaw;
             save(fullfile(Directory,'SweepData_Import.mat'),'SweepData_Import');
@@ -4190,6 +4495,16 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 fclose(fid);
             end
             
+            fid = fopen(fullfile(cd,'Info_Interpolation.txt'),'w');
+            switch app.Maps_MapInterpolationMethod.Value
+                case '1'
+                    fprintf(fid,'%s\n',['Map generation method: cubic interpolation as in Markmann et al. (2024)']);
+                case '2'
+                    fprintf(fid,'%s\n',['Map generation method: mean of non-zero sweeps per pixel']);
+            end
+            fclose(fid);
+            
+            
             % ------------------------------
             % Copy last standard calibration test (4.4): 
             try 
@@ -4214,6 +4529,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     app.ShowButton.Visible = 'off';
                     app.ExportButton.Visible = 'off';
                     app.Maps_SelElement.Visible = 'off';
+                    
+                    app.Maps_MapInterpolationMethod.Enable = 'On';
                     
                     close(app.WaitBar)
                     return
@@ -4896,6 +5213,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.Maps_SelElement.FontSize = 10;
             app.Maps_SelElement.Layout.Row = 1;
             app.Maps_SelElement.Layout.Column = 6;
+
+            % Create Maps_MapInterpolationMethod
+            app.Maps_MapInterpolationMethod = uidropdown(app.GridLayout8);
+            app.Maps_MapInterpolationMethod.Items = {'Cubic (Markmann et al. 2024),', 'Mean of non-zero sweeps'};
+            app.Maps_MapInterpolationMethod.ItemsData = {'1', '2'};
+            app.Maps_MapInterpolationMethod.Layout.Row = 1;
+            app.Maps_MapInterpolationMethod.Layout.Column = [3 4];
+            app.Maps_MapInterpolationMethod.Value = '1';
 
             % Create GridLayout9
             app.GridLayout9 = uigridlayout(app.GridLayout);

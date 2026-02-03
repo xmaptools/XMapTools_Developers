@@ -20,6 +20,7 @@ This release is highly recommended for all users as it includes new features, pe
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
+  - Improve the converter module by enabling the generation of another type of map. When generating the map, if the 'Mean of non-zero sweeps' option is selected, the program will calculate the mean of the non-zero sweeps for each grid pixel.  
   - Improve the converter module by automatically selecting 'step function' interpolation for the background and 'polynomial' interpolation for the primary standard.
   - Improve the converter module's compatibility by enabling it to convert FIN2 files to CSV files and import them. You can find the FIN2 converter tool in the Tools menu. Note that this format require a conversion before to be imported in XMapTools. 
   - Improve the converter module by adding more date and time formats. 
