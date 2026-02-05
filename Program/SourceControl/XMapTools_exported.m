@@ -228,8 +228,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SpotData_NbDataColLabel         matlab.ui.control.Label
         SpotData_NbDataColField         matlab.ui.control.NumericEditField
         PLOTEXTERNALDATALabel           matlab.ui.control.Label
-        PlotDropDownLabel               matlab.ui.control.Label
+        AddtoplotLabel                  matlab.ui.control.Label
         SpotData_PlotDropDown           matlab.ui.control.DropDown
+        SpotData_ApplyColorGradientCheckBox  matlab.ui.control.CheckBox
+        SpotData_ApplySpotSizeGradientCheckBox  matlab.ui.control.CheckBox
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -700,6 +702,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_AddSpotsManual.Enable = 'off';
             app.SDL_ResetButton.Enable = 'off';
             app.SDL_DeleteButton.Enable = 'off';
+            app.SpotData_ButtonImport.Enable = 'off';
+            app.SpotData_ButtonDisplayTable.Enable = 'off';
+            app.SpotData_ApplyColorGradientCheckBox.Enable = 'off';
+            app.SpotData_ApplySpotSizeGradientCheckBox.Enable = 'off';
+            app.SpotData_PlotDropDown.Enable = 'off';
             
             % Options
             app.OptionsGridLayout.Visible = 'off';
@@ -6686,6 +6693,38 @@ classdef XMapTools_exported < matlab.apps.AppBase
             BRC_Map(OnVire1) = ones(size(OnVire1));
             
         end
+        
+        function UpdateSpotData_DataFieldDropDown(app)
+            
+            SelectedNodes = app.TreeData_Additional.SelectedNodes;
+            NodeData = SelectedNodes.NodeData;
+            
+            app.SpotData_PlotDropDown.Enable = 'on';
+            
+            if ~isempty(app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames)
+                
+                if isequal(app.SpotData_NbDataColField.Value,0)
+                    app.SpotData_NbDataColField.Value = numel(app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames);
+                    
+                    app.SpotData_PlotDropDown.Items = ['Spots',app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames];
+                    app.SpotData_PlotDropDown.ItemsData = [0:numel(app.SpotData_PlotDropDown.Items)];
+                    app.SpotData_PlotDropDown.Value = 0;
+                end
+                app.SpotData_ButtonDisplayTable.Enable = 'on';
+                app.SpotData_ApplyColorGradientCheckBox.Enable = 'on';
+                app.SpotData_ApplySpotSizeGradientCheckBox.Enable = 'on';
+                
+            else
+                app.SpotData_NbDataColField.Value = 0;
+                app.SpotData_PlotDropDown.Items = {'Spots'};
+                app.SpotData_PlotDropDown.ItemsData = [0];
+                app.SpotData_PlotDropDown.Value = 0;
+                
+                app.SpotData_ButtonDisplayTable.Enable = 'off';
+                app.SpotData_ApplyColorGradientCheckBox.Enable = 'off';
+                app.SpotData_ApplySpotSizeGradientCheckBox.Enable = 'off';
+            end
+        end
     end
     
     methods (Access = public)
@@ -8625,6 +8664,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SDL_ResetButton.Enable = 'off';
             app.SDL_DeleteButton.Enable = 'off';
             app.SpotData_ButtonImport.Enable = 'off';
+            app.SpotData_ButtonDisplayTable.Enable = 'off';
             
             if isempty(app.TreeData_Additional.SelectedNodes)
                 
@@ -9031,19 +9071,59 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 end
                 
                 if SelectedAdditional(2) > 0
+                    UpdateSpotData_DataFieldDropDown(app);
                     app.SpotData_AddSpotsManual.Enable = 'on';
-                end
-                
-                if SelectedAdditional(2) > 0
+                    
                     ROI_DeleteROI_Fast(app);
                     
                     if isequal(SelectedAdditional(3),0)
                         % We plot all points
                         if numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names) > 0
-                            for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
-                                XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
-                                NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
-                                app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                            
+                            if isequal(app.SpotData_PlotDropDown.Value,0)
+                                for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
+                                    XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
+                                    NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
+                                    app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                                end
+                            else
+                                XYCoordinatesAll = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates;
+                                Data2PlotAll = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Data(:,app.SpotData_PlotDropDown.Value);
+                                Xi = [min(Data2PlotAll):(max(Data2PlotAll)-min(Data2PlotAll))/(100-1):max(Data2PlotAll)];
+                                
+                                % Prepare the colorpalette
+                                SelColorMap = 6;
+                                for i = 1:numel(app.ColorMaps)
+                                    if isequal(app.ColorMaps(i).Name,'Tambourine (CPL)')
+                                        SelColorMap = i;
+                                    end
+                                end
+                                ColorMap = CalculateColorMap(app,SelColorMap,100);
+                                
+                                SpotSizeValues = [5:(15-5)/(100-1):15];
+                                
+                                for i = 1:numel(Data2PlotAll)
+                                    [Min,Where] = min(abs(Xi-Data2PlotAll(i)));
+                                    Color2Plot(i,:) = ColorMap(Where,:);
+                                    SpotSize(i) = round(SpotSizeValues(Where));
+                                end
+                                
+                                for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
+                                    if ~app.SpotData_ApplyColorGradientCheckBox.Value
+                                        if ~app.SpotData_ApplySpotSizeGradientCheckBox
+                                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',num2str(Data2PlotAll(i)),'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinatesAll(i,:),'MarkerSize',10);
+                                        else
+                                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',num2str(Data2PlotAll(i)),'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinatesAll(i,:),'MarkerSize',SpotSize(i));
+                                        end
+                                    else
+                                        if ~app.SpotData_ApplySpotSizeGradientCheckBox.Value
+                                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',Color2Plot(i,:),'Label',['  ',num2str(Data2PlotAll(i)),'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinatesAll(i,:),'MarkerSize',10);
+                                        else
+                                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',Color2Plot(i,:),'Label',['  ',num2str(Data2PlotAll(i)),'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinatesAll(i,:),'MarkerSize',SpotSize(i));
+                                        end
+                                    end
+                                    
+                                end
                             end
                             
                             app.SubTabSpotData.Visible = 'on';
@@ -9081,10 +9161,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         
                         app.SubTabSpotData.Visible = 'on';
                         
-                        % We plot a single point
+                        % We plot a single point:
                         XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(SelectedAdditional(3),:);
                         NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{SelectedAdditional(3)};
-                        app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                        app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
                         app.ROI_SpotData_Listener = addlistener(app.ROI_SpotData(1).ROI, 'ROIMoved', @(varargin)SpotData_MovingStdROI_Main(app, app.ROI_SpotData(1).ROI));
                         
                         % Update Table
@@ -9134,10 +9214,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             app.SpotData_AddSpotsManual.Enable = 'on';
                         end
                     end
-                    
-                    
-                    
                 end
+                
+                
                 
                 selectedNodes = app.TreeData_Main.SelectedNodes;
                 return
@@ -16803,7 +16882,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             NodeData = SelectedNodes.NodeData;
             
             % we replace all data, this is simpler and avoids problem. Just
-            % load your data all together. 
+            % load your data all together.
             app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames = {};
             app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data = [];
             
@@ -16825,10 +16904,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data(IndexInXMapTools,i) = table2array(DataImport(IndexInFile,IdxCol(i)));
             end
             
-            app.SpotData_NbDataColField.Value = numel(ColumnNames)-1;
+            %             UpdateSpotData_DataFieldDropDown(app);
             
-            app.SpotData_PlotDropDown.Items = ['Spots',app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames];
-            app.SpotData_PlotDropDown.ItemsData = [0:numel(app.SpotData_PlotDropDown.Items)];
+            %             app.SpotData_NbDataColField.Value = numel(ColumnNames)-1;
+            %
+            %             app.SpotData_PlotDropDown.Items = ['Spots',app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames];
+            %             app.SpotData_PlotDropDown.ItemsData = [0:numel(app.SpotData_PlotDropDown.Items)];
+            %             app.SpotData_PlotDropDown.Value = 0;
             
             TreeData_AdditionalSelectionChanged(app);
             
@@ -16888,7 +16970,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
         % Value changed function: SpotData_PlotDropDown
         function SpotData_PlotDropDownValueChanged(app, event)
             TreeData_AdditionalSelectionChanged(app);
-            
+        end
+
+        % Value changed function: 
+        % SpotData_ApplyColorGradientCheckBox, 
+        % SpotData_ApplySpotSizeGradientCheckBox
+        function SpotData_ApplyColorGradientCheckBoxValueChanged(app, event)
+            TreeData_AdditionalSelectionChanged(app);
         end
     end
 
@@ -18822,10 +18910,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_NbDataColLabel = uilabel(app.GridLayout_SpotData);
             app.SpotData_NbDataColLabel.HorizontalAlignment = 'center';
             app.SpotData_NbDataColLabel.VerticalAlignment = 'bottom';
-            app.SpotData_NbDataColLabel.FontSize = 10;
+            app.SpotData_NbDataColLabel.FontSize = 9;
             app.SpotData_NbDataColLabel.Layout.Row = 1;
             app.SpotData_NbDataColLabel.Layout.Column = [18 19];
-            app.SpotData_NbDataColLabel.Text = 'Data:';
+            app.SpotData_NbDataColLabel.Text = {'Available'; 'Variables'};
 
             % Create SpotData_NbDataColField
             app.SpotData_NbDataColField = uieditfield(app.GridLayout_SpotData, 'numeric');
@@ -18845,21 +18933,40 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PLOTEXTERNALDATALabel.Layout.Column = [23 29];
             app.PLOTEXTERNALDATALabel.Text = 'PLOT EXTERNAL DATA';
 
-            % Create PlotDropDownLabel
-            app.PlotDropDownLabel = uilabel(app.GridLayout_SpotData);
-            app.PlotDropDownLabel.HorizontalAlignment = 'right';
-            app.PlotDropDownLabel.Layout.Row = 1;
-            app.PlotDropDownLabel.Layout.Column = [23 24];
-            app.PlotDropDownLabel.Text = 'Plot';
+            % Create AddtoplotLabel
+            app.AddtoplotLabel = uilabel(app.GridLayout_SpotData);
+            app.AddtoplotLabel.HorizontalAlignment = 'right';
+            app.AddtoplotLabel.FontSize = 10;
+            app.AddtoplotLabel.Layout.Row = 1;
+            app.AddtoplotLabel.Layout.Column = [23 25];
+            app.AddtoplotLabel.Text = 'Add to plot';
 
             % Create SpotData_PlotDropDown
             app.SpotData_PlotDropDown = uidropdown(app.GridLayout_SpotData);
             app.SpotData_PlotDropDown.Items = {'Spots'};
             app.SpotData_PlotDropDown.ItemsData = 0;
             app.SpotData_PlotDropDown.ValueChangedFcn = createCallbackFcn(app, @SpotData_PlotDropDownValueChanged, true);
+            app.SpotData_PlotDropDown.FontSize = 10;
             app.SpotData_PlotDropDown.Layout.Row = 1;
-            app.SpotData_PlotDropDown.Layout.Column = [25 28];
+            app.SpotData_PlotDropDown.Layout.Column = [26 28];
             app.SpotData_PlotDropDown.Value = 0;
+
+            % Create SpotData_ApplyColorGradientCheckBox
+            app.SpotData_ApplyColorGradientCheckBox = uicheckbox(app.GridLayout_SpotData);
+            app.SpotData_ApplyColorGradientCheckBox.ValueChangedFcn = createCallbackFcn(app, @SpotData_ApplyColorGradientCheckBoxValueChanged, true);
+            app.SpotData_ApplyColorGradientCheckBox.Text = 'Apply Color Gradient';
+            app.SpotData_ApplyColorGradientCheckBox.FontSize = 10;
+            app.SpotData_ApplyColorGradientCheckBox.Layout.Row = 1;
+            app.SpotData_ApplyColorGradientCheckBox.Layout.Column = [29 33];
+            app.SpotData_ApplyColorGradientCheckBox.Value = true;
+
+            % Create SpotData_ApplySpotSizeGradientCheckBox
+            app.SpotData_ApplySpotSizeGradientCheckBox = uicheckbox(app.GridLayout_SpotData);
+            app.SpotData_ApplySpotSizeGradientCheckBox.ValueChangedFcn = createCallbackFcn(app, @SpotData_ApplyColorGradientCheckBoxValueChanged, true);
+            app.SpotData_ApplySpotSizeGradientCheckBox.Text = 'Apply Spot Size Gradient';
+            app.SpotData_ApplySpotSizeGradientCheckBox.FontSize = 10;
+            app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Row = 2;
+            app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Column = [29 33];
 
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);
