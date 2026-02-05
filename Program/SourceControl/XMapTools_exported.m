@@ -217,12 +217,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SpotData_AddSpotsManual         matlab.ui.control.Button
         Image_36                        matlab.ui.control.Image
         SPOTTOOLSLabel                  matlab.ui.control.Label
-        SPOTDATAEXTRACTIONLabel         matlab.ui.control.Label
+        SPOTEXTERNALDATALabel           matlab.ui.control.Label
         Spotdata_ActivateROI            matlab.ui.control.CheckBox
         xLabel                          matlab.ui.control.Label
         Spotdata_ROISize_X              matlab.ui.control.NumericEditField
         Spotdata_ROISize_Y              matlab.ui.control.NumericEditField
         Image_37                        matlab.ui.control.Image
+        SpotData_ButtonImport           matlab.ui.control.Button
+        SpotData_ButtonDisplayTable     matlab.ui.control.Button
+        SpotData_NbDataColLabel         matlab.ui.control.Label
+        SpotData_NbDataColField         matlab.ui.control.NumericEditField
+        PLOTEXTERNALDATALabel           matlab.ui.control.Label
+        PlotDropDownLabel               matlab.ui.control.Label
+        SpotData_PlotDropDown           matlab.ui.control.DropDown
         OPTIONSTab                      matlab.ui.container.Tab
         OptionsGridLayout               matlab.ui.container.GridLayout
         ColormapDropDownLabel           matlab.ui.control.Label
@@ -357,7 +364,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SubTabSpotData                  matlab.ui.container.TabGroup
         SpotDataLiveTab                 matlab.ui.container.Tab
         GridLayout10_2                  matlab.ui.container.GridLayout
-        SDL_SpotLabel                   matlab.ui.control.Label
         SDL_DataSummaryLabel            matlab.ui.control.Label
         SDL_MedianLabel                 matlab.ui.control.Label
         SDL_MADLabel                    matlab.ui.control.Label
@@ -368,9 +374,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SDL_ActivatedLabel              matlab.ui.control.Label
         SDL_NumberPxLabel               matlab.ui.control.Label
         SDL_IsIntPxActivatedLabel       matlab.ui.control.Label
-        SDL_Yspot_2                     matlab.ui.control.NumericEditField
+        SDL_NbPixels                    matlab.ui.control.NumericEditField
         SDL_DeleteButton                matlab.ui.control.Button
         SDL_ResetButton                 matlab.ui.control.Button
+        GridLayout16                    matlab.ui.container.GridLayout
+        SDL_Button_Copy                 matlab.ui.control.Button
         SpotDatatLivePlotTab            matlab.ui.container.Tab
         GridLayout11_2                  matlab.ui.container.GridLayout
         SpotoDataPlot_1                 matlab.ui.control.UIAxes
@@ -8616,6 +8624,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_AddSpotsManual.Enable = 'off';
             app.SDL_ResetButton.Enable = 'off';
             app.SDL_DeleteButton.Enable = 'off';
+            app.SpotData_ButtonImport.Enable = 'off';
             
             if isempty(app.TreeData_Additional.SelectedNodes)
                 
@@ -9017,20 +9026,57 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     app.Spotdata_AddDataset.Enable = 'on';
                 end
                 
+                if SelectedAdditional(2) > 0 && isequal(SelectedAdditional(3),0)
+                    app.SpotData_ButtonImport.Enable = 'on';
+                end
+                
+                if SelectedAdditional(2) > 0
+                    app.SpotData_AddSpotsManual.Enable = 'on';
+                end
+                
                 if SelectedAdditional(2) > 0
                     ROI_DeleteROI_Fast(app);
                     
                     if isequal(SelectedAdditional(3),0)
                         % We plot all points
-                        for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
-                            XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
-                            NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
-                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                        if numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names) > 0
+                            for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
+                                XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
+                                NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
+                                app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',NameLabel,'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                            end
+                            
+                            app.SubTabSpotData.Visible = 'on';
+                            
+                            app.TabGroup.SelectedTab = app.SpotDataTab;
+                            
+                            DataPlot = app.Data2Plot;
+                            CompData = zeros(size(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates,1),1);
+                            for i = 1:numel(CompData)
+                                CompData(i) = DataPlot(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,2),app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,1));
+                            end
+                            
+                            Cell4Display = cell(numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names),4);
+                            
+                            Cell4Display(:,1) = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names;
+                            Cell4Display(:,2) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,1)));
+                            Cell4Display(:,3) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,2)));
+                            Cell4Display(:,4) = num2cell(CompData);
+                            
+                            app.SDL_UITable.Data = Cell4Display;
+                            
+                            app.SDL_UITable.ColumnName = {'Spot','X','Y','Data'};
+                            
+                            app.SDL_UITable.ColumnWidth= {'fit','fit','fit','auto'};
+                            
+                            app.SDL_MedianValue.Value = median(CompData);
+                            app.SDL_MADValue.Value = mad(CompData);
+                            app.SDL_IsIntPxActivatedLabel.Text = '';
+                            app.SDL_NbPixels.Value = numel(CompData);
+                            
+                            app.SDL_IntegratePxLabel.Text = 'Pixels';
+                            
                         end
-                        
-                        app.SubTabSpotData.Visible = 'off';
-                        
-                        app.TabGroup.SelectedTab = app.InformationTab;
                     else
                         
                         app.SubTabSpotData.Visible = 'on';
@@ -9061,6 +9107,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             
                             app.SDL_UITable.Data = Cell4Display;
                             
+                            app.SDL_UITable.ColumnName = {'Px','X','Y','Data'};
+                            
                             app.SDL_UITable.ColumnWidth= {'fit','fit','fit','auto'};
                             
                             histogram(app.SpotoDataPlot_1,CompData,15);
@@ -9069,7 +9117,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             app.SDL_MedianValue.Value = median(CompData);
                             app.SDL_MADValue.Value = mad(CompData);
                             
-                            app.SDL_Yspot_2.Value = numel(CompData);
+                            app.SDL_NbPixels.Value = numel(CompData);
                             app.SDL_IsIntPxActivatedLabel.Text = 'Yes';
                             
                             app.SDL_ResetButton.Enable = 'on';
@@ -9077,8 +9125,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             
                             app.SpotData_AddSpotsManual.Enable = 'on';
                             
+                            app.SDL_IntegratePxLabel.Text = 'Integrated Px';
+                            
                         else
-                            app.SDL_Yspot_2.Value = 1;
+                            app.SDL_NbPixels.Value = 1;
                             app.SDL_IsIntPxActivatedLabel.Text = 'No';
                             
                             app.SpotData_AddSpotsManual.Enable = 'on';
@@ -16582,13 +16632,20 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 expand(app.SpotDatasetNode);
                 expand(p1);
-                
-                app.TreeData_Additional.SelectedNodes = p;
-                
-                app.XMapToolsData.SpotData = SpotData;
-                
-                TreeData_AdditionalSelectionChanged(app);
+            else
+                SpotData.Dataset(Idx).Names = {};
+                SpotData.Dataset(Idx).XYCoordinates = [];
+                SpotData.Dataset(Idx).PxSelection(1).Selection = 0;
+                SpotData.Dataset(Idx).PxSelection(1).XYCoord = [];
             end
+            
+            expand(app.SpotDatasetNode);
+            
+            app.TreeData_Additional.SelectedNodes = p;
+            
+            app.XMapToolsData.SpotData = SpotData;
+            
+            TreeData_AdditionalSelectionChanged(app);
             
         end
 
@@ -16704,6 +16761,132 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
             app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(:),Ygrid(:)];
             
+            TreeData_AdditionalSelectionChanged(app);
+            
+        end
+
+        % Button pushed function: SpotData_ButtonImport
+        function SpotData_ButtonImportPushed(app, event)
+            
+            f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
+            [FileName,PathName] = uigetfile({'*.csv',' Files (*.csv)'},'Pick a datafile');
+            close(f);
+            figure(app.XMapTools_GUI)
+            if ~isequal(FileName,0)
+                Selection = 1;
+            else
+                return
+            end
+            
+            DataImport = readtable(fullfile(PathName,FileName),'HeaderLines',0,'ReadVariableNames',true);
+            
+            ColumnNames = DataImport.Properties.VariableNames;
+            
+            WhereSpot = find(ismember(ColumnNames,'Spot'));
+            WhereX = find(ismember(ColumnNames,'X'));
+            WhereY = find(ismember(ColumnNames,'Y'));
+            
+            if isempty(WhereSpot)
+                uialert(gcbf,{'A "Spot" column containing the spot names is missing'},'XMapTools – Error');
+            end
+            
+            IsDataCol = zeros(size(ColumnNames));
+            for i = 1:numel(IsDataCol)
+                if ~isequal(WhereSpot,i) && ~isequal(WhereX,i) && ~isequal(WhereY,i)
+                    IsDataCol(i) = 1;
+                end
+            end
+            
+            % Check the matching with the current spots and add the data to
+            % memory:
+            SelectedNodes = app.TreeData_Additional.SelectedNodes;
+            NodeData = SelectedNodes.NodeData;
+            
+            % we replace all data, this is simpler and avoids problem. Just
+            % load your data all together. 
+            app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames = {};
+            app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data = [];
+            
+            IdxCol = find(IsDataCol);
+            
+            app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames = ColumnNames(IdxCol);
+            
+            SpotLabelsXMap = app.XMapToolsData.SpotData.Dataset(NodeData(2)).Names;
+            SpotLabelsFile = DataImport.Spot;
+            
+            [IsInFile,IdxInFile] = ismember(SpotLabelsXMap,SpotLabelsFile);
+            
+            IndexInXMapTools = find(IsInFile);
+            IndexInFile = IdxInFile(IndexInXMapTools);
+            
+            app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data = zeros(numel(SpotLabelsXMap),numel(IdxCol));
+            
+            for i = 1:numel(IdxCol)
+                app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data(IndexInXMapTools,i) = table2array(DataImport(IndexInFile,IdxCol(i)));
+            end
+            
+            app.SpotData_NbDataColField.Value = numel(ColumnNames)-1;
+            
+            app.SpotData_PlotDropDown.Items = ['Spots',app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames];
+            app.SpotData_PlotDropDown.ItemsData = [0:numel(app.SpotData_PlotDropDown.Items)];
+            
+            TreeData_AdditionalSelectionChanged(app);
+            
+            if ~isequal(sum(IsInFile),numel(IsInFile))
+                uialert(gcbf,{'The data in the file has been imported, but the following spots in XMapTools have no defined data and were therefore skipped during the import process: ',SpotLabelsXMap{find(IsInFile == 0)}},'XMapTools – Warning','Icon','warning');
+            else
+                if numel(ColumnNames)-1 > 1
+                    uialert(gcbf,['The data in the file has been imported and ',num2str(numel(ColumnNames)-1),' data columns have been created'],'XMapTools','Icon','success')
+                else
+                    uialert(gcbf,['The data in the file has been imported and ',num2str(numel(ColumnNames)-1),' data column has been created'],'XMapTools','Icon','success')
+                end
+            end
+            
+        end
+
+        % Button pushed function: SDL_Button_Copy
+        function SDL_Button_CopyPushed(app, event)
+            
+            Table2Extract = [app.SDL_UITable.ColumnName';app.SDL_UITable.Data];
+            
+            switch length(app.SDL_UITable.ColumnName)
+                case 2
+                    str = Table2Str_LBC(app,Table2Extract);
+                case 3
+                    str = Table2Str_Modes(app,Table2Extract);
+                case 4
+                    str = Table2Str_ME(app,Table2Extract);
+            end
+            
+            clipboard ('copy',str);
+            
+            
+        end
+
+        % Button pushed function: SpotData_ButtonDisplayTable
+        function SpotData_ButtonDisplayTablePushed(app, event)
+            
+            SelectedNodes = app.TreeData_Additional.SelectedNodes;
+            NodeData = SelectedNodes.NodeData;
+            
+            ColumnName = ['Spot',app.XMapToolsData.SpotData.Dataset(NodeData(2)).ColumnNames];
+            Data = app.XMapToolsData.SpotData.Dataset(NodeData(2)).Names';
+            for i = 1:numel(ColumnName)-1
+                Data(:,i+1) = num2cell(app.XMapToolsData.SpotData.Dataset(NodeData(2)).Data(:,i));
+            end
+            
+            fig = uifigure('Position',[50 app.XMapToolsData.MapSizeCheck.ActualSize(1) 750 400],'Name',['XMapTools – Table for Dataset: ',app.XMapToolsData.SpotData.Names{NodeData(2)}]);
+            uit = uitable('Parent',fig,'Position',[25 25 700 350],'ColumnEditable',false);
+            
+            uit.Data = Data;
+            uit.ColumnName = ColumnName;
+            
+            
+            
+        end
+
+        % Value changed function: SpotData_PlotDropDown
+        function SpotData_PlotDropDownValueChanged(app, event)
             TreeData_AdditionalSelectionChanged(app);
             
         end
@@ -18557,31 +18740,31 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SPOTTOOLSLabel.Layout.Column = [9 15];
             app.SPOTTOOLSLabel.Text = 'SPOT TOOLS';
 
-            % Create SPOTDATAEXTRACTIONLabel
-            app.SPOTDATAEXTRACTIONLabel = uilabel(app.GridLayout_SpotData);
-            app.SPOTDATAEXTRACTIONLabel.HorizontalAlignment = 'center';
-            app.SPOTDATAEXTRACTIONLabel.VerticalAlignment = 'bottom';
-            app.SPOTDATAEXTRACTIONLabel.FontSize = 9;
-            app.SPOTDATAEXTRACTIONLabel.FontColor = [0.149 0.149 0.149];
-            app.SPOTDATAEXTRACTIONLabel.Layout.Row = 4;
-            app.SPOTDATAEXTRACTIONLabel.Layout.Column = [16 22];
-            app.SPOTDATAEXTRACTIONLabel.Text = 'SPOT DATA EXTRACTION';
+            % Create SPOTEXTERNALDATALabel
+            app.SPOTEXTERNALDATALabel = uilabel(app.GridLayout_SpotData);
+            app.SPOTEXTERNALDATALabel.HorizontalAlignment = 'center';
+            app.SPOTEXTERNALDATALabel.VerticalAlignment = 'bottom';
+            app.SPOTEXTERNALDATALabel.FontSize = 9;
+            app.SPOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
+            app.SPOTEXTERNALDATALabel.Layout.Row = 4;
+            app.SPOTEXTERNALDATALabel.Layout.Column = [16 22];
+            app.SPOTEXTERNALDATALabel.Text = 'SPOT EXTERNAL DATA';
 
             % Create Spotdata_ActivateROI
             app.Spotdata_ActivateROI = uicheckbox(app.GridLayout_SpotData);
             app.Spotdata_ActivateROI.ValueChangedFcn = createCallbackFcn(app, @Spotdata_ActivateROIValueChanged, true);
             app.Spotdata_ActivateROI.Tooltip = {'Randomly add spots to your dataset'};
-            app.Spotdata_ActivateROI.Text = 'Integrate Px';
+            app.Spotdata_ActivateROI.Text = 'Integrate Pixels';
             app.Spotdata_ActivateROI.FontSize = 9;
             app.Spotdata_ActivateROI.Layout.Row = 1;
-            app.Spotdata_ActivateROI.Layout.Column = [16 18];
+            app.Spotdata_ActivateROI.Layout.Column = [11 14];
             app.Spotdata_ActivateROI.Value = true;
 
             % Create xLabel
             app.xLabel = uilabel(app.GridLayout_SpotData);
             app.xLabel.HorizontalAlignment = 'center';
-            app.xLabel.Layout.Row = 1;
-            app.xLabel.Layout.Column = 20;
+            app.xLabel.Layout.Row = 2;
+            app.xLabel.Layout.Column = 12;
             app.xLabel.Text = 'x';
 
             % Create Spotdata_ROISize_X
@@ -18592,8 +18775,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Spotdata_ROISize_X.HorizontalAlignment = 'center';
             app.Spotdata_ROISize_X.FontSize = 10;
             app.Spotdata_ROISize_X.Tooltip = {'Set '};
-            app.Spotdata_ROISize_X.Layout.Row = 1;
-            app.Spotdata_ROISize_X.Layout.Column = 19;
+            app.Spotdata_ROISize_X.Layout.Row = 2;
+            app.Spotdata_ROISize_X.Layout.Column = 11;
             app.Spotdata_ROISize_X.Value = 5;
 
             % Create Spotdata_ROISize_Y
@@ -18603,8 +18786,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Spotdata_ROISize_Y.HorizontalAlignment = 'center';
             app.Spotdata_ROISize_Y.FontSize = 10;
             app.Spotdata_ROISize_Y.Tooltip = {'Set '};
-            app.Spotdata_ROISize_Y.Layout.Row = 1;
-            app.Spotdata_ROISize_Y.Layout.Column = 21;
+            app.Spotdata_ROISize_Y.Layout.Row = 2;
+            app.Spotdata_ROISize_Y.Layout.Column = 13;
             app.Spotdata_ROISize_Y.Value = 5;
 
             % Create Image_37
@@ -18612,6 +18795,71 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Image_37.Layout.Row = [1 4];
             app.Image_37.Layout.Column = 22;
             app.Image_37.ImageSource = 'ImageDelimiter.png';
+
+            % Create SpotData_ButtonImport
+            app.SpotData_ButtonImport = uibutton(app.GridLayout_SpotData, 'push');
+            app.SpotData_ButtonImport.ButtonPushedFcn = createCallbackFcn(app, @SpotData_ButtonImportPushed, true);
+            app.SpotData_ButtonImport.Icon = '323-add.png';
+            app.SpotData_ButtonImport.IconAlignment = 'top';
+            app.SpotData_ButtonImport.FontSize = 10;
+            app.SpotData_ButtonImport.Tooltip = {'Import Spot Data from a Data File'};
+            app.SpotData_ButtonImport.Layout.Row = [1 2];
+            app.SpotData_ButtonImport.Layout.Column = [16 17];
+            app.SpotData_ButtonImport.Text = 'Import';
+
+            % Create SpotData_ButtonDisplayTable
+            app.SpotData_ButtonDisplayTable = uibutton(app.GridLayout_SpotData, 'push');
+            app.SpotData_ButtonDisplayTable.ButtonPushedFcn = createCallbackFcn(app, @SpotData_ButtonDisplayTablePushed, true);
+            app.SpotData_ButtonDisplayTable.Icon = '314-menu.png';
+            app.SpotData_ButtonDisplayTable.IconAlignment = 'top';
+            app.SpotData_ButtonDisplayTable.FontSize = 10;
+            app.SpotData_ButtonDisplayTable.Tooltip = {'Display All Spot Data in a table'};
+            app.SpotData_ButtonDisplayTable.Layout.Row = [1 2];
+            app.SpotData_ButtonDisplayTable.Layout.Column = [20 21];
+            app.SpotData_ButtonDisplayTable.Text = 'Display';
+
+            % Create SpotData_NbDataColLabel
+            app.SpotData_NbDataColLabel = uilabel(app.GridLayout_SpotData);
+            app.SpotData_NbDataColLabel.HorizontalAlignment = 'center';
+            app.SpotData_NbDataColLabel.VerticalAlignment = 'bottom';
+            app.SpotData_NbDataColLabel.FontSize = 10;
+            app.SpotData_NbDataColLabel.Layout.Row = 1;
+            app.SpotData_NbDataColLabel.Layout.Column = [18 19];
+            app.SpotData_NbDataColLabel.Text = 'Data:';
+
+            % Create SpotData_NbDataColField
+            app.SpotData_NbDataColField = uieditfield(app.GridLayout_SpotData, 'numeric');
+            app.SpotData_NbDataColField.Editable = 'off';
+            app.SpotData_NbDataColField.HorizontalAlignment = 'center';
+            app.SpotData_NbDataColField.FontSize = 10;
+            app.SpotData_NbDataColField.Layout.Row = 2;
+            app.SpotData_NbDataColField.Layout.Column = [18 19];
+
+            % Create PLOTEXTERNALDATALabel
+            app.PLOTEXTERNALDATALabel = uilabel(app.GridLayout_SpotData);
+            app.PLOTEXTERNALDATALabel.HorizontalAlignment = 'center';
+            app.PLOTEXTERNALDATALabel.VerticalAlignment = 'bottom';
+            app.PLOTEXTERNALDATALabel.FontSize = 9;
+            app.PLOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
+            app.PLOTEXTERNALDATALabel.Layout.Row = 4;
+            app.PLOTEXTERNALDATALabel.Layout.Column = [23 29];
+            app.PLOTEXTERNALDATALabel.Text = 'PLOT EXTERNAL DATA';
+
+            % Create PlotDropDownLabel
+            app.PlotDropDownLabel = uilabel(app.GridLayout_SpotData);
+            app.PlotDropDownLabel.HorizontalAlignment = 'right';
+            app.PlotDropDownLabel.Layout.Row = 1;
+            app.PlotDropDownLabel.Layout.Column = [23 24];
+            app.PlotDropDownLabel.Text = 'Plot';
+
+            % Create SpotData_PlotDropDown
+            app.SpotData_PlotDropDown = uidropdown(app.GridLayout_SpotData);
+            app.SpotData_PlotDropDown.Items = {'Spots'};
+            app.SpotData_PlotDropDown.ItemsData = 0;
+            app.SpotData_PlotDropDown.ValueChangedFcn = createCallbackFcn(app, @SpotData_PlotDropDownValueChanged, true);
+            app.SpotData_PlotDropDown.Layout.Row = 1;
+            app.SpotData_PlotDropDown.Layout.Column = [25 28];
+            app.SpotData_PlotDropDown.Value = 0;
 
             % Create OPTIONSTab
             app.OPTIONSTab = uitab(app.TabButtonGroup);
@@ -19714,15 +19962,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.GridLayout10_2.RowSpacing = 3;
             app.GridLayout10_2.Padding = [3 3 3 3];
 
-            % Create SDL_SpotLabel
-            app.SDL_SpotLabel = uilabel(app.GridLayout10_2);
-            app.SDL_SpotLabel.HorizontalAlignment = 'center';
-            app.SDL_SpotLabel.FontSize = 14;
-            app.SDL_SpotLabel.FontWeight = 'bold';
-            app.SDL_SpotLabel.Layout.Row = 1;
-            app.SDL_SpotLabel.Layout.Column = [1 2];
-            app.SDL_SpotLabel.Text = 'Spot #';
-
             % Create SDL_DataSummaryLabel
             app.SDL_DataSummaryLabel = uilabel(app.GridLayout10_2);
             app.SDL_DataSummaryLabel.HorizontalAlignment = 'center';
@@ -19770,7 +20009,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Create SDL_UITable
             app.SDL_UITable = uitable(app.GridLayout10_2);
             app.SDL_UITable.ColumnName = {'Px'; 'X'; 'Y'; 'Data'};
-            app.SDL_UITable.ColumnWidth = {'fit'};
+            app.SDL_UITable.ColumnWidth = {'auto', 'auto', 'auto', 'fit'};
             app.SDL_UITable.RowName = {};
             app.SDL_UITable.CellSelectionCallback = createCallbackFcn(app, @SDL_UITableCellSelection, true);
             app.SDL_UITable.Layout.Row = [2 16];
@@ -19784,7 +20023,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SDL_IntegratePxLabel.FontWeight = 'bold';
             app.SDL_IntegratePxLabel.Layout.Row = 17;
             app.SDL_IntegratePxLabel.Layout.Column = [3 4];
-            app.SDL_IntegratePxLabel.Text = 'Integrate Px';
+            app.SDL_IntegratePxLabel.Text = 'Integrated Px';
 
             % Create SDL_ActivatedLabel
             app.SDL_ActivatedLabel = uilabel(app.GridLayout10_2);
@@ -19812,13 +20051,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SDL_IsIntPxActivatedLabel.Layout.Column = 3;
             app.SDL_IsIntPxActivatedLabel.Text = 'Yes';
 
-            % Create SDL_Yspot_2
-            app.SDL_Yspot_2 = uieditfield(app.GridLayout10_2, 'numeric');
-            app.SDL_Yspot_2.Editable = 'off';
-            app.SDL_Yspot_2.HorizontalAlignment = 'center';
-            app.SDL_Yspot_2.FontSize = 10;
-            app.SDL_Yspot_2.Layout.Row = 19;
-            app.SDL_Yspot_2.Layout.Column = 4;
+            % Create SDL_NbPixels
+            app.SDL_NbPixels = uieditfield(app.GridLayout10_2, 'numeric');
+            app.SDL_NbPixels.Editable = 'off';
+            app.SDL_NbPixels.HorizontalAlignment = 'center';
+            app.SDL_NbPixels.FontSize = 10;
+            app.SDL_NbPixels.Layout.Row = 19;
+            app.SDL_NbPixels.Layout.Column = 4;
 
             % Create SDL_DeleteButton
             app.SDL_DeleteButton = uibutton(app.GridLayout10_2, 'push');
@@ -19833,6 +20072,27 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SDL_ResetButton.Layout.Row = 1;
             app.SDL_ResetButton.Layout.Column = 4;
             app.SDL_ResetButton.Text = 'Reset';
+
+            % Create GridLayout16
+            app.GridLayout16 = uigridlayout(app.GridLayout10_2);
+            app.GridLayout16.ColumnWidth = {'1x', '1x', '1x'};
+            app.GridLayout16.RowHeight = {'1x'};
+            app.GridLayout16.ColumnSpacing = 3;
+            app.GridLayout16.RowSpacing = 3;
+            app.GridLayout16.Padding = [10 0 10 0];
+            app.GridLayout16.Layout.Row = 1;
+            app.GridLayout16.Layout.Column = [1 2];
+
+            % Create SDL_Button_Copy
+            app.SDL_Button_Copy = uibutton(app.GridLayout16, 'push');
+            app.SDL_Button_Copy.ButtonPushedFcn = createCallbackFcn(app, @SDL_Button_CopyPushed, true);
+            app.SDL_Button_Copy.Icon = '009-photo camera.png';
+            app.SDL_Button_Copy.IconAlignment = 'top';
+            app.SDL_Button_Copy.FontSize = 9;
+            app.SDL_Button_Copy.Tooltip = {'Copy data to clipboard'};
+            app.SDL_Button_Copy.Layout.Row = 1;
+            app.SDL_Button_Copy.Layout.Column = 3;
+            app.SDL_Button_Copy.Text = '';
 
             % Create SpotDatatLivePlotTab
             app.SpotDatatLivePlotTab = uitab(app.SubTabSpotData);
