@@ -4,12 +4,19 @@
 
 This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
 
-- Major update and compatibility notes:
+- Major compiler update and compatibility notes:
   - MacOS compatibility: XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 25.1, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and newer. The previous MATLAB runtime version v912 can be removed after installing this version.
   - Windows compatibility: XMapTools 4.5 is only compatible with Windows 10 and Windows 11. The previous MATLAB runtime version v912 can be removed after installing this version.
   - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command "curl -fsSL https://xmaptools.ch/install.sh | bash". In the future, XMapTools updates on MacOS will be distributed using the terminal command "curl -fsSL https://xmaptools.ch/update.sh | bash".
   - Windows installation and Update: ...
-  
+
+- New feature with Spot Data  
+  - Add a new data type that can be used to interact extract information from the maps and spot data from X–Y positions.
+  - Add tools to generate datasets and populate them with spots that have been entered manually or randomly onto the displayed data. 
+  - Add a sampling function that allows data to be extracted using the median value of an ROI defined around each spot. Data for each pixel can be displayed, and outliers can be manually removed.
+  - Add a data management module that can load external data from a file and display it in a table.
+  - Add a plot module to display the imported spot data on the displayed map using various colour and spot size options. 
+
 - General:
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image.
   - Enhance the Data Export module with a new mode that randomly selects n pixels to export. This can be combined with other export formats in the same file.
@@ -17,6 +24,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Add an option to change the colour of the ROI drawn in the main windows and modules. The default colour is selected when the program starts, but the user's choice is saved for each project.
   - Add an external function for olivine thermobarometry including the calibrations SC13: Shejwalkar and Coogan (2013) and B17: Bussweiler et al (2017). 
   - Add the monticellite end-member to the olivine structural formula calculation.
+  - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
@@ -34,7 +42,6 @@ This release is highly recommended for all users as it includes new features, pe
   - Change the name of the solution model for biotite from BI14 to BIO in DEF_ds62-mb.txt and add Ti and K for the calculation of Qcmp of amphibole. 
 
 - Other:
-  - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
   - Correct an error in the sampling function where the standard error not being calculated correctly. Thanks to Ryo Fukushima for reporting this issue.
   - Correct an error in the Calibrate workspace prevented an uncertainty on LBC from being estimated. Thanks to @harshal9192 for reporting the issue.
   - Correct an error that occurred in the 'Generate Mosaic (Grid)' function when an 'Import.txt' file was present in a folder containing CSV files. The behaviour of the function has been improved so that it can now automatically detect the presence of a subfolder called 'Mosaic'. Thanks to Yulu Tian for reporting this issue.
