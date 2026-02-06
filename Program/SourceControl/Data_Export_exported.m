@@ -179,7 +179,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             end
             
             NbData = 0;
-            LabelData = '';
+            LabelData = {};
             AccessData = [];
             for i = 1:length(SelectedDataset)
                 for j = 1:numel(SpotData.Dataset(SelectedDataset(i)).Names)
