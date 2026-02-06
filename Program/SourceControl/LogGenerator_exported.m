@@ -455,7 +455,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             
             Str = ExtractCodeFromTable(app);
             
-            for i = 1:size(app.UITable.Data(:,1))
+            for i = 1:numel(app.UITable.Data(:,1))
                 app.UITable.Data(i,3) = {Str};
                 app.WaitBar.Value = i/size(app.UITable.Data(:,1),1);
             end
