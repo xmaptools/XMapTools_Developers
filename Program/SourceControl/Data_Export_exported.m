@@ -11,18 +11,14 @@ classdef Data_Export_exported < matlab.apps.AppBase
         Mode_Results_Button          matlab.ui.control.StateButton
         GridLayout3                  matlab.ui.container.GridLayout
         Image                        matlab.ui.control.Image
-        MaskFileOutputFormatPanel    matlab.ui.container.Panel
-        GridLayout4                  matlab.ui.container.GridLayout
-        MaskFileDropDown             matlab.ui.control.DropDown
-        MaskFileDropDownLabel        matlab.ui.control.Label
-        SecondaryDropDownLabel       matlab.ui.control.Label
-        SecondaryDropDown            matlab.ui.control.DropDown
-        DataPanel                    matlab.ui.container.Panel
+        ExportMapDataCheckBox        matlab.ui.control.CheckBox
+        ExportSpotDataCheckBox       matlab.ui.control.CheckBox
+        ExportMapDataPanel           matlab.ui.container.Panel
         GridLayout5                  matlab.ui.container.GridLayout
         MeanCheckBox                 matlab.ui.control.CheckBox
         MedianCheckBox               matlab.ui.control.CheckBox
         ModeCheckBox                 matlab.ui.control.CheckBox
-        ExportedDataLabel            matlab.ui.control.Label
+        ExportDataLabel_2            matlab.ui.control.Label
         UncertaintiesLabel           matlab.ui.control.Label
         StandarddeviationCheckBox    matlab.ui.control.CheckBox
         BRCCheckBox                  matlab.ui.control.CheckBox
@@ -52,18 +48,35 @@ classdef Data_Export_exported < matlab.apps.AppBase
         GenerateSaveButton           matlab.ui.control.Button
         ExportFormatDropDown         matlab.ui.control.DropDown
         ExportFormatDropDownLabel    matlab.ui.control.Label
+        ExportSpotDataPanel          matlab.ui.container.Panel
+        GridLayout5_3                matlab.ui.container.GridLayout
+        SourceDatasetLabel           matlab.ui.control.Label
+        DatasetDropDown              matlab.ui.control.DropDown
+        DatasetDropDownLabel         matlab.ui.control.Label
+        SpotData_MedianCheckBox      matlab.ui.control.CheckBox
+        ExportDataLabel              matlab.ui.control.Label
+        SpotData_ExportAllDatasetsCheckBox  matlab.ui.control.CheckBox
+        SpotData_MADCheckBox         matlab.ui.control.CheckBox
+        UncertaintiesLabel_2         matlab.ui.control.Label
+        ExportOptionsPanel           matlab.ui.container.Panel
+        GridLayout5_4                matlab.ui.container.GridLayout
+        SelectionofmaskfileandmergedmapsLabel  matlab.ui.control.Label
+        MaskFileDropDownLabel        matlab.ui.control.Label
+        MaskFileDropDown             matlab.ui.control.DropDown
+        SecondaryDropDown            matlab.ui.control.DropDown
+        SecondaryDropDownLabel       matlab.ui.control.Label
     end
 
     
     properties (Access = private)
-        XMapToolsApp 
+        XMapToolsApp
         
-        GeneratedDataCellFormat 
+        GeneratedDataCellFormat
         GeneratedLabelCellFormat
         
         BRC
         
-        WaitBar 
+        WaitBar
         
         
     end
@@ -72,10 +85,10 @@ classdef Data_Export_exported < matlab.apps.AppBase
         
         function update_export_source(app)
             
-            % turn off the other buttons when they will be there. 
+            % turn off the other buttons when they will be there.
             
             %if isequal(app.Mode_Merged_Button.Value,0)
-                %app.Mode_Merged_Button.Value = 1;
+            %app.Mode_Merged_Button.Value = 1;
             %end
             
             if isequal(app.Mode_Merged_Button.Value,1)
@@ -133,6 +146,133 @@ classdef Data_Export_exported < matlab.apps.AppBase
             end
         end
         
+        function GenerateCellFromSelectedSpotData(app)
+            
+            app.WaitBar = uiprogressdlg(app.DataExport,'Title','XMapTools','Value',0);
+            app.WaitBar.Message = 'XMapTools is pulling out numbers for you, please wait';
+            
+            if isequal(app.Mode_Merged_Button.Value,1)
+                Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Me;
+                ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).ElNames;
+            end
+            
+            if isequal(app.Mode_Quanti_Button.Value,1)
+                Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Qt;
+                ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).ElNames;
+            end
+            
+            if isequal(app.Mode_Results_Button.Value,1)
+                Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Re;
+                ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).Labels;
+            end
+            
+            MaskFile = app.XMapToolsApp.XMapToolsData.MapData.MaskFile;
+            PhaseList = MaskFile.Masks(app.MaskFileDropDown.Value).Names(2:end);
+            MaskMap = MaskFile.Masks(app.MaskFileDropDown.Value).MaskMap;
+            
+            SpotData = app.XMapToolsApp.XMapToolsData.SpotData;
+            
+            if isequal(app.SpotData_ExportAllDatasetsCheckBox.Value,1)
+                SelectedDataset = app.DatasetDropDown.ItemsData;
+            else
+                SelectedDataset = app.DatasetDropDown.Value;
+            end
+            
+            NbData = 0;
+            LabelData = '';
+            AccessData = [];
+            for i = 1:length(SelectedDataset)
+                for j = 1:numel(SpotData.Dataset(SelectedDataset(i)).Names)
+                    NbData = NbData + 1;
+                    LabelData{NbData} = [SpotData.Names{SelectedDataset(i)},'_',SpotData.Dataset(SelectedDataset(i)).Names{j}];
+                    AccessData(NbData,:) = [SelectedDataset(i), j];
+                end
+            end
+            
+            NbColumns = 0;
+            if app.SpotData_MedianCheckBox.Value
+                NbColumns = NbColumns + numel(ElemList);
+            end
+            
+            if app.SpotData_MADCheckBox.Value
+                CellData = cell(NbData, 2 * NbColumns + 1);
+            else
+                CellData = cell(NbData, NbColumns + 1);
+            end
+            
+            for i = 1:NbData
+                
+                CellData{i,1} = LabelData{i};
+                
+                for j = 1:length(ElemList)
+                    
+                    MapPxData = Data_Sel.Data(app.SecondaryDropDown.Value).CData(j).Map;
+                    
+                    if isequal(SpotData.Dataset(AccessData(i,1)).PxSelection(AccessData(i,2)).Selection,1)
+                        XYCoordinates = SpotData.Dataset(AccessData(i,1)).PxSelection(AccessData(i,2)).XYCoord;
+                    else
+                        XYCoordinates = SpotData.Dataset(AccessData(i,1)).XYCoordinates(AccessData(i,2),:);
+                    end
+                    
+                    % Sample the data: 
+                    PxData = zeros(size(XYCoordinates,1),1);
+                    for k = 1:size(XYCoordinates,1)
+                        PxData(k) = MapPxData(XYCoordinates(k,2),XYCoordinates(k,1));
+                    end
+                    
+                    CellData{i,j+1} = median(PxData);
+                    if app.SpotData_MADCheckBox.Value
+                        CellData{i,NbColumns+j+1} = mad(PxData);
+                    end
+                end
+            end
+            
+            Labels = ['mineral',ElemList];
+            if app.SpotData_MADCheckBox.Value
+                for i=1:numel(ElemList)
+                    Labels{end+1} = ['MAD_',ElemList{i}];
+                end
+            end
+            
+            % Add columns for other selections
+            if app.Include_SampleCheckBox.Value
+                SampleNames = cell(size(CellData,1),1);
+                [SampleNames{:}] = deal(app.SampleNameEditField.Value);
+                CellData = [SampleNames,CellData(:,1:end)];
+                Labels = ['sample',Labels];
+            end
+            
+            if app.Include_PressureCheckBox.Value
+                PressureValues = cell(size(CellData,1),1);
+                [PressureValues{:}] = deal(app.PressureGPaEditField.Value);
+                CellData = [CellData(:,1:end),PressureValues];
+                Labels = [Labels,'pressure_gpa'];
+            end
+            
+            if app.Include_TemperatureCheckBox.Value
+                TemperatureValues = cell(size(CellData,1),1);
+                [TemperatureValues{:}] = deal(app.TemperatureCEditField.Value);
+                CellData = [CellData(:,1:end),TemperatureValues];
+                Labels = [Labels,'temperature_degreeC'];
+            end
+            
+            if app.PrintAssemblageCheckBox.Value
+                Assemblage = sprintf('%s+',PhaseList{:});
+                AssemblageValues = cell(size(CellData,1),1);
+                [AssemblageValues{:}] = deal(Assemblage(1:end-1));
+                CellData = [CellData(:,1:end),AssemblageValues];
+                Labels = [Labels,'assemblage'];
+            end
+            
+            app.GeneratedDataCellFormat = CellData;
+            app.GeneratedLabelCellFormat = Labels;
+            
+            close(app.WaitBar)
+            
+        end
+        
+        
+        
         function GenerateCellFromSelectedDataIncludingSubmasks(app)
             
             MaskFile = app.XMapToolsApp.XMapToolsData.MapData.MaskFile;
@@ -147,13 +287,13 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).ElNames;
             end
             
-            if isequal(app.Mode_Results_Button.Value,1) 
+            if isequal(app.Mode_Results_Button.Value,1)
                 Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Re;
                 ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).Labels;
             end
             
             PhaseList = MaskFile.Masks(app.MaskFileDropDown.Value).Names(2:end);
-
+            
             MaskMap = MaskFile.Masks(app.MaskFileDropDown.Value).MaskMap;
             
             PhaseList = {};
@@ -215,7 +355,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             end
             if app.NumberCheckBox.Value
                 NbOutput = NbOutput + app.NumberValue.Value;
-                PosNumber = [NbOutput-app.NumberValue.Value+1:NbOutput];        
+                PosNumber = [NbOutput-app.NumberValue.Value+1:NbOutput];
             end
             
             CellData = cell(NbOutput * length(PhaseList),length(ElemList) + 1);
@@ -246,7 +386,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 Idx = find(PhaseMap);
                 
                 count = 0;
-                for j = 1:length(ElemList) 
+                for j = 1:length(ElemList)
                     
                     PxData = Data_Sel.Data(app.SecondaryDropDown.Value).CData(j).Map(Idx);
                     
@@ -337,6 +477,14 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 Labels = [Labels,'temperature_degreeC'];
             end
             
+            if app.PrintAssemblageCheckBox.Value
+                Assemblage = sprintf('%s+',PhaseList{:});
+                AssemblageValues = cell(size(CellData,1),1);
+                [AssemblageValues{:}] = deal(Assemblage(1:end-1));
+                CellData = [CellData(:,1:end),AssemblageValues];
+                Labels = [Labels,'assemblage'];
+            end
+            
             if isequal(app.ExcludezerosCheckBox.Value,1)
                 TotalPixelsExcluded = sum(NumberPixelsExcluded,2);
                 TotalPixels = sum(NumberPixels,2);
@@ -424,7 +572,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             % This is the XMapTools version (not working for some LAICPMS
             % data?)
             [N,EDGES] = histcounts(PxData);
-            if length(EDGES) < 300 
+            if length(EDGES) < 300
                 [N,EDGES] = histcounts(PxData,300);
             end
             [Val,PosMax] = max(N);
@@ -433,7 +581,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             
             
             return
-            % Version with kde, slow and unstable. 
+            % Version with kde, slow and unstable.
             
             [bandwidth,density,xmesh,cdf] = kde(PxData);
             % figure, plot(xmesh,density)
@@ -442,43 +590,43 @@ classdef Data_Export_exported < matlab.apps.AppBase
             ModeVal = xmesh(PosMaxX);
             
             return
-            % previous version with mode() below: 
+            % previous version with mode() below:
             
             ModeVal = mode(PxData);
             
             if abs((ModeVal - mean(PxData))/ModeVal) > 0.10  % 10% deviation to mean = problem in the mode determination?
-%                 
-%                 [X,edges] = histcounts(PxData);
-%                 [MaxX,PosMaxX] = max(X);
-%                 ModeVal = edges(PosMaxX);
-%                 
-%                 if length(edges) < 500 && length(PxData) > 10000
-%                     [X,edges] = histcounts(PxData,500);
-%                     [MaxX,PosMaxX] = max(X);
-%                     ModeVal = edges(PosMaxX);
-%                     disp('Mode: ** histogram method (500)')
-%                 
-%                 elseif length(edges) < 200 && length(PxData) > 1000
-%                     [X,edges] = histcounts(PxData,200);
-%                     [MaxX,PosMaxX] = max(X);
-%                     ModeVal = edges(PosMaxX);
-%                     disp('Mode: ** histogram method (200)')
-%                 else
-%                     [X,edges] = histcounts(PxData,80);
-%                     [MaxX,PosMaxX] = max(X);
-%                     ModeVal = edges(PosMaxX);
-%                     disp('Mode: ** histogram method (80)')
-%                 end
+                %
+                %                 [X,edges] = histcounts(PxData);
+                %                 [MaxX,PosMaxX] = max(X);
+                %                 ModeVal = edges(PosMaxX);
+                %
+                %                 if length(edges) < 500 && length(PxData) > 10000
+                %                     [X,edges] = histcounts(PxData,500);
+                %                     [MaxX,PosMaxX] = max(X);
+                %                     ModeVal = edges(PosMaxX);
+                %                     disp('Mode: ** histogram method (500)')
+                %
+                %                 elseif length(edges) < 200 && length(PxData) > 1000
+                %                     [X,edges] = histcounts(PxData,200);
+                %                     [MaxX,PosMaxX] = max(X);
+                %                     ModeVal = edges(PosMaxX);
+                %                     disp('Mode: ** histogram method (200)')
+                %                 else
+                %                     [X,edges] = histcounts(PxData,80);
+                %                     [MaxX,PosMaxX] = max(X);
+                %                     ModeVal = edges(PosMaxX);
+                %                     disp('Mode: ** histogram method (80)')
+                %                 end
                 
                 OriginalMode = ModeVal;
-
+                
                 [bandwidth,density,xmesh,cdf] = kde(PxData);
                 % figure, plot(xmesh,density)
                 
                 [MaxX,PosMaxX] = max(density);
                 ModeVal = xmesh(PosMaxX);
                 
-                if ModeVal < 0 
+                if ModeVal < 0
                     ModeVal = 0;
                 end
                 
@@ -520,6 +668,17 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.MaskFileDropDown.Items = app.XMapToolsApp.XMapToolsData.MapData.MaskFile.Names;
             app.MaskFileDropDown.ItemsData = [1:length(app.MaskFileDropDown.Items)];
             
+            if numel(app.XMapToolsApp.XMapToolsData.SpotData.Names) >= 1
+                app.DatasetDropDown.Items = app.XMapToolsApp.XMapToolsData.SpotData.Names;
+                app.DatasetDropDown.ItemsData = [1:numel(app.XMapToolsApp.XMapToolsData.SpotData.Names)];
+            else
+                app.DatasetDropDown.Items = {'No dataset available'};
+                app.DatasetDropDown.Enable = 'off';
+                app.SpotData_MedianCheckBox.Enable = 'off';
+            end
+            
+            %app.DatasetDropDown.Items = 
+            
             app.Mode_Merged_Button.Value = 1;
             update_export_source(app);
             
@@ -527,14 +686,18 @@ classdef Data_Export_exported < matlab.apps.AppBase
             
             CalculateBRC(app);
             
+            ExportMapDataCheckBoxValueChanged(app, 0);
+            
             app.DataExport.Visible = 'on';
+            
+            
             
         end
 
         % Close request function: DataExport
         function DataExportCloseRequest(app, event)
             
-            if ~isempty(app.WaitBar)
+            if isvalid(app.WaitBar)
                 Answer = uiconfirm(gcbf,'Do you want to close the Data Export Module?','Confirm','Options',{'Yes','Cancel (unfreeze)'},'DefaultOption',1,'CancelOption',2,'Icon','question');
                 if isequal(Answer,'Cancel (unfreeze)')
                     close(app.WaitBar)
@@ -551,7 +714,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
         % Value changed function: ExportFormatDropDown
         function ExportFormatDropDownValueChanged(app, event)
-            update_gui_method(app) 
+            update_gui_method(app)
         end
 
         % Value changed function: Mode_Merged_Button
@@ -575,7 +738,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 app.Mode_Merged_Button.Value = 1;
                 app.Mode_Results_Button.Value = 0;
             end
-            update_export_source(app) 
+            update_export_source(app)
         end
 
         % Value changed function: Mode_Results_Button
@@ -587,7 +750,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 app.Mode_Quanti_Button.Value = 1;
                 app.Mode_Merged_Button.Value = 0;
             end
-            update_export_source(app) 
+            update_export_source(app)
         end
 
         % Button pushed function: GenerateSaveButton
@@ -605,7 +768,12 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 return
             end
             
-            GenerateCellFromSelectedDataIncludingSubmasks(app);
+            if isequal(app.ExportMapDataCheckBox,1)
+                GenerateCellFromSelectedDataIncludingSubmasks(app);
+            else
+                GenerateCellFromSelectedSpotData(app);
+                
+            end
             
             T = cell2table(app.GeneratedDataCellFormat,'VariableNames',app.GeneratedLabelCellFormat);
             
@@ -625,7 +793,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     writetable(T,fullfile(Directory,[ProjectName,'.csv']));
                     
                     uialert(app.DataExport,'The file has been saved in the folder /Exported-MinComp','XMapTools','Icon','success');
-                
+                    
                 case 'Thermofit'
                     %fid = fopen(fullfile(Directory,[ProjectName,'.txt']),'w');
                     %fclose(fid);
@@ -690,6 +858,32 @@ classdef Data_Export_exported < matlab.apps.AppBase
         function IncludeSubMasksCheckBoxValueChanged(app, event)
             if isequal(app.IncludeSubMasksCheckBox.Value,0)
                 app.IncludebothMaskSubMasksCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: ExportMapDataCheckBox
+        function ExportMapDataCheckBoxValueChanged(app, event)
+            if isequal(app.ExportMapDataCheckBox.Value,1)
+                app.ExportMapDataPanel.Enable = 'on';
+                app.ExportSpotDataPanel.Enable = 'off';
+                app.ExportSpotDataCheckBox.Value = 0;
+            else
+                app.ExportMapDataPanel.Enable = 'off';
+                app.ExportSpotDataPanel.Enable = 'on';
+                app.ExportSpotDataCheckBox.Value = 1;
+            end
+        end
+
+        % Value changed function: ExportSpotDataCheckBox
+        function ExportSpotDataCheckBoxValueChanged(app, event)
+            if isequal(app.ExportSpotDataCheckBox.Value,1)
+                app.ExportMapDataPanel.Enable = 'off';
+                app.ExportSpotDataPanel.Enable = 'on';
+                app.ExportMapDataCheckBox.Value = 0;
+            else
+                app.ExportMapDataPanel.Enable = 'on';
+                app.ExportSpotDataPanel.Enable = 'off';
+                app.ExportMapDataCheckBox.Value = 1;
             end
         end
     end
@@ -760,72 +954,51 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create GridLayout3
             app.GridLayout3 = uigridlayout(app.GridLayout);
-            app.GridLayout3.ColumnWidth = {'1x'};
-            app.GridLayout3.RowHeight = {'1x'};
-            app.GridLayout3.Padding = [0 15 0 20];
+            app.GridLayout3.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout3.RowHeight = {'1x', '1x', '1x'};
+            app.GridLayout3.Padding = [0 0 0 0];
             app.GridLayout3.Layout.Row = [2 4];
             app.GridLayout3.Layout.Column = [2 10];
 
             % Create Image
             app.Image = uiimage(app.GridLayout3);
-            app.Image.Layout.Row = 1;
-            app.Image.Layout.Column = 1;
+            app.Image.Layout.Row = [1 2];
+            app.Image.Layout.Column = [1 6];
             app.Image.HorizontalAlignment = 'left';
             app.Image.ImageSource = 'logo_xmap_final.png';
 
-            % Create MaskFileOutputFormatPanel
-            app.MaskFileOutputFormatPanel = uipanel(app.GridLayout);
-            app.MaskFileOutputFormatPanel.TitlePosition = 'centertop';
-            app.MaskFileOutputFormatPanel.Title = 'Mask File & Output Format';
-            app.MaskFileOutputFormatPanel.Layout.Row = [5 6];
-            app.MaskFileOutputFormatPanel.Layout.Column = [2 21];
-            app.MaskFileOutputFormatPanel.FontWeight = 'bold';
-            app.MaskFileOutputFormatPanel.FontSize = 11;
+            % Create ExportMapDataCheckBox
+            app.ExportMapDataCheckBox = uicheckbox(app.GridLayout3);
+            app.ExportMapDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportMapDataCheckBoxValueChanged, true);
+            app.ExportMapDataCheckBox.Text = 'Export Map Data';
+            app.ExportMapDataCheckBox.FontSize = 13;
+            app.ExportMapDataCheckBox.FontWeight = 'bold';
+            app.ExportMapDataCheckBox.Layout.Row = 3;
+            app.ExportMapDataCheckBox.Layout.Column = [1 3];
+            app.ExportMapDataCheckBox.Value = true;
 
-            % Create GridLayout4
-            app.GridLayout4 = uigridlayout(app.MaskFileOutputFormatPanel);
-            app.GridLayout4.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout4.RowHeight = {'1x'};
-            app.GridLayout4.Padding = [5 5 5 5];
+            % Create ExportSpotDataCheckBox
+            app.ExportSpotDataCheckBox = uicheckbox(app.GridLayout3);
+            app.ExportSpotDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportSpotDataCheckBoxValueChanged, true);
+            app.ExportSpotDataCheckBox.Text = 'Export Spot Data';
+            app.ExportSpotDataCheckBox.FontSize = 13;
+            app.ExportSpotDataCheckBox.FontWeight = 'bold';
+            app.ExportSpotDataCheckBox.Layout.Row = 3;
+            app.ExportSpotDataCheckBox.Layout.Column = [4 6];
 
-            % Create MaskFileDropDown
-            app.MaskFileDropDown = uidropdown(app.GridLayout4);
-            app.MaskFileDropDown.ValueChangedFcn = createCallbackFcn(app, @MaskFileDropDownValueChanged, true);
-            app.MaskFileDropDown.Layout.Row = 1;
-            app.MaskFileDropDown.Layout.Column = [3 7];
-
-            % Create MaskFileDropDownLabel
-            app.MaskFileDropDownLabel = uilabel(app.GridLayout4);
-            app.MaskFileDropDownLabel.HorizontalAlignment = 'right';
-            app.MaskFileDropDownLabel.Layout.Row = 1;
-            app.MaskFileDropDownLabel.Layout.Column = [1 2];
-            app.MaskFileDropDownLabel.Text = 'Mask File';
-
-            % Create SecondaryDropDownLabel
-            app.SecondaryDropDownLabel = uilabel(app.GridLayout4);
-            app.SecondaryDropDownLabel.HorizontalAlignment = 'right';
-            app.SecondaryDropDownLabel.Layout.Row = 1;
-            app.SecondaryDropDownLabel.Layout.Column = [8 9];
-            app.SecondaryDropDownLabel.Text = 'Merged';
-
-            % Create SecondaryDropDown
-            app.SecondaryDropDown = uidropdown(app.GridLayout4);
-            app.SecondaryDropDown.Layout.Row = 1;
-            app.SecondaryDropDown.Layout.Column = [10 14];
-
-            % Create DataPanel
-            app.DataPanel = uipanel(app.GridLayout);
-            app.DataPanel.TitlePosition = 'centertop';
-            app.DataPanel.Title = 'Data';
-            app.DataPanel.Layout.Row = [7 13];
-            app.DataPanel.Layout.Column = [2 11];
-            app.DataPanel.FontWeight = 'bold';
-            app.DataPanel.FontSize = 11;
+            % Create ExportMapDataPanel
+            app.ExportMapDataPanel = uipanel(app.GridLayout);
+            app.ExportMapDataPanel.TitlePosition = 'centertop';
+            app.ExportMapDataPanel.Title = 'Export Map Data ';
+            app.ExportMapDataPanel.Layout.Row = [8 13];
+            app.ExportMapDataPanel.Layout.Column = [2 11];
+            app.ExportMapDataPanel.FontWeight = 'bold';
+            app.ExportMapDataPanel.FontSize = 11;
 
             % Create GridLayout5
-            app.GridLayout5 = uigridlayout(app.DataPanel);
+            app.GridLayout5 = uigridlayout(app.ExportMapDataPanel);
             app.GridLayout5.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout5.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout5.RowHeight = {'0.6x', '1x', '1x', '1x', '1x', '1x', '1x'};
             app.GridLayout5.ColumnSpacing = 5;
             app.GridLayout5.RowSpacing = 5;
             app.GridLayout5.Padding = [5 5 5 5];
@@ -852,14 +1025,16 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ModeCheckBox.Layout.Row = 2;
             app.ModeCheckBox.Layout.Column = [4 5];
 
-            % Create ExportedDataLabel
-            app.ExportedDataLabel = uilabel(app.GridLayout5);
-            app.ExportedDataLabel.Layout.Row = 1;
-            app.ExportedDataLabel.Layout.Column = [1 3];
-            app.ExportedDataLabel.Text = 'Exported Data:';
+            % Create ExportDataLabel_2
+            app.ExportDataLabel_2 = uilabel(app.GridLayout5);
+            app.ExportDataLabel_2.FontWeight = 'bold';
+            app.ExportDataLabel_2.Layout.Row = 1;
+            app.ExportDataLabel_2.Layout.Column = [1 3];
+            app.ExportDataLabel_2.Text = 'Export Data:';
 
             % Create UncertaintiesLabel
             app.UncertaintiesLabel = uilabel(app.GridLayout5);
+            app.UncertaintiesLabel.FontWeight = 'bold';
             app.UncertaintiesLabel.Layout.Row = 4;
             app.UncertaintiesLabel.Layout.Column = [7 10];
             app.UncertaintiesLabel.Text = 'Uncertainties:';
@@ -923,6 +1098,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create MasksSubmasksLabel
             app.MasksSubmasksLabel = uilabel(app.GridLayout5);
+            app.MasksSubmasksLabel.FontWeight = 'bold';
             app.MasksSubmasksLabel.Layout.Row = 1;
             app.MasksSubmasksLabel.Layout.Column = [7 10];
             app.MasksSubmasksLabel.Text = 'Masks & Submasks';
@@ -972,7 +1148,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.MetadataPanel = uipanel(app.GridLayout);
             app.MetadataPanel.TitlePosition = 'centertop';
             app.MetadataPanel.Title = 'Metadata';
-            app.MetadataPanel.Layout.Row = [7 13];
+            app.MetadataPanel.Layout.Row = [10 13];
             app.MetadataPanel.Layout.Column = [12 21];
             app.MetadataPanel.FontWeight = 'bold';
             app.MetadataPanel.FontSize = 11;
@@ -980,7 +1156,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             % Create GridLayout5_2
             app.GridLayout5_2 = uigridlayout(app.MetadataPanel);
             app.GridLayout5_2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout5_2.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout5_2.RowHeight = {'1x', '1x', '1x', '1x'};
             app.GridLayout5_2.ColumnSpacing = 5;
             app.GridLayout5_2.RowSpacing = 5;
             app.GridLayout5_2.Padding = [5 5 5 5];
@@ -1031,8 +1207,8 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.PrintAssemblageCheckBox = uicheckbox(app.GridLayout5_2);
             app.PrintAssemblageCheckBox.Text = 'Print Assemblage';
             app.PrintAssemblageCheckBox.FontSize = 11;
-            app.PrintAssemblageCheckBox.Layout.Row = 5;
-            app.PrintAssemblageCheckBox.Layout.Column = [3 7];
+            app.PrintAssemblageCheckBox.Layout.Row = 4;
+            app.PrintAssemblageCheckBox.Layout.Column = [5 9];
 
             % Create Include_SampleCheckBox
             app.Include_SampleCheckBox = uicheckbox(app.GridLayout5_2);
@@ -1076,6 +1252,131 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ExportFormatDropDownLabel.Layout.Row = 15;
             app.ExportFormatDropDownLabel.Layout.Column = [3 5];
             app.ExportFormatDropDownLabel.Text = 'Export Format';
+
+            % Create ExportSpotDataPanel
+            app.ExportSpotDataPanel = uipanel(app.GridLayout);
+            app.ExportSpotDataPanel.TitlePosition = 'centertop';
+            app.ExportSpotDataPanel.Title = 'Export Spot Data';
+            app.ExportSpotDataPanel.Layout.Row = [5 9];
+            app.ExportSpotDataPanel.Layout.Column = [12 21];
+            app.ExportSpotDataPanel.FontWeight = 'bold';
+            app.ExportSpotDataPanel.FontSize = 11;
+
+            % Create GridLayout5_3
+            app.GridLayout5_3 = uigridlayout(app.ExportSpotDataPanel);
+            app.GridLayout5_3.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout5_3.RowHeight = {'0.6x', '1x', '0.3x', '0.3x', '0.6x', '1x', '1x'};
+            app.GridLayout5_3.ColumnSpacing = 5;
+            app.GridLayout5_3.RowSpacing = 5;
+            app.GridLayout5_3.Padding = [5 5 5 5];
+
+            % Create SourceDatasetLabel
+            app.SourceDatasetLabel = uilabel(app.GridLayout5_3);
+            app.SourceDatasetLabel.FontWeight = 'bold';
+            app.SourceDatasetLabel.Layout.Row = 1;
+            app.SourceDatasetLabel.Layout.Column = [1 3];
+            app.SourceDatasetLabel.Text = 'Source Dataset:';
+
+            % Create DatasetDropDown
+            app.DatasetDropDown = uidropdown(app.GridLayout5_3);
+            app.DatasetDropDown.Items = {'None'};
+            app.DatasetDropDown.Layout.Row = 2;
+            app.DatasetDropDown.Layout.Column = [3 8];
+            app.DatasetDropDown.Value = 'None';
+
+            % Create DatasetDropDownLabel
+            app.DatasetDropDownLabel = uilabel(app.GridLayout5_3);
+            app.DatasetDropDownLabel.HorizontalAlignment = 'right';
+            app.DatasetDropDownLabel.Layout.Row = 2;
+            app.DatasetDropDownLabel.Layout.Column = [1 2];
+            app.DatasetDropDownLabel.Text = 'Dataset';
+
+            % Create SpotData_MedianCheckBox
+            app.SpotData_MedianCheckBox = uicheckbox(app.GridLayout5_3);
+            app.SpotData_MedianCheckBox.Text = 'Median';
+            app.SpotData_MedianCheckBox.FontSize = 11;
+            app.SpotData_MedianCheckBox.Layout.Row = 6;
+            app.SpotData_MedianCheckBox.Layout.Column = [2 3];
+            app.SpotData_MedianCheckBox.Value = true;
+
+            % Create ExportDataLabel
+            app.ExportDataLabel = uilabel(app.GridLayout5_3);
+            app.ExportDataLabel.FontWeight = 'bold';
+            app.ExportDataLabel.Layout.Row = 5;
+            app.ExportDataLabel.Layout.Column = [1 3];
+            app.ExportDataLabel.Text = 'Export Data:';
+
+            % Create SpotData_ExportAllDatasetsCheckBox
+            app.SpotData_ExportAllDatasetsCheckBox = uicheckbox(app.GridLayout5_3);
+            app.SpotData_ExportAllDatasetsCheckBox.Text = 'Export All';
+            app.SpotData_ExportAllDatasetsCheckBox.FontSize = 11;
+            app.SpotData_ExportAllDatasetsCheckBox.Layout.Row = 2;
+            app.SpotData_ExportAllDatasetsCheckBox.Layout.Column = [9 11];
+            app.SpotData_ExportAllDatasetsCheckBox.Value = true;
+
+            % Create SpotData_MADCheckBox
+            app.SpotData_MADCheckBox = uicheckbox(app.GridLayout5_3);
+            app.SpotData_MADCheckBox.Text = 'MAD';
+            app.SpotData_MADCheckBox.FontSize = 11;
+            app.SpotData_MADCheckBox.Layout.Row = 6;
+            app.SpotData_MADCheckBox.Layout.Column = [6 7];
+            app.SpotData_MADCheckBox.Value = true;
+
+            % Create UncertaintiesLabel_2
+            app.UncertaintiesLabel_2 = uilabel(app.GridLayout5_3);
+            app.UncertaintiesLabel_2.FontWeight = 'bold';
+            app.UncertaintiesLabel_2.Layout.Row = 5;
+            app.UncertaintiesLabel_2.Layout.Column = [5 7];
+            app.UncertaintiesLabel_2.Text = 'Uncertainties:';
+
+            % Create ExportOptionsPanel
+            app.ExportOptionsPanel = uipanel(app.GridLayout);
+            app.ExportOptionsPanel.TitlePosition = 'centertop';
+            app.ExportOptionsPanel.Title = 'Export Options';
+            app.ExportOptionsPanel.Layout.Row = [5 7];
+            app.ExportOptionsPanel.Layout.Column = [2 11];
+            app.ExportOptionsPanel.FontWeight = 'bold';
+            app.ExportOptionsPanel.FontSize = 11;
+
+            % Create GridLayout5_4
+            app.GridLayout5_4 = uigridlayout(app.ExportOptionsPanel);
+            app.GridLayout5_4.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout5_4.RowHeight = {'0.6x', '1x', '0.3x', '0.8x'};
+            app.GridLayout5_4.ColumnSpacing = 5;
+            app.GridLayout5_4.RowSpacing = 5;
+            app.GridLayout5_4.Padding = [5 5 5 5];
+
+            % Create SelectionofmaskfileandmergedmapsLabel
+            app.SelectionofmaskfileandmergedmapsLabel = uilabel(app.GridLayout5_4);
+            app.SelectionofmaskfileandmergedmapsLabel.FontWeight = 'bold';
+            app.SelectionofmaskfileandmergedmapsLabel.Layout.Row = 1;
+            app.SelectionofmaskfileandmergedmapsLabel.Layout.Column = [1 11];
+            app.SelectionofmaskfileandmergedmapsLabel.Text = 'Selection of maskfile and merged maps:';
+
+            % Create MaskFileDropDownLabel
+            app.MaskFileDropDownLabel = uilabel(app.GridLayout5_4);
+            app.MaskFileDropDownLabel.HorizontalAlignment = 'right';
+            app.MaskFileDropDownLabel.Layout.Row = 2;
+            app.MaskFileDropDownLabel.Layout.Column = [1 2];
+            app.MaskFileDropDownLabel.Text = 'Mask File';
+
+            % Create MaskFileDropDown
+            app.MaskFileDropDown = uidropdown(app.GridLayout5_4);
+            app.MaskFileDropDown.ValueChangedFcn = createCallbackFcn(app, @MaskFileDropDownValueChanged, true);
+            app.MaskFileDropDown.Layout.Row = 2;
+            app.MaskFileDropDown.Layout.Column = [3 6];
+
+            % Create SecondaryDropDown
+            app.SecondaryDropDown = uidropdown(app.GridLayout5_4);
+            app.SecondaryDropDown.Layout.Row = 2;
+            app.SecondaryDropDown.Layout.Column = [9 11];
+
+            % Create SecondaryDropDownLabel
+            app.SecondaryDropDownLabel = uilabel(app.GridLayout5_4);
+            app.SecondaryDropDownLabel.HorizontalAlignment = 'right';
+            app.SecondaryDropDownLabel.Layout.Row = 2;
+            app.SecondaryDropDownLabel.Layout.Column = [7 8];
+            app.SecondaryDropDownLabel.Text = 'Merged';
 
             % Show the figure after all components are created
             app.DataExport.Visible = 'on';

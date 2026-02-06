@@ -16,6 +16,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Add a sampling function that allows data to be extracted using the median value of an ROI defined around each spot. Data for each pixel can be displayed, and outliers can be manually removed.
   - Add a data management module that can load external data from a file and display it in a table.
   - Add a plot module to display the imported spot data on the displayed map using various colour and spot size options. 
+  - Add export functionalities for spot data to the Export module. Data can be exported to a CSV file in the MinPlot format for one or all spot datasets. 
 
 - General:
   - Add an image converter module (in Add-ons) to convert images into numerical values stored in text files that can be imported into XMapTools. The converter module has additional tools to set the minimum and maximum value and to crop the image.
