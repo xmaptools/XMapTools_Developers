@@ -37,7 +37,7 @@ NbMatches = length(find(ismember(PhasesTher,PhasesXMap)));
 
 
 % -------------------------------------------------------------------------
-% Qasm - Eqation (1) in Duesterhoeft & Lanari (2020)
+% Qasm - Equation (1) in Duesterhoeft & Lanari (2020)
 
 Result =  NbMatches/NbPhasesInvolved*100; 
 
