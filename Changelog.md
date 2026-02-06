@@ -7,7 +7,7 @@ This release is highly recommended for all users as it includes new features, pe
 - Major compiler update and compatibility notes:
   - MacOS compatibility: XMapTools 4.5 runs natively on Apple Silicon Macs using MATLAB Runtime 25.1, resulting in a significant performance gain. However, the version of XMapTools 4.5 compatible with the M-Series chip is limited to MacOS Ventura (13), Sonoma (14), Sequoia (15) and newer. The previous MATLAB runtime version v912 can be removed after installing this version.
   - Windows compatibility: XMapTools 4.5 is only compatible with Windows 10 and Windows 11. The previous MATLAB runtime version v912 can be removed after installing this version.
-  - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command "curl -fsSL https://xmaptools.ch/install.sh | bash". In the future, XMapTools updates on MacOS will be distributed using the terminal command "curl -fsSL https://xmaptools.ch/update.sh | bash".
+  - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command "curl -fsSL https://xmaptools.ch/install.sh | bash". In the future, XMapTools updates on MacOS will be distributed using the terminal command "curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update".
   - Windows installation and Update: ...
 
 - New feature with Spot Data  
