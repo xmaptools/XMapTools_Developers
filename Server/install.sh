@@ -260,7 +260,8 @@ case "$MODE" in
         sudo xattr -cr "$TARGET_APP_PATH" || true
 
         echo "  Setting write permissions on user configuration files ..."
-        sudo chmod 666 "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
+        sudo chown "$(logname)" "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
+        sudo chmod 644 "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
         echo ""
 
         cleanup
