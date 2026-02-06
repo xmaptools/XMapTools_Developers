@@ -227,7 +227,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 end
             end
             
-            Labels = ['mineral',ElemList];
+            Labels = [{'mineral'},ElemList];
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
                     Labels{end+1} = ['MAD_',ElemList{i}];
@@ -239,21 +239,21 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 SampleNames = cell(size(CellData,1),1);
                 [SampleNames{:}] = deal(app.SampleNameEditField.Value);
                 CellData = [SampleNames,CellData(:,1:end)];
-                Labels = ['sample',Labels];
+                Labels = [{'sample'},Labels];
             end
             
             if app.Include_PressureCheckBox.Value
                 PressureValues = cell(size(CellData,1),1);
                 [PressureValues{:}] = deal(app.PressureGPaEditField.Value);
                 CellData = [CellData(:,1:end),PressureValues];
-                Labels = [Labels,'pressure_gpa'];
+                Labels = [Labels,{'pressure_gpa'}];
             end
             
             if app.Include_TemperatureCheckBox.Value
                 TemperatureValues = cell(size(CellData,1),1);
                 [TemperatureValues{:}] = deal(app.TemperatureCEditField.Value);
                 CellData = [CellData(:,1:end),TemperatureValues];
-                Labels = [Labels,'temperature_degreeC'];
+                Labels = [Labels,{'temperature_degreeC'}];
             end
             
             if app.PrintAssemblageCheckBox.Value
@@ -261,7 +261,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 AssemblageValues = cell(size(CellData,1),1);
                 [AssemblageValues{:}] = deal(Assemblage(1:end-1));
                 CellData = [CellData(:,1:end),AssemblageValues];
-                Labels = [Labels,'assemblage'];
+                Labels = [Labels,{'assemblage'}];
             end
             
             app.GeneratedDataCellFormat = CellData;
@@ -400,7 +400,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     if app.ModeCheckBox.Value
                         if isequal(j,1)
                             CellData{NbOutput*(i-1)+PosModes+count,1} = PhaseList{i};
-                            CellData{NbOutput*(i-1)+PosModes,2} = 'mode(px)';
+                            CellData{NbOutput*(i-1)+PosModes,2} = {'mode(px)'};
                         end
                         ModeVal = calc_mode(app,PxData);
                         CellData{NbOutput*(i-1)+PosModes,j+2} = ModeVal;
@@ -414,7 +414,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     if app.MedianCheckBox.Value
                         if isequal(j,1)
                             CellData{NbOutput*(i-1)+Posmedian,1} = PhaseList{i};
-                            CellData{NbOutput*(i-1)+Posmedian,2} = 'median(px)';
+                            CellData{NbOutput*(i-1)+Posmedian,2} = {'median(px)'};
                         end
                         CellData{NbOutput*(i-1)+Posmedian,j+2} = median(PxData);
                         
@@ -427,7 +427,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     if app.MeanCheckBox.Value
                         if isequal(j,1)
                             CellData{NbOutput*(i-1)+Posmean,1} = PhaseList{i};
-                            CellData{NbOutput*(i-1)+Posmean,2} = 'mean(px)';
+                            CellData{NbOutput*(i-1)+Posmean,2} = {'mean(px)'};
                         end
                         CellData{NbOutput*(i-1)+Posmean,j+2} = mean(PxData);
                         
@@ -441,7 +441,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                         if isequal(j,1)
                             for n = 1:length(PosNumber)
                                 CellData{NbOutput*(i-1)+PosNumber(n),1} = PhaseList{i};
-                                CellData{NbOutput*(i-1)+PosNumber(n),2} = 'randsel(px)';
+                                CellData{NbOutput*(i-1)+PosNumber(n),2} = {'randsel(px)'};
                             end
                             SelectedPx = randi(length(PxData),1,length(PosNumber));
                         end
@@ -453,28 +453,28 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 end
             end
             
-            Labels = ['mineral','analysis_type',ElemList];
+            Labels = [{'mineral'},{'analysis_type'},ElemList];
             
             % Add columns for other selections
             if app.Include_SampleCheckBox.Value
                 SampleNames = cell(size(CellData,1),1);
                 [SampleNames{:}] = deal(app.SampleNameEditField.Value);
                 CellData = [SampleNames,CellData(:,1:end)];
-                Labels = ['sample',Labels];
+                Labels = [{'sample'},Labels];
             end
             
             if app.Include_PressureCheckBox.Value
                 PressureValues = cell(size(CellData,1),1);
                 [PressureValues{:}] = deal(app.PressureGPaEditField.Value);
                 CellData = [CellData(:,1:end),PressureValues];
-                Labels = [Labels,'pressure_gpa'];
+                Labels = [Labels,{'pressure_gpa'}];
             end
             
             if app.Include_TemperatureCheckBox.Value
                 TemperatureValues = cell(size(CellData,1),1);
                 [TemperatureValues{:}] = deal(app.TemperatureCEditField.Value);
                 CellData = [CellData(:,1:end),TemperatureValues];
-                Labels = [Labels,'temperature_degreeC'];
+                Labels = [Labels,{'temperature_degreeC'}];
             end
             
             if app.PrintAssemblageCheckBox.Value
@@ -482,7 +482,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 AssemblageValues = cell(size(CellData,1),1);
                 [AssemblageValues{:}] = deal(Assemblage(1:end-1));
                 CellData = [CellData(:,1:end),AssemblageValues];
-                Labels = [Labels,'assemblage'];
+                Labels = [Labels,{'assemblage'}];
             end
             
             if isequal(app.ExcludezerosCheckBox.Value,1)
@@ -495,7 +495,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     end
                 end
                 CellData = [CellData(:,1:end),num2cell(FractionExcluded)];
-                Labels = [Labels,'fraction_nul_px_percent'];
+                Labels = [Labels,{'fraction_nul_px_percent'}];
             end
             
             app.GeneratedDataCellFormat = CellData;
@@ -768,11 +768,10 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 return
             end
             
-            if isequal(app.ExportMapDataCheckBox,1)
+            if isequal(app.ExportMapDataCheckBox.Value,1)
                 GenerateCellFromSelectedDataIncludingSubmasks(app);
             else
                 GenerateCellFromSelectedSpotData(app);
-                
             end
             
             T = cell2table(app.GeneratedDataCellFormat,'VariableNames',app.GeneratedLabelCellFormat);
@@ -886,6 +885,11 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 app.ExportMapDataCheckBox.Value = 1;
             end
         end
+
+        % Value changed function: SpotData_MedianCheckBox
+        function SpotData_MedianCheckBoxValueChanged(app, event)
+            app.SpotData_MedianCheckBox.Value = 1; % Force the option as there is no alternative option so far. 
+        end
     end
 
     % Component initialization
@@ -971,7 +975,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ExportMapDataCheckBox = uicheckbox(app.GridLayout3);
             app.ExportMapDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportMapDataCheckBoxValueChanged, true);
             app.ExportMapDataCheckBox.Text = 'Export Map Data';
-            app.ExportMapDataCheckBox.FontSize = 13;
+            app.ExportMapDataCheckBox.FontSize = 14;
             app.ExportMapDataCheckBox.FontWeight = 'bold';
             app.ExportMapDataCheckBox.Layout.Row = 3;
             app.ExportMapDataCheckBox.Layout.Column = [1 3];
@@ -981,7 +985,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ExportSpotDataCheckBox = uicheckbox(app.GridLayout3);
             app.ExportSpotDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportSpotDataCheckBoxValueChanged, true);
             app.ExportSpotDataCheckBox.Text = 'Export Spot Data';
-            app.ExportSpotDataCheckBox.FontSize = 13;
+            app.ExportSpotDataCheckBox.FontSize = 14;
             app.ExportSpotDataCheckBox.FontWeight = 'bold';
             app.ExportSpotDataCheckBox.Layout.Row = 3;
             app.ExportSpotDataCheckBox.Layout.Column = [4 6];
@@ -1293,6 +1297,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create SpotData_MedianCheckBox
             app.SpotData_MedianCheckBox = uicheckbox(app.GridLayout5_3);
+            app.SpotData_MedianCheckBox.ValueChangedFcn = createCallbackFcn(app, @SpotData_MedianCheckBoxValueChanged, true);
             app.SpotData_MedianCheckBox.Text = 'Median';
             app.SpotData_MedianCheckBox.FontSize = 11;
             app.SpotData_MedianCheckBox.Layout.Row = 6;
