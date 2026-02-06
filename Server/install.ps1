@@ -1,9 +1,9 @@
-#
+ #
 # XMapTools – Windows bootstrap script (PowerShell)
 # Usage examples:
 #   iex "& { $(irm https://xmaptools.ch/install.ps1) } --install"
 #   iex "& { $(irm https://xmaptools.ch/install.ps1) } --update"
-#   iex "& { $(irm https://xmaptools.ch/install.ps1) } --info"
+#   iex "& { $(irm https://xmaptools.ch/install.ps1) } --info"& 
 # ----------------------------------------------------------------------------
 
 $ErrorActionPreference = "Stop"
@@ -32,7 +32,7 @@ function Write-Banner {
     Write-Host ""
     Write-Host "  -------------------------------------------------------------------"
     Write-Host "  | XMapTools Windows bootstrap script for installation and updates |"
-    Write-Host "  |            https://xmaptools.ch - P. Lanari, 2025-2026         |"
+    Write-Host "  |            https://xmaptools.ch - P. Lanari, 2025-2026          |"
     Write-Host "  |                    last update: $DateUpdated                      |"
     Write-Host "  -------------------------------------------------------------------"
     Write-Host ""
