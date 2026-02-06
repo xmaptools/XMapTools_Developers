@@ -3,7 +3,7 @@
 # Usage examples:
 #   iex "& { $(irm https://xmaptools.ch/install.ps1) } --install"
 #   iex "& { $(irm https://xmaptools.ch/install.ps1) } --update"
-#   iex "& { $(irm https://xmaptools.ch/install.ps1) } --info"& 
+#   iex "& { $(irm https://xmaptools.ch/install.ps1) } --info" 
 # ----------------------------------------------------------------------------
 
 $ErrorActionPreference = "Stop"
