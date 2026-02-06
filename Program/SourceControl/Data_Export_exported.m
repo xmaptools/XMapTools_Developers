@@ -220,14 +220,20 @@ classdef Data_Export_exported < matlab.apps.AppBase
                         PxData(k) = MapPxData(XYCoordinates(k,2),XYCoordinates(k,1));
                     end
                     
-                    CellData{i,j+1} = median(PxData);
+                    if app.SpotData_MedianCheckBox.Value
+                        CellData{i,j+1} = median(PxData);
+                    end
+                    
                     if app.SpotData_MADCheckBox.Value
                         CellData{i,NbColumns+j+1} = mad(PxData);
                     end
                 end
             end
             
-            Labels = [{'mineral'},ElemList];
+            Labels = {'mineral'};
+            if app.SpotData_MedianCheckBox.Value
+                Labels = [Labels, ElemList];
+            end
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
                     Labels{end+1} = ['MAD_',ElemList{i}];
