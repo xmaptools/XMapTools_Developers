@@ -985,8 +985,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 Yi_all(end+1:end+length(yi)) = yi;
                 Ti_all(end+1:end+length(ti)) = ti;
                 
-                if floor(length(xi)/NbPixels(i)) > 0
-                    NbSwipePerPixel(i) = floor(length(xi)/NbPixels(i));
+                if NbPixels(i) > 0
+                    if floor(length(xi)/NbPixels(i)) > 0
+                        NbSwipePerPixel(i) = floor(length(xi)/NbPixels(i));
+                    end
                 end
                 
                 % The old Wengen method has been deleted in this function (4.4)
