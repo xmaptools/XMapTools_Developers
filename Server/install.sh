@@ -57,7 +57,9 @@ print_info() {
     for i in "${!VERSIONS[@]}"; do
         echo "    ${VERSIONS[$i]}"
         echo "      Installer: ${INSTALL_URLS[$i]}"
+        print_remote_timestamp "${INSTALL_URLS[$i]}"
         echo "      Update:    ${UPDATE_URLS[$i]}"
+        print_remote_timestamp "${UPDATE_URLS[$i]}"
         echo ""
     done
 
@@ -127,6 +129,17 @@ check_mcr() {
     echo ""
 }
 
+print_remote_timestamp() {
+    local url="$1"
+    local ts
+    ts=$(curl -sI "$url" | grep -i '^Last-Modified:' | sed 's/^[Ll]ast-[Mm]odified: *//')
+    if [ -n "$ts" ]; then
+        echo "      Version: $ts"
+    else
+        echo "  [WARNING] Could not retrieve remote file timestamp."
+    fi
+}
+
 detect_arch_index() {
     local arch
     arch=$(uname -m)
@@ -184,6 +197,8 @@ case "$MODE" in
             sudo rm -rf "$INSTALL_DIR"
         fi
 
+        print_remote_timestamp "$ZIP_URL"
+        echo ""
         echo "  Downloading installer ..."
         echo "    $ZIP_URL"
         sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
@@ -236,6 +251,8 @@ case "$MODE" in
         sudo rm -rf "$TMP_DIR"
         sudo mkdir -p "$TMP_DIR"
 
+        print_remote_timestamp "$ZIP_URL"
+        echo ""
         echo "  Downloading latest version ..."
         echo "    $ZIP_URL"
         sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
