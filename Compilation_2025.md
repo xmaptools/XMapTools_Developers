@@ -19,7 +19,7 @@ __Last update 07.02.2026 (Pierre Lanari)__
 - In the the main MATLAB window and the Project tab, click on "Compiler Task Manager" and select the task by clicking in XMapTools Standalone Application. 
 - Add the following folders manually from the project browser using right-click 'Add Folder to Project (Including Contents)' and adding a label to the files using: Add Label > Additional File: 
   - Program/Addons/BingoAntidote/Databases/ [note: add Additional File label to database files]
-  - Program/Addons/BingoAntidote/Dev/
+  - Program/Addons/BingoAntidote/Dev/ [note: add Additional File label to XTT_Def_Oxide_Name]
   - Program/Core/
   - Program/Dev/Data_Std_LAICPMS/ [note: add Additional File label to standard files]
   - Program/Dev/help [note: add Additional File label to the help files]
