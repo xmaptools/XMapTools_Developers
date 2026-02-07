@@ -228,7 +228,10 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 end
             end
             
-            Labels = [{'mineral'},ElemList];
+            Labels = {'mineral'};
+            if app.SpotData_MedianCheckBox.Value
+                Labels = [Labels, ElemList];
+            end
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
                     Labels{end+1} = ['MAD_',ElemList{i}];
