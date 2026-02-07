@@ -1,4 +1,0 @@
-End of opening function
-Elapsed time is 15.671920 seconds.
-config file saved!
-XMapTools is closing – diary off

@@ -558,6 +558,12 @@ Functions.Min(Min).SF.FileName{Fct} = 'StructFctOlivine';
 % Thermobarometry
 Functions.Min(Min).TB = [];
 
+Fct = length(Functions.Min(Min).TB)+1;
+Functions.Min(Min).TB.Name{Fct} = 'T.Ol (all calibrations)';
+Functions.Min(Min).TB.FileName{Fct} = 'Olivine_T_All';
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar'};
+Functions.Min(Min).TB.Details(Fct).Def = [20];
+
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
 Functions.Min(Min).ME = []; 
