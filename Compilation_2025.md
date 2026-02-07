@@ -21,7 +21,6 @@ __Last update 07.02.2026 (Pierre Lanari)__
   - Program/Addons/BingoAntidote/Databases/
   - Program/Addons/BingoAntidote/Dev/
   - Program/Core/
-  - Program/Dev/
   - Program/Dev/Data_Std_LAICPMS/
   - Program/Dev/help
   - Program/Dev/help/img
