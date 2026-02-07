@@ -52,6 +52,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Correct an error in the LOD calculation equation with very minor effect on the LOD value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation for the PRIP module. This error only affected the LOD calculated for ROIs, not the LOD for maps or the LOD filter. The LOD was underestimated by about 10–30% depending on the number of pixels in the ROI. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
+  - Correct an error in the LA-ICP-MS Converter module that prevented the secondary standard data from being plotted.
   - Correct an error in the log generator module that was preventing the 'Apply to All' option from being used.  
   - Correct an error that prevented LA-ICP-MS projects generated with XMapTools 4.1 from being opened.
   - Correct an error that occurs during startup if the directory is not selected correctly, or if the Cancel button is pressed.

@@ -2583,6 +2583,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             SelFormat = app.ExchangeFormator;
             
         end
+        
     end
     
 
@@ -4002,7 +4003,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             switch Selection
                 case 'Yes'
-                    app.PrimaryStd_CorrectionList.Value = 1;
+                    app.PrimaryStd_CorrectionList.Value = 3;
                     PrimaryStd_CorrectionListValueChanged(app,0);
                     
                     app.iPrStd = app.iPrStd + 1;
@@ -4678,10 +4679,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             ylabel('Composition in µg/g [range ± 4std only!]')
             
             nexttile
-            yy = smooth(Data,'loess');
-            yy2 = smooth(yy);
-            yy3 = smooth(yy2);
-            yy4 = smooth(yy3);
+            yy = smoothdata(Data);
+            yy2 = smoothdata(yy);
+            yy3 = smoothdata(yy2);
+            yy4 = smoothdata(yy3);
             
             plot(yy,'b'), hold on
             plot(yy4,'r','linewidth',2)
