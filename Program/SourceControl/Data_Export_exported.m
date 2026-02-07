@@ -231,7 +231,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             Labels = [{'mineral'},ElemList];
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
-                    Labels{end+1} = ['MAD_',ElemList{i}];
+                    Labels{end+1} = [{'MAD_'},ElemList{i}];
                 end
             end
             
