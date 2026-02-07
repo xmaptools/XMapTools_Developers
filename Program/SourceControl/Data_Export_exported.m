@@ -231,7 +231,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             Labels = [{'mineral'},ElemList];
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
-                    Labels{end+1} = [{'MAD_'},ElemList{i}];
+                    Labels{end+1} = ['MAD_',ElemList{i}];
                 end
             end
             
@@ -698,11 +698,13 @@ classdef Data_Export_exported < matlab.apps.AppBase
         % Close request function: DataExport
         function DataExportCloseRequest(app, event)
             
-            if isvalid(app.WaitBar)
-                Answer = uiconfirm(gcbf,'Do you want to close the Data Export Module?','Confirm','Options',{'Yes','Cancel (unfreeze)'},'DefaultOption',1,'CancelOption',2,'Icon','question');
-                if isequal(Answer,'Cancel (unfreeze)')
-                    close(app.WaitBar)
-                    return
+            if ~isempty(app.WaitBar)
+                if isvalid(app.WaitBar)
+                    Answer = uiconfirm(gcbf,'Do you want to close the Data Export Module?','Confirm','Options',{'Yes','Cancel (unfreeze)'},'DefaultOption',1,'CancelOption',2,'Icon','question');
+                    if isequal(Answer,'Cancel (unfreeze)')
+                        close(app.WaitBar)
+                        return
+                    end
                 end
             end
             delete(app)
