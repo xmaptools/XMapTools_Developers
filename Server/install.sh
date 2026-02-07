@@ -140,6 +140,48 @@ print_remote_timestamp() {
     fi
 }
 
+setup_terminal_command() {
+    local wrapper="/usr/local/bin/xmaptools"
+    local app_path="$UPDATE_TARGET_DIR/XMapTools.app"
+
+    echo "  Setting up terminal command ..."
+
+    if [ ! -d "$app_path" ]; then
+        echo "    [WARNING] XMapTools.app not found at $app_path; skipping terminal setup."
+        return
+    fi
+
+    sudo mkdir -p /usr/local/bin
+
+    sudo tee "$wrapper" > /dev/null <<EOF
+#!/usr/bin/env bash
+# Launch XMapTools from the terminal
+open "$app_path" "\$@"
+EOF
+
+    sudo chmod +x "$wrapper"
+    echo "    Terminal command installed: $wrapper"
+    echo "    You can now launch XMapTools by typing 'xmaptools' in your terminal."
+
+    # Ensure /usr/local/bin is on the PATH for the current user's shell
+    local shell_rc=""
+    case "$(basename "$SHELL")" in
+        zsh)  shell_rc="$HOME/.zshrc" ;;
+        bash) shell_rc="$HOME/.bash_profile" ;;
+        *)    shell_rc="$HOME/.profile" ;;
+    esac
+
+    if [ -n "$shell_rc" ]; then
+        if ! grep -qF '/usr/local/bin' "$shell_rc" 2>/dev/null; then
+            echo '' >> "$shell_rc"
+            echo '# Added by XMapTools installer' >> "$shell_rc"
+            echo 'export PATH="/usr/local/bin:$PATH"' >> "$shell_rc"
+            echo "    Updated $shell_rc to include /usr/local/bin in PATH."
+        fi
+    fi
+    echo ""
+}
+
 detect_arch_index() {
     local arch
     arch=$(uname -m)
@@ -214,6 +256,8 @@ case "$MODE" in
         open "$APP_PATH"
         echo ""
 
+        setup_terminal_command
+
         check_mcr
 
         echo "  [OK] The XMapTools installer window should now be open."
@@ -282,6 +326,8 @@ case "$MODE" in
         echo ""
 
         cleanup
+
+        setup_terminal_command
 
         check_mcr
 
