@@ -219,11 +219,9 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     for k = 1:size(XYCoordinates,1)
                         PxData(k) = MapPxData(XYCoordinates(k,2),XYCoordinates(k,1));
                     end
-                    
                     if app.SpotData_MedianCheckBox.Value
                         CellData{i,j+1} = median(PxData);
                     end
-                    
                     if app.SpotData_MADCheckBox.Value
                         CellData{i,NbColumns+j+1} = mad(PxData);
                     end
