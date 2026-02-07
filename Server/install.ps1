@@ -93,7 +93,7 @@ function Get-RemoteTimestamp {
         $response = Invoke-WebRequest -Uri $Url -Method Head -UseBasicParsing
         $lastModified = $response.Headers["Last-Modified"]
         if ($lastModified) {
-            Write-Host "      Version: $lastModified"
+            Write-Host "      ** Version: $lastModified"
         } else {
             Write-Host "  [WARNING] Could not retrieve remote file timestamp."
         }
