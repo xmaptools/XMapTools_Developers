@@ -26,6 +26,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Add an external function for olivine thermobarometry including the calibrations SC13: Shejwalkar and Coogan (2013) and B17: Bussweiler et al (2017). 
   - Add the monticellite end-member to the olivine structural formula calculation.
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
+  - Hide the map navigation slider when an item is selected from the secondary menu. While this changes the behaviour of the interface, it prevents a lot of potential instability.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
