@@ -2,7 +2,7 @@
 
 __Last update 07.02.2026 (Pierre Lanari)__
 
-- Copy the XMapTools files into a compilation folder.
+- Copy the Program/ folder into a compilation folder.
 - Run RESET_CONFIG.
 - Run Install_XMapTools_MATLAB.
 - Run CleanDirectory to perform pre-compile cleanup tasks (compatibility not tested with this release).
