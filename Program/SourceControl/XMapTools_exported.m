@@ -334,8 +334,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -359,8 +359,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -3148,7 +3148,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %app.SliderMinHandle.ButtonDownFcn = @app.dragObject;
             %app.SliderMaxHandle.ButtonDownFcn = @app.dragObject;
             
-            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',GetROIColor(app)),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',3),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',3)];
+            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',GetROIColor(app)),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',4),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',4)];
             set(app.hVerticalLines, 'hittest', 'off'); % Nils: it took me a while to figure this one out they need to be untouchable otherwise we get no values from the button down function
             app.hLineToDrag = [];
             
@@ -9388,7 +9388,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         % Callback function
         function HistLimits_ValueChanged(app, event)
             PlotMap_AdjustMinMax(app);
-            
         end
 
         % Callback function
@@ -9422,8 +9421,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             if ~isempty(app.hLineToDrag) % here we check if any line is pressed the idea is to be able to add multiple checks for other plots or lines
                 %get the moue position from the UIaxis
                 currentPoint   = app.FigHistLive.CurrentPoint;
-                x            = currentPoint(2,1);
-                y            = currentPoint(2,2);
+                x              = currentPoint(2,1);
+                y              = currentPoint(2,2);
                 
                 %get the axis limits
                 xlim = app.FigHistLive.XLim;
@@ -19828,19 +19827,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20022,16 +20021,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -20041,6 +20030,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
