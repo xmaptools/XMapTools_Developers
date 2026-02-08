@@ -10,18 +10,16 @@
 set -euo pipefail
 
 # ---- Configuration ---------------------------------------------------------
-DATEUPDATED="06.02.2026"
-VERSIONS=("Intel" "Rosetta" "AppleSilicon")
+DATEUPDATED="08.02.2026"
+VERSIONS=("Intel" "AppleSilicon")
 
 INSTALL_URLS=(
     "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_Intel.zip"
-    "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_Rosetta.zip"
     "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_AppleSilicon.zip"
 )
 
 UPDATE_URLS=(
     "https://xmaptools.ch/releases/XMapTools_macOS_Intel.zip"
-    "https://xmaptools.ch/releases/XMapTools_macOS_Rosetta.zip"
     "https://xmaptools.ch/releases/XMapTools_macOS_AppleSilicon.zip"
 )
 
@@ -75,10 +73,7 @@ print_info() {
                     echo "    v99  (R2020b, Intel)"
                     found=1
                     ;;
-                v912)
-                    echo "    v912 (R2022a, Rosetta)"
-                    found=1
-                    ;;
+
                 R2025a)
                     echo "    R2025a (Apple Silicon native)"
                     found=1
@@ -102,9 +97,9 @@ print_info() {
     echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- <arguments>"
     echo ""
     echo "    Arguments:"
-    echo "      --install [Intel|Rosetta|AppleSilicon]   Full installation"
-    echo "      --update  [Intel|Rosetta|AppleSilicon]   Update the app bundle only"
-    echo "      --info                                   Show this information"
+    echo "      --install [Intel|AppleSilicon]   Full installation"
+    echo "      --update  [Intel|AppleSilicon]   Update the app bundle only"
+    echo "      --info                           Show this information"
     echo ""
     echo "  Notes:"
     echo ""
@@ -186,11 +181,9 @@ detect_arch_index() {
     local arch
     arch=$(uname -m)
     if [[ "$arch" == "arm64" ]]; then
-        echo 2   # Apple Silicon
-    elif [[ "$arch" == "x86_64" ]]; then
-        echo 0   # Intel
+        echo 1   # Apple Silicon
     else
-        echo 1   # fallback Rosetta
+        echo 0   # Intel
     fi
 }
 
@@ -198,12 +191,11 @@ resolve_index() {
     local choice="${1:-auto}"
     case "$choice" in
         Intel) echo 0 ;;
-        Rosetta) echo 1 ;;
-        AppleSilicon) echo 2 ;;
+        AppleSilicon) echo 1 ;;
         auto) detect_arch_index ;;
         *)
             echo "[ERROR] Unknown version: $choice" >&2
-            echo "Valid options: Intel | Rosetta | AppleSilicon" >&2
+            echo "Valid options: Intel | AppleSilicon" >&2
             exit 1
             ;;
     esac

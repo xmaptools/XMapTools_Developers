@@ -9,7 +9,7 @@
 $ErrorActionPreference = "Stop"
 
 # ---- Configuration ---------------------------------------------------------
-$DateUpdated   = "06.02.2026"
+$DateUpdated   = "08.02.2026"
 
 $InstallUrl    = "https://xmaptools.ch/releases/XMapToolsInstaller_Windows.zip"
 $UpdateUrl     = "https://xmaptools.ch/releases/XMapTools_Windows.zip"
