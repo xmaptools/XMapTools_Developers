@@ -44,7 +44,7 @@ print_banner() {
     echo "  -------------------------------------------------------------------"
     echo "  | XMapTools macOS bootstrap script for installation and updates   |"
     echo "  |            https://xmaptools.ch - P. Lanari, 2025-2026          |"
-    echo "  |                    last update: $DATEUPDATED                      |"
+    echo "  |                Shell script version: $DATEUPDATED                 |"
     echo "  -------------------------------------------------------------------"
     echo ""
 }
@@ -134,7 +134,7 @@ print_remote_timestamp() {
     local ts
     ts=$(curl -sI "$url" | grep -i '^Last-Modified:' | sed 's/^[Ll]ast-[Mm]odified: *//')
     if [ -n "$ts" ]; then
-        echo "      Version: $ts"
+        echo "    ** XMapTools version: $ts"
     else
         echo "  [WARNING] Could not retrieve remote file timestamp."
     fi
@@ -161,7 +161,7 @@ EOF
 
     sudo chmod +x "$wrapper"
     echo "    Terminal command installed: $wrapper"
-    echo "    You can now launch XMapTools by typing 'xmaptools' in your terminal."
+    echo "    You can now launch XMapTools by typing 'XMapTools' or 'xmaptools' in your terminal."
 
     # Ensure /usr/local/bin is on the PATH for the current user's shell
     local shell_rc=""
@@ -228,6 +228,7 @@ case "$MODE" in
         clear
         print_banner
         echo "  Installing XMapTools (${VERSIONS[$IDX]}) ..."
+        print_remote_timestamp "$ZIP_URL"
         echo ""
 
         echo "  Preparing temporary workspace ..."
@@ -279,6 +280,7 @@ case "$MODE" in
         clear
         print_banner
         echo "  Updating XMapTools (${VERSIONS[$IDX]}) ..."
+        print_remote_timestamp "$ZIP_URL"
         echo ""
 
         echo "  Verifying existing installation ..."
@@ -295,10 +297,10 @@ case "$MODE" in
         sudo rm -rf "$TMP_DIR"
         sudo mkdir -p "$TMP_DIR"
 
-        print_remote_timestamp "$ZIP_URL"
         echo ""
         echo "  Downloading latest version ..."
         echo "    $ZIP_URL"
+        print_remote_timestamp "$ZIP_URL"
         sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
         echo ""
 

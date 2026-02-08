@@ -33,7 +33,7 @@ function Write-Banner {
     Write-Host "  -------------------------------------------------------------------"
     Write-Host "  | XMapTools Windows bootstrap script for installation and updates |"
     Write-Host "  |            https://xmaptools.ch - P. Lanari, 2025-2026          |"
-    Write-Host "  |                    last update: $DateUpdated                      |"
+    Write-Host "  |                Shell script version: $DateUpdated                 |"
     Write-Host "  -------------------------------------------------------------------"
     Write-Host ""
 }
@@ -93,7 +93,7 @@ function Get-RemoteTimestamp {
         $response = Invoke-WebRequest -Uri $Url -Method Head -UseBasicParsing
         $lastModified = $response.Headers["Last-Modified"]
         if ($lastModified) {
-            Write-Host "      ** Version: $lastModified"
+            Write-Host "    ** XMapTools version: $lastModified"
         } else {
             Write-Host "  [WARNING] Could not retrieve remote file timestamp."
         }
@@ -215,8 +215,10 @@ switch ($Mode) {
 
         Write-Host "  Replacing application files ..."
         Copy-Item -Path $SrcExe -Destination "$TargetDir\$ExeName" -Force
+        Write-Host "    $TargetDir\$ExeName"
         if (Test-Path $SrcSplash) {
             Copy-Item -Path $SrcSplash -Destination "$TargetDir\$SplashName" -Force
+            Write-Host "    $TargetDir\$SplashName"
         }
 
         Write-Host "  Cleaning up temporary files ..."
