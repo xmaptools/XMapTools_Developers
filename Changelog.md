@@ -10,7 +10,7 @@ This release is highly recommended for all users as it includes new features, pe
   - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command: curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install. In the future, XMapTools updates on MacOS will be distributed using the terminal command: curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update.
   - Windows Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command: iex "& { $(irm https://xmaptools.ch/install.ps1) } --install". In the future, XMapTools updates on Windows will be distributed using the terminal command: iex "& { $(irm https://xmaptools.ch/install.ps1) } --update". Please note that you will need to run PowerShell as an administrator in order to update XMapTools. 
 
-- New feature with Spot Data  
+- New feature: introducing Spot Data 
   - Add a new data type that can be used to interact extract information from the maps and spot data from X–Y positions.
   - Add tools to generate datasets and populate them with spots that have been entered manually or randomly onto the displayed data. 
   - Add a sampling function that allows data to be extracted using the median value of an ROI defined around each spot. Data for each pixel can be displayed, and outliers can be manually removed.
@@ -57,6 +57,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Correct an error in the log generator module that was preventing the 'Apply to All' option from being used.  
   - Correct an error that prevented LA-ICP-MS projects generated with XMapTools 4.1 from being opened.
   - Correct an error that occurs during startup if the directory is not selected correctly, or if the Cancel button is pressed.
+  - Other minor bug and fixes.
 
   
 
