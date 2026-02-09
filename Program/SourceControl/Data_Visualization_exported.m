@@ -96,12 +96,12 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
         XmaxLabel                   matlab.ui.control.Label
         HoldaxislimitsCheckBox      matlab.ui.control.CheckBox
         PlotBulkCheckBox            matlab.ui.control.CheckBox
-        FigPlot2                    matlab.ui.control.UIAxes
-        FigPlot3                    matlab.ui.control.UIAxes
-        FigPlot1                    matlab.ui.control.UIAxes
-        FigPlot6                    matlab.ui.control.UIAxes
-        FigPlot5                    matlab.ui.control.UIAxes
         FigPlot4                    matlab.ui.control.UIAxes
+        FigPlot5                    matlab.ui.control.UIAxes
+        FigPlot6                    matlab.ui.control.UIAxes
+        FigPlot1                    matlab.ui.control.UIAxes
+        FigPlot3                    matlab.ui.control.UIAxes
+        FigPlot2                    matlab.ui.control.UIAxes
     end
 
     
@@ -2096,7 +2096,7 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp, Names, Data, Selected, MaskFile)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -3664,47 +3664,16 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.PlotBulkCheckBox.Layout.Row = 12;
             app.PlotBulkCheckBox.Layout.Column = [3 4];
 
-            % Create FigPlot2
-            app.FigPlot2 = uiaxes(app.GridLayout);
-            title(app.FigPlot2, 'Title')
-            xlabel(app.FigPlot2, 'X')
-            ylabel(app.FigPlot2, 'Y')
-            zlabel(app.FigPlot2, 'Z')
-            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
-            app.FigPlot2.Layout.Row = [7 11];
-            app.FigPlot2.Layout.Column = [7 10];
-
-            % Create FigPlot3
-            app.FigPlot3 = uiaxes(app.GridLayout);
-            title(app.FigPlot3, 'Title')
-            xlabel(app.FigPlot3, 'X')
-            ylabel(app.FigPlot3, 'Y')
-            zlabel(app.FigPlot3, 'Z')
-            app.FigPlot3.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot3.FontSize = 9;
-            app.FigPlot3.Layout.Row = [1 3];
-            app.FigPlot3.Layout.Column = [7 8];
-
-            % Create FigPlot1
-            app.FigPlot1 = uiaxes(app.GridLayout);
-            title(app.FigPlot1, 'Title')
-            xlabel(app.FigPlot1, 'X')
-            ylabel(app.FigPlot1, 'Y')
-            zlabel(app.FigPlot1, 'Z')
-            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
-            app.FigPlot1.Layout.Row = [5 11];
-            app.FigPlot1.Layout.Column = [2 5];
-
-            % Create FigPlot6
-            app.FigPlot6 = uiaxes(app.GridLayout);
-            title(app.FigPlot6, 'Title')
-            xlabel(app.FigPlot6, 'X')
-            ylabel(app.FigPlot6, 'Y')
-            zlabel(app.FigPlot6, 'Z')
-            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot6.FontSize = 9;
-            app.FigPlot6.Layout.Row = [4 6];
-            app.FigPlot6.Layout.Column = [9 10];
+            % Create FigPlot4
+            app.FigPlot4 = uiaxes(app.GridLayout);
+            title(app.FigPlot4, 'Title')
+            xlabel(app.FigPlot4, 'X')
+            ylabel(app.FigPlot4, 'Y')
+            zlabel(app.FigPlot4, 'Z')
+            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot4.FontSize = 9;
+            app.FigPlot4.Layout.Row = [1 3];
+            app.FigPlot4.Layout.Column = [9 10];
 
             % Create FigPlot5
             app.FigPlot5 = uiaxes(app.GridLayout);
@@ -3717,16 +3686,47 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
             app.FigPlot5.Layout.Row = [4 6];
             app.FigPlot5.Layout.Column = [7 8];
 
-            % Create FigPlot4
-            app.FigPlot4 = uiaxes(app.GridLayout);
-            title(app.FigPlot4, 'Title')
-            xlabel(app.FigPlot4, 'X')
-            ylabel(app.FigPlot4, 'Y')
-            zlabel(app.FigPlot4, 'Z')
-            app.FigPlot4.PlotBoxAspectRatio = [1.67883211678832 1 1];
-            app.FigPlot4.FontSize = 9;
-            app.FigPlot4.Layout.Row = [1 3];
-            app.FigPlot4.Layout.Column = [9 10];
+            % Create FigPlot6
+            app.FigPlot6 = uiaxes(app.GridLayout);
+            title(app.FigPlot6, 'Title')
+            xlabel(app.FigPlot6, 'X')
+            ylabel(app.FigPlot6, 'Y')
+            zlabel(app.FigPlot6, 'Z')
+            app.FigPlot6.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot6.FontSize = 9;
+            app.FigPlot6.Layout.Row = [4 6];
+            app.FigPlot6.Layout.Column = [9 10];
+
+            % Create FigPlot1
+            app.FigPlot1 = uiaxes(app.GridLayout);
+            title(app.FigPlot1, 'Title')
+            xlabel(app.FigPlot1, 'X')
+            ylabel(app.FigPlot1, 'Y')
+            zlabel(app.FigPlot1, 'Z')
+            app.FigPlot1.PlotBoxAspectRatio = [1.28186274509804 1 1];
+            app.FigPlot1.Layout.Row = [5 11];
+            app.FigPlot1.Layout.Column = [2 5];
+
+            % Create FigPlot3
+            app.FigPlot3 = uiaxes(app.GridLayout);
+            title(app.FigPlot3, 'Title')
+            xlabel(app.FigPlot3, 'X')
+            ylabel(app.FigPlot3, 'Y')
+            zlabel(app.FigPlot3, 'Z')
+            app.FigPlot3.PlotBoxAspectRatio = [1.67883211678832 1 1];
+            app.FigPlot3.FontSize = 9;
+            app.FigPlot3.Layout.Row = [1 3];
+            app.FigPlot3.Layout.Column = [7 8];
+
+            % Create FigPlot2
+            app.FigPlot2 = uiaxes(app.GridLayout);
+            title(app.FigPlot2, 'Title')
+            xlabel(app.FigPlot2, 'X')
+            ylabel(app.FigPlot2, 'Y')
+            zlabel(app.FigPlot2, 'Z')
+            app.FigPlot2.PlotBoxAspectRatio = [1.91176470588235 1 1];
+            app.FigPlot2.Layout.Row = [7 11];
+            app.FigPlot2.Layout.Column = [7 10];
 
             % Show the figure after all components are created
             app.VisualizationTool.Visible = 'on';
