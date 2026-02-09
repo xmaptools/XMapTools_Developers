@@ -141,11 +141,6 @@ setup_terminal_command() {
 
     echo "  Setting up terminal command ..."
 
-    if [ ! -d "$app_path" ]; then
-        echo "    [WARNING] XMapTools.app not found at $app_path; skipping terminal setup."
-        return
-    fi
-
     sudo mkdir -p /usr/local/bin
 
     sudo tee "$wrapper" > /dev/null <<EOF
