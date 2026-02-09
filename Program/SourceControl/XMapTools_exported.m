@@ -232,6 +232,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SpotData_PlotDropDown           matlab.ui.control.DropDown
         SpotData_ApplyColorGradientCheckBox  matlab.ui.control.CheckBox
         SpotData_ApplySpotSizeGradientCheckBox  matlab.ui.control.CheckBox
+        Image_38                        matlab.ui.control.Image
+        SpotDataTab_help                matlab.ui.control.Button
         ADDONSTab                       matlab.ui.container.Tab
         GridLayout_AddonsTab            matlab.ui.container.GridLayout
         AddonsTab_help                  matlab.ui.control.Button
@@ -14417,14 +14419,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
         % Callback function: Help_ProjectImportMenu, ImportTab_help
         function Help_ImportTab_helpButtonPushed(app, event)
-            
             if isempty(app.Id_HelpTool)
                 Help_Display(app,'Workspace_Project_Import.html');
             else
                 app.Id_HelpTool.UpdateTextHelp('Workspace_Project_Import.html');
             end
-            
-            
         end
 
         % Callback function: ClassifyTab_help, Help_ClassifyMenu
@@ -16980,6 +16979,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function SpotData_ApplyColorGradientCheckBoxValueChanged(app, event)
             TreeData_AdditionalSelectionChanged(app);
         end
+
+        % Button pushed function: SpotDataTab_help
+        function SpotDataTab_helpButtonPushed(app, event)
+            if isempty(app.Id_HelpTool)
+                Help_Display(app,'Workspace_SpotData.html');
+            else
+                app.Id_HelpTool.UpdateTextHelp('Workspace_SpotData.html');
+            end
+        end
     end
 
     % Component initialization
@@ -18710,7 +18718,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create GridLayout_SpotData
             app.GridLayout_SpotData = uigridlayout(app.SPOTDATATab);
-            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x'};
             app.GridLayout_SpotData.RowHeight = {'1x', '1x', '1x', '0.6x'};
             app.GridLayout_SpotData.ColumnSpacing = 4;
             app.GridLayout_SpotData.RowSpacing = 4;
@@ -18932,7 +18940,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PLOTEXTERNALDATALabel.FontSize = 9;
             app.PLOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
             app.PLOTEXTERNALDATALabel.Layout.Row = 4;
-            app.PLOTEXTERNALDATALabel.Layout.Column = [23 29];
+            app.PLOTEXTERNALDATALabel.Layout.Column = [23 35];
             app.PLOTEXTERNALDATALabel.Text = 'PLOT EXTERNAL DATA';
 
             % Create AddtoplotLabel
@@ -18969,6 +18977,21 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ApplySpotSizeGradientCheckBox.FontSize = 10;
             app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Row = 2;
             app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Column = [29 33];
+
+            % Create Image_38
+            app.Image_38 = uiimage(app.GridLayout_SpotData);
+            app.Image_38.Layout.Row = [1 4];
+            app.Image_38.Layout.Column = 36;
+            app.Image_38.ImageSource = 'ImageDelimiter.png';
+
+            % Create SpotDataTab_help
+            app.SpotDataTab_help = uibutton(app.GridLayout_SpotData, 'push');
+            app.SpotDataTab_help.ButtonPushedFcn = createCallbackFcn(app, @SpotDataTab_helpButtonPushed, true);
+            app.SpotDataTab_help.Icon = '061-info.png';
+            app.SpotDataTab_help.Tooltip = {'Help & Documentation'};
+            app.SpotDataTab_help.Layout.Row = 1;
+            app.SpotDataTab_help.Layout.Column = 37;
+            app.SpotDataTab_help.Text = '';
 
             % Create ADDONSTab
             app.ADDONSTab = uitab(app.TabButtonGroup);
