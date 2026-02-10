@@ -336,8 +336,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -361,8 +361,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -3119,9 +3119,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 dX = 1;
             end
             if DataMin > 0
-                app.FigHistLive.XLim = [0-dX DataMaxHist+dX];
+                app.FigHistLive.XLim = [0-2*dX DataMaxHist+2*dX];
             else
-                app.FigHistLive.XLim = [DataMinHist-dX DataMaxHist+dX];
+                app.FigHistLive.XLim = [DataMinHist-2*dX DataMaxHist+2*dX];
             end
             toolbar = axtoolbar(app.FigHistLive);
             toolbar.Visible = 'off';
@@ -7492,29 +7492,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %app.WaitBar.Message = 'XMapTools is getting ready';
             %drawnow
             
-            if ispc
-                %ScreenFraction = 0.70;
-                XMapToolsWidth = 1200;
-            else
-                %ScreenFraction = 0.80;
-                XMapToolsWidth = 1600;
-            end
-            WindowRatio = 0.5643;
-            ScreenSize = get(0,'ScreenSize');
-            
-            if XMapToolsWidth>=ScreenSize(3)*0.95
-                XMapToolsWidth = ScreenSize(3)*0.95;
-            end
-            
-            app.XMapTools_GUI.Position(3) = XMapToolsWidth; %ScreenSize(3)*ScreenFraction;
-            app.XMapTools_GUI.Position(4) = XMapToolsWidth*WindowRatio; %ScreenSize(3)*ScreenFraction*WindowRatio;
-            
-            app.XMapTools_Position.Original = [app.XMapTools_GUI.Position(3),app.XMapTools_GUI.Position(4)];
-            %XMapTools_GUISizeChanged(app, event);
-            app.XMapTools_Position.Live = app.XMapTools_Position.Original;
-            
-            app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
-            
             app.XMapTools_VER = 'XMapTools 4.5 Public build 260210';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
@@ -7546,57 +7523,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         delete(app);
                         return
                     end
-                    
-                    %                     if isdeployed
-                    %                         if ispc
-                    %                             buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (WINDOWS)','Remind me later','Download XMapTools installer (WINDOWS)');
-                    %                         else
-                    %                             buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools installer (macOS)','Remind me later','Download XMapTools installer (macOS)');
-                    %                         end
-                    %                     else
-                    %                         buttonName = questdlg('A new version of XMapTools is available!','XMapTools','Download XMapTools (MATLAB)','Remind me later','Download XMapTools (MATLAB)');
-                    %                     end
-                    %
-                    %                     WebAdress = '';
-                    %                     switch buttonName
-                    %                         case 'Remind me later'
-                    %
-                    %                         case 'Download XMapTools installer (WINDOWS)'
-                    %                             WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_WIN.exe.zip';
-                    %                         case 'Download XMapTools installer (macOS)'
-                    %                             WebAdress = 'https://xmaptools.ch/download-last-release/XMapToolsInstaller_macOS.app.zip';
-                    %
-                    %                         otherwise
-                    %                             web('https://github.com/xmaptools/XMapTools_Public');
-                    %                             delete(app.XMapTools_GUI);
-                    %                             return
-                    %                     end
-                    %
-                    %                     if length(WebAdress) > 10
-                    %
-                    %                         directoryname = uigetdir(cd, 'Pick a directory to download the installer');
-                    %
-                    %                         if isequal(directoryname,0)
-                    %                             delete(app.XMapTools_GUI);
-                    %                             return
-                    %                         end
-                    %
-                    %                         cd(directoryname)
-                    %
-                    %                         unzip(WebAdress);
-                    %
-                    %                         if isdir('__MACOSX')
-                    %                             [status,msg,msgID] = rmdir('__MACOSX', 's');
-                    %                         end
-                    %
-                    %                         if ispc
-                    %                             web('https://xmaptools.ch/update-windows/');
-                    %                         else
-                    %                             web('https://xmaptools.ch/update-macos/');
-                    %                         end
-                    %                         delete(app.XMapTools_GUI);
-                    %                         return
-                    %                     end
                 else
                     app.UPDATEAVAILABLELabel.Visible = 'off';
                     app.UpdateNowButton.Visible = 'off';
@@ -7609,12 +7535,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.XMapTools_GUI.Name = [app.XMapTools_VER,' - ',char(app.XMapTools_LastDir)];
             
             InitializeXMapToolsData(app);
-            % --------------------------------------------------
-            % temporary load project and create XMapToolsData
-            % --------------------------------------------------
-            % [filepath,name,ext] = fileparts(which('aaa4.mat'));
-            % LoadProjectFile(app,filepath,[name,ext]);
-            % --------------------------------------------------
             
             % Create the context menus:
             app.ContextMenu_MainTree_C = uicontextmenu(app.XMapTools_GUI);
@@ -7698,8 +7618,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Set interface
             SetInterfaceAvailability(app,'Starting');
             %disp('Interface availability checked'),toc
+            
             % Adjust the histogram position
-            app.FigHistLive.PlotBoxAspectRatioMode = 'auto';
+            % app.FigHistLive.PlotBoxAspectRatioMode = 'auto';   % Not clear why it was used. Doesn't help the interface option. 
             
             % Read setting files
             ReadColorMaps(app);
@@ -7836,9 +7757,46 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             pause(0.1)   % increase the opening speed by 10-15 %
             %toc
-            movegui(app.XMapTools_GUI,"center");
-            %disp('GUI centered'),toc
+            
             app.XMapTools_GUI.Visible = 'on';
+            drawnow
+            
+            if ispc
+                %ScreenFraction = 0.70;
+                XMapToolsWidth = 1200;
+            else
+                %ScreenFraction = 0.80;
+                XMapToolsWidth = 1600;
+            end
+            WindowRatio = 0.5643;
+            ScreenSize = get(0,'ScreenSize');
+            
+            if XMapToolsWidth>=ScreenSize(3)*0.95
+                XMapToolsWidth = ScreenSize(3)*0.95;
+            end
+            
+            app.XMapTools_GUI.Position(3) = XMapToolsWidth; %ScreenSize(3)*ScreenFraction;
+            app.XMapTools_GUI.Position(4) = XMapToolsWidth*WindowRatio; %ScreenSize(3)*ScreenFraction*WindowRatio;
+            
+            app.XMapTools_Position.Original = [app.XMapTools_GUI.Position(3),app.XMapTools_GUI.Position(4)];
+            %XMapTools_GUISizeChanged(app, event);
+            app.XMapTools_Position.Live = app.XMapTools_Position.Original;
+            
+            app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
+            
+            % This doesn't cause any problem for the live histogram: 
+            if ispc
+                app.XMapTools_GUI.WindowState = 'maximized';
+            else
+                app.XMapTools_GUI.WindowState = 'normal';
+            end
+            
+            % This is the command that kills the live histogram, don't use
+            % it: 
+            % movegui(app.XMapTools_GUI,"center");
+            %disp('GUI centered'),toc
+            
+            
             disp('End of opening function'),toc
             
             if ~isdeployed
@@ -7847,9 +7805,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             % Bug fix in XMapTools 4.5 preventing selection of objects
             % after resizing XMapTools window:
-            warning('off','all')
-            app.XMapTools_GUI.AutoResizeChildren = 'on';
-            warning('on','all')
+            %warning('off','all')
+            %app.XMapTools_GUI.AutoResizeChildren = 'on';
+            %warning('on','all')
             
         end
 
@@ -19850,19 +19808,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20044,16 +20002,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -20063,6 +20011,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
