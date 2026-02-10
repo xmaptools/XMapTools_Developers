@@ -172,6 +172,29 @@ EOF
     echo ""
 }
 
+wait_and_fix_permissions() {
+    local config_file="$UPDATE_TARGET_DIR/XMapTools.app/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
+    local timeout=600   # wait up to 10 minutes for the installer to finish
+    local elapsed=0
+    local interval=5
+
+    while [ $elapsed -lt $timeout ]; do
+        if [ -f "$config_file" ]; then
+            sudo chown "$(logname)" "$config_file" 2>/dev/null || true
+            sudo chmod 644 "$config_file" 2>/dev/null || true
+            echo "  [OK] Write permissions set on config_xmaptools.mat"
+            return 0
+        fi
+        sleep $interval
+        elapsed=$((elapsed + interval))
+    done
+
+    echo "  [WARNING] Timed out waiting for config_xmaptools.mat to appear."
+    echo "  You may need to fix permissions manually after installation:"
+    echo "    sudo chmod 644 \"$config_file\""
+    return 1
+}
+
 detect_arch_index() {
     local arch
     arch=$(uname -m)
@@ -237,8 +260,15 @@ case "$MODE" in
         echo "  Extracting installer ..."
         sudo unzip -q "$ZIP_PATH" -d "$TMP_DIR"
 
+        echo "  Setting execute permissions on installer binary ..."
+        sudo chmod +x "$APP_PATH/Contents/MacOS/"* || true
+        sudo find "$APP_PATH" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+
         echo "  Clearing Gatekeeper quarantine flags ..."
         sudo xattr -cr "$APP_PATH" || true
+
+        echo "  Re-signing installer bundle (ad-hoc) ..."
+        sudo codesign --force --deep --sign - "$APP_PATH" 2>/dev/null || true
 
         echo "  Launching graphical installer ..."
         open "$APP_PATH"
@@ -251,6 +281,9 @@ case "$MODE" in
         echo "  [OK] The XMapTools installer window should now be open."
         echo "  Follow the on-screen instructions to complete the installation."
         echo ""
+        echo "  Waiting in background for installation to finish to fix permissions ..."
+        wait_and_fix_permissions &
+        disown
         exit 0
         ;;
 
@@ -306,8 +339,15 @@ case "$MODE" in
         echo "  Installing new app bundle ..."
         sudo mv "$EXTRACTED_APP_PATH" "$TARGET_DIR"
 
+        echo "  Setting execute permissions on app binary ..."
+        sudo chmod +x "$TARGET_APP_PATH/Contents/MacOS/"* || true
+        sudo find "$TARGET_APP_PATH" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+
         echo "  Clearing Gatekeeper quarantine flags ..."
         sudo xattr -cr "$TARGET_APP_PATH" || true
+
+        echo "  Re-signing app bundle (ad-hoc) ..."
+        sudo codesign --force --deep --sign - "$TARGET_APP_PATH" 2>/dev/null || true
 
         echo "  Setting write permissions on user configuration files ..."
         sudo chown "$(logname)" "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
