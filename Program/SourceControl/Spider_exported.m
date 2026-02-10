@@ -26,8 +26,8 @@ classdef Spider_exported < matlab.apps.AppBase
         ROI_Button                 matlab.ui.control.Button
         SamplingToolsLabel         matlab.ui.control.Label
         GridLayout6                matlab.ui.container.GridLayout
-        UIAxes_Map                 matlab.ui.control.UIAxes
         UIAxes_Plot                matlab.ui.control.UIAxes
+        UIAxes_Map                 matlab.ui.control.UIAxes
     end
 
     
@@ -308,7 +308,7 @@ classdef Spider_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -692,19 +692,19 @@ classdef Spider_exported < matlab.apps.AppBase
             app.GridLayout6.Layout.Row = 4;
             app.GridLayout6.Layout.Column = [2 5];
 
-            % Create UIAxes_Map
-            app.UIAxes_Map = uiaxes(app.GridLayout);
-            app.UIAxes_Map.XTick = [];
-            app.UIAxes_Map.YTick = [];
-            app.UIAxes_Map.Layout.Row = [6 11];
-            app.UIAxes_Map.Layout.Column = [2 5];
-
             % Create UIAxes_Plot
             app.UIAxes_Plot = uiaxes(app.GridLayout);
             ylabel(app.UIAxes_Plot, 'Normalized Abundance')
             app.UIAxes_Plot.PlotBoxAspectRatio = [1.50588235294118 1 1];
             app.UIAxes_Plot.Layout.Row = [6 11];
             app.UIAxes_Plot.Layout.Column = [7 10];
+
+            % Create UIAxes_Map
+            app.UIAxes_Map = uiaxes(app.GridLayout);
+            app.UIAxes_Map.XTick = [];
+            app.UIAxes_Map.YTick = [];
+            app.UIAxes_Map.Layout.Row = [6 11];
+            app.UIAxes_Map.Layout.Column = [2 5];
 
             % Show the figure after all components are created
             app.Spider_GUI.Visible = 'on';

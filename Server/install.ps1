@@ -9,7 +9,7 @@
 $ErrorActionPreference = "Stop"
 
 # ---- Configuration ---------------------------------------------------------
-$DateUpdated   = "06.02.2026"
+$DateUpdated   = "08.02.2026"
 
 $InstallUrl    = "https://xmaptools.ch/releases/XMapToolsInstaller_Windows.zip"
 $UpdateUrl     = "https://xmaptools.ch/releases/XMapTools_Windows.zip"
@@ -33,7 +33,7 @@ function Write-Banner {
     Write-Host "  -------------------------------------------------------------------"
     Write-Host "  | XMapTools Windows bootstrap script for installation and updates |"
     Write-Host "  |            https://xmaptools.ch - P. Lanari, 2025-2026          |"
-    Write-Host "  |                    last update: $DateUpdated                      |"
+    Write-Host "  |                Shell script version: $DateUpdated                 |"
     Write-Host "  -------------------------------------------------------------------"
     Write-Host ""
 }
@@ -45,7 +45,9 @@ function Write-Info {
     Write-Host ""
     Write-Host "    Windows (R2025a)"
     Write-Host "      Installer: $InstallUrl"
+    Get-RemoteTimestamp $InstallUrl
     Write-Host "      Update:    $UpdateUrl"
+    Get-RemoteTimestamp $UpdateUrl
     Write-Host ""
 
     Write-Host "  Detected MATLAB Runtime installations:"
@@ -83,6 +85,21 @@ function Write-Info {
     Write-Host "    - If XMapTools reports an invalid MCR version after updating,"
     Write-Host "      please perform a full reinstallation using --install."
     Write-Host ""
+}
+
+function Get-RemoteTimestamp {
+    param([string]$Url)
+    try {
+        $response = Invoke-WebRequest -Uri $Url -Method Head -UseBasicParsing
+        $lastModified = $response.Headers["Last-Modified"]
+        if ($lastModified) {
+            Write-Host "    ** XMapTools version: $lastModified"
+        } else {
+            Write-Host "  [WARNING] Could not retrieve remote file timestamp."
+        }
+    } catch {
+        Write-Host "  [WARNING] Could not retrieve remote file timestamp."
+    }
 }
 
 function Test-MCR {
@@ -125,6 +142,8 @@ switch ($Mode) {
             Remove-Item -Recurse -Force $InstallDir
         }
 
+        Get-RemoteTimestamp $InstallUrl
+        Write-Host ""
         Write-Host "  Downloading installer ..."
         Write-Host "    $InstallUrl"
         Invoke-WebRequest -Uri $InstallUrl -OutFile $ZipPath -UseBasicParsing
@@ -175,6 +194,8 @@ switch ($Mode) {
         Remove-TmpDir
         New-Item -ItemType Directory -Path $TmpDir | Out-Null
 
+        Get-RemoteTimestamp $UpdateUrl
+        Write-Host ""
         Write-Host "  Downloading latest version ..."
         Write-Host "    $UpdateUrl"
         Invoke-WebRequest -Uri $UpdateUrl -OutFile $ZipPath -UseBasicParsing
@@ -194,8 +215,10 @@ switch ($Mode) {
 
         Write-Host "  Replacing application files ..."
         Copy-Item -Path $SrcExe -Destination "$TargetDir\$ExeName" -Force
+        Write-Host "    $TargetDir\$ExeName"
         if (Test-Path $SrcSplash) {
             Copy-Item -Path $SrcSplash -Destination "$TargetDir\$SplashName" -Force
+            Write-Host "    $TargetDir\$SplashName"
         }
 
         Write-Host "  Cleaning up temporary files ..."

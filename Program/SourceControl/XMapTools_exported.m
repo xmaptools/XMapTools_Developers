@@ -232,6 +232,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SpotData_PlotDropDown           matlab.ui.control.DropDown
         SpotData_ApplyColorGradientCheckBox  matlab.ui.control.CheckBox
         SpotData_ApplySpotSizeGradientCheckBox  matlab.ui.control.CheckBox
+        Image_38                        matlab.ui.control.Image
+        SpotDataTab_help                matlab.ui.control.Button
         ADDONSTab                       matlab.ui.container.Tab
         GridLayout_AddonsTab            matlab.ui.container.GridLayout
         AddonsTab_help                  matlab.ui.control.Button
@@ -334,8 +336,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -359,8 +361,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -3148,7 +3150,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             %app.SliderMinHandle.ButtonDownFcn = @app.dragObject;
             %app.SliderMaxHandle.ButtonDownFcn = @app.dragObject;
             
-            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',GetROIColor(app)),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',3),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',3)];
+            app.hVerticalLines = [xline(app.FigHistLive, double(app.EditField_LivePosition.Value),'-','LineWidth',3,'Color',GetROIColor(app)),xline(app.FigHistLive, double(DataMin),'r-','LineWidth',4),xline(app.FigHistLive, double(DataMax),'r-','LineWidth',4)];
             set(app.hVerticalLines, 'hittest', 'off'); % Nils: it took me a while to figure this one out they need to be untouchable otherwise we get no values from the button down function
             app.hLineToDrag = [];
             
@@ -7459,7 +7461,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function startupFcn(app, varargin)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -7513,7 +7515,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.5 beta 2 build 260206';
+            app.XMapTools_VER = 'XMapTools 4.5 Public build 260210';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -8666,6 +8668,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ButtonImport.Enable = 'off';
             app.SpotData_ButtonDisplayTable.Enable = 'off';
             
+            app.MapSlider.Visible = 'off';
+            app.Value_MapSlider.Visible = 'off';
+            
             if isempty(app.TreeData_Additional.SelectedNodes)
                 
                 % Update the GUI (SPECIAL: unsupervised k-mean classification)
@@ -9385,7 +9390,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
         % Callback function
         function HistLimits_ValueChanged(app, event)
             PlotMap_AdjustMinMax(app);
-            
         end
 
         % Callback function
@@ -9419,8 +9423,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             if ~isempty(app.hLineToDrag) % here we check if any line is pressed the idea is to be able to add multiple checks for other plots or lines
                 %get the moue position from the UIaxis
                 currentPoint   = app.FigHistLive.CurrentPoint;
-                x            = currentPoint(2,1);
-                y            = currentPoint(2,2);
+                x              = currentPoint(2,1);
+                y              = currentPoint(2,2);
                 
                 %get the axis limits
                 xlim = app.FigHistLive.XLim;
@@ -14415,14 +14419,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
         % Callback function: Help_ProjectImportMenu, ImportTab_help
         function Help_ImportTab_helpButtonPushed(app, event)
-            
             if isempty(app.Id_HelpTool)
                 Help_Display(app,'Workspace_Project_Import.html');
             else
                 app.Id_HelpTool.UpdateTextHelp('Workspace_Project_Import.html');
             end
-            
-            
         end
 
         % Callback function: ClassifyTab_help, Help_ClassifyMenu
@@ -16978,6 +16979,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function SpotData_ApplyColorGradientCheckBoxValueChanged(app, event)
             TreeData_AdditionalSelectionChanged(app);
         end
+
+        % Button pushed function: SpotDataTab_help
+        function SpotDataTab_helpButtonPushed(app, event)
+            if isempty(app.Id_HelpTool)
+                Help_Display(app,'Workspace_SpotData.html');
+            else
+                app.Id_HelpTool.UpdateTextHelp('Workspace_SpotData.html');
+            end
+        end
     end
 
     % Component initialization
@@ -18708,7 +18718,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create GridLayout_SpotData
             app.GridLayout_SpotData = uigridlayout(app.SPOTDATATab);
-            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x'};
             app.GridLayout_SpotData.RowHeight = {'1x', '1x', '1x', '0.6x'};
             app.GridLayout_SpotData.ColumnSpacing = 4;
             app.GridLayout_SpotData.RowSpacing = 4;
@@ -18930,7 +18940,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PLOTEXTERNALDATALabel.FontSize = 9;
             app.PLOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
             app.PLOTEXTERNALDATALabel.Layout.Row = 4;
-            app.PLOTEXTERNALDATALabel.Layout.Column = [23 29];
+            app.PLOTEXTERNALDATALabel.Layout.Column = [23 35];
             app.PLOTEXTERNALDATALabel.Text = 'PLOT EXTERNAL DATA';
 
             % Create AddtoplotLabel
@@ -18967,6 +18977,21 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ApplySpotSizeGradientCheckBox.FontSize = 10;
             app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Row = 2;
             app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Column = [29 33];
+
+            % Create Image_38
+            app.Image_38 = uiimage(app.GridLayout_SpotData);
+            app.Image_38.Layout.Row = [1 4];
+            app.Image_38.Layout.Column = 36;
+            app.Image_38.ImageSource = 'ImageDelimiter.png';
+
+            % Create SpotDataTab_help
+            app.SpotDataTab_help = uibutton(app.GridLayout_SpotData, 'push');
+            app.SpotDataTab_help.ButtonPushedFcn = createCallbackFcn(app, @SpotDataTab_helpButtonPushed, true);
+            app.SpotDataTab_help.Icon = '061-info.png';
+            app.SpotDataTab_help.Tooltip = {'Help & Documentation'};
+            app.SpotDataTab_help.Layout.Row = 1;
+            app.SpotDataTab_help.Layout.Column = 37;
+            app.SpotDataTab_help.Text = '';
 
             % Create ADDONSTab
             app.ADDONSTab = uitab(app.TabButtonGroup);
@@ -19825,19 +19850,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20019,16 +20044,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -20038,6 +20053,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);

@@ -231,6 +231,15 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     SeqName = SeqName{1}{1};
                 end
                 
+                if isequal(app.NameFormatDropDown.Value,'Format 4 (Name before symbol/space)')
+                    for j = 2:numel(SeqName)
+                        if isequal(SeqName(j),'_') || isequal(SeqName(j),'-') || isequal(SeqName(j),'(') || isequal(SeqName(j),' ')
+                            SeqName = SeqName(1:j-1);
+                            break
+                        end
+                    end
+                end
+                
                 % TEMPORARY 4.5
                 % disp(SeqName)
                 
@@ -2583,6 +2592,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             SelFormat = app.ExchangeFormator;
             
         end
+        
     end
     
 
@@ -2593,7 +2603,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -3892,9 +3902,6 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         app.Data4Plot.Data(app.Start_Idx_Data4Plot_BackgroundCorrected+i).Cps_PrimaryStandard = Yi;
                     end
                     
-                    
-                    
-                    
             end
             
             app.Data4Plot.Data(app.Start_Idx_Data4Plot_BackgroundCorrected-2).Cps_PrimaryStandard = sum(app.Data.PS(app.iPrStd).Cps_PrimaryStandard,2);
@@ -4002,7 +4009,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             switch Selection
                 case 'Yes'
-                    app.PrimaryStd_CorrectionList.Value = 1;
+                    app.PrimaryStd_CorrectionList.Value = 3;
                     PrimaryStd_CorrectionListValueChanged(app,0);
                     
                     app.iPrStd = app.iPrStd + 1;
@@ -4678,10 +4685,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             ylabel('Composition in µg/g [range ± 4std only!]')
             
             nexttile
-            yy = smooth(Data,'loess');
-            yy2 = smooth(yy);
-            yy3 = smooth(yy2);
-            yy4 = smooth(yy3);
+            yy = smoothdata(Data);
+            yy2 = smoothdata(yy);
+            yy3 = smoothdata(yy2);
+            yy4 = smoothdata(yy3);
             
             plot(yy,'b'), hold on
             plot(yy4,'r','linewidth',2)
@@ -4930,7 +4937,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create NameFormatDropDown
             app.NameFormatDropDown = uidropdown(app.GridLayout2);
-            app.NameFormatDropDown.Items = {'Format 1 (Name - ID)', 'Format 2 (Name-ID)', 'Format 3 (Name_ID)'};
+            app.NameFormatDropDown.Items = {'Format 1 (Name - ID)', 'Format 2 (Name-ID)', 'Format 3 (Name_ID)', 'Format 4 (Name before symbol/space)'};
             app.NameFormatDropDown.ValueChangedFcn = createCallbackFcn(app, @NameFormatDropDownValueChanged, true);
             app.NameFormatDropDown.FontSize = 10;
             app.NameFormatDropDown.Layout.Row = 1;

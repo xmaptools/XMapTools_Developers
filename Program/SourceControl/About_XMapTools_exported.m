@@ -17,7 +17,7 @@ classdef About_XMapTools_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsapp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ classdef About_XMapTools_exported < matlab.apps.AppBase
             app.Copyright.FontWeight = 'bold';
             app.Copyright.Layout.Row = 11;
             app.Copyright.Layout.Column = [2 7];
-            app.Copyright.Text = '© 2021-2025, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
+            app.Copyright.Text = '© 2021-2026, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
 
             % Create Information
             app.Information = uilabel(app.GridLayout);

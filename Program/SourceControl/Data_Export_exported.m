@@ -9,10 +9,6 @@ classdef Data_Export_exported < matlab.apps.AppBase
         Mode_Merged_Button           matlab.ui.control.StateButton
         Mode_Quanti_Button           matlab.ui.control.StateButton
         Mode_Results_Button          matlab.ui.control.StateButton
-        GridLayout3                  matlab.ui.container.GridLayout
-        Image                        matlab.ui.control.Image
-        ExportMapDataCheckBox        matlab.ui.control.CheckBox
-        ExportSpotDataCheckBox       matlab.ui.control.CheckBox
         ExportMapDataPanel           matlab.ui.container.Panel
         GridLayout5                  matlab.ui.container.GridLayout
         MeanCheckBox                 matlab.ui.control.CheckBox
@@ -65,6 +61,12 @@ classdef Data_Export_exported < matlab.apps.AppBase
         MaskFileDropDown             matlab.ui.control.DropDown
         SecondaryDropDown            matlab.ui.control.DropDown
         SecondaryDropDownLabel       matlab.ui.control.Label
+        PanelMode                    matlab.ui.container.Panel
+        GridLayout6                  matlab.ui.container.GridLayout
+        ExportMapDataCheckBox        matlab.ui.control.CheckBox
+        ExportSpotDataCheckBox       matlab.ui.control.CheckBox
+        MODELabel                    matlab.ui.control.Label
+        Image                        matlab.ui.control.Image
     end
 
     
@@ -231,7 +233,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             Labels = [{'mineral'},ElemList];
             if app.SpotData_MADCheckBox.Value
                 for i=1:numel(ElemList)
-                    Labels{end+1} = [{'MAD_'},ElemList{i}];
+                    Labels{end+1} = ['MAD_',ElemList{i}];
                 end
             end
             
@@ -645,7 +647,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -698,11 +700,13 @@ classdef Data_Export_exported < matlab.apps.AppBase
         % Close request function: DataExport
         function DataExportCloseRequest(app, event)
             
-            if isvalid(app.WaitBar)
-                Answer = uiconfirm(gcbf,'Do you want to close the Data Export Module?','Confirm','Options',{'Yes','Cancel (unfreeze)'},'DefaultOption',1,'CancelOption',2,'Icon','question');
-                if isequal(Answer,'Cancel (unfreeze)')
-                    close(app.WaitBar)
-                    return
+            if ~isempty(app.WaitBar)
+                if isvalid(app.WaitBar)
+                    Answer = uiconfirm(gcbf,'Do you want to close the Data Export Module?','Confirm','Options',{'Yes','Cancel (unfreeze)'},'DefaultOption',1,'CancelOption',2,'Icon','question');
+                    if isequal(Answer,'Cancel (unfreeze)')
+                        close(app.WaitBar)
+                        return
+                    end
                 end
             end
             delete(app)
@@ -915,13 +919,13 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.DataSourcePanel.TitlePosition = 'centertop';
             app.DataSourcePanel.Title = 'Data Source';
             app.DataSourcePanel.Layout.Row = [2 4];
-            app.DataSourcePanel.Layout.Column = [11 21];
+            app.DataSourcePanel.Layout.Column = [12 21];
             app.DataSourcePanel.FontWeight = 'bold';
             app.DataSourcePanel.FontSize = 11;
 
             % Create GridLayout2
             app.GridLayout2 = uigridlayout(app.DataSourcePanel);
-            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x'};
             app.GridLayout2.RowHeight = {'1x'};
             app.GridLayout2.ColumnSpacing = 14;
             app.GridLayout2.RowSpacing = 14;
@@ -956,40 +960,6 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.Mode_Results_Button.FontSize = 10;
             app.Mode_Results_Button.Layout.Row = 1;
             app.Mode_Results_Button.Layout.Column = 3;
-
-            % Create GridLayout3
-            app.GridLayout3 = uigridlayout(app.GridLayout);
-            app.GridLayout3.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout3.RowHeight = {'1x', '1x', '1x'};
-            app.GridLayout3.Padding = [0 0 0 0];
-            app.GridLayout3.Layout.Row = [2 4];
-            app.GridLayout3.Layout.Column = [2 10];
-
-            % Create Image
-            app.Image = uiimage(app.GridLayout3);
-            app.Image.Layout.Row = [1 2];
-            app.Image.Layout.Column = [1 6];
-            app.Image.HorizontalAlignment = 'left';
-            app.Image.ImageSource = 'logo_xmap_final.png';
-
-            % Create ExportMapDataCheckBox
-            app.ExportMapDataCheckBox = uicheckbox(app.GridLayout3);
-            app.ExportMapDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportMapDataCheckBoxValueChanged, true);
-            app.ExportMapDataCheckBox.Text = 'Export Map Data';
-            app.ExportMapDataCheckBox.FontSize = 14;
-            app.ExportMapDataCheckBox.FontWeight = 'bold';
-            app.ExportMapDataCheckBox.Layout.Row = 3;
-            app.ExportMapDataCheckBox.Layout.Column = [1 3];
-            app.ExportMapDataCheckBox.Value = true;
-
-            % Create ExportSpotDataCheckBox
-            app.ExportSpotDataCheckBox = uicheckbox(app.GridLayout3);
-            app.ExportSpotDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportSpotDataCheckBoxValueChanged, true);
-            app.ExportSpotDataCheckBox.Text = 'Export Spot Data';
-            app.ExportSpotDataCheckBox.FontSize = 14;
-            app.ExportSpotDataCheckBox.FontWeight = 'bold';
-            app.ExportSpotDataCheckBox.Layout.Row = 3;
-            app.ExportSpotDataCheckBox.Layout.Column = [4 6];
 
             % Create ExportMapDataPanel
             app.ExportMapDataPanel = uipanel(app.GridLayout);
@@ -1383,6 +1353,55 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.SecondaryDropDownLabel.Layout.Row = 2;
             app.SecondaryDropDownLabel.Layout.Column = [7 8];
             app.SecondaryDropDownLabel.Text = 'Merged';
+
+            % Create PanelMode
+            app.PanelMode = uipanel(app.GridLayout);
+            app.PanelMode.BackgroundColor = [0.9412 0.9412 0.9412];
+            app.PanelMode.Layout.Row = 4;
+            app.PanelMode.Layout.Column = [2 11];
+
+            % Create GridLayout6
+            app.GridLayout6 = uigridlayout(app.PanelMode);
+            app.GridLayout6.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout6.RowHeight = {'1x'};
+            app.GridLayout6.ColumnSpacing = 4;
+            app.GridLayout6.RowSpacing = 4;
+            app.GridLayout6.Padding = [0 0 0 0];
+            app.GridLayout6.BackgroundColor = [0.9412 0.9412 0.9412];
+
+            % Create ExportMapDataCheckBox
+            app.ExportMapDataCheckBox = uicheckbox(app.GridLayout6);
+            app.ExportMapDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportMapDataCheckBoxValueChanged, true);
+            app.ExportMapDataCheckBox.Text = 'Export Map Data';
+            app.ExportMapDataCheckBox.FontSize = 14;
+            app.ExportMapDataCheckBox.FontWeight = 'bold';
+            app.ExportMapDataCheckBox.Layout.Row = 1;
+            app.ExportMapDataCheckBox.Layout.Column = [3 7];
+            app.ExportMapDataCheckBox.Value = true;
+
+            % Create ExportSpotDataCheckBox
+            app.ExportSpotDataCheckBox = uicheckbox(app.GridLayout6);
+            app.ExportSpotDataCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExportSpotDataCheckBoxValueChanged, true);
+            app.ExportSpotDataCheckBox.Text = 'Export Spot Data';
+            app.ExportSpotDataCheckBox.FontSize = 14;
+            app.ExportSpotDataCheckBox.FontWeight = 'bold';
+            app.ExportSpotDataCheckBox.Layout.Row = 1;
+            app.ExportSpotDataCheckBox.Layout.Column = [8 12];
+
+            % Create MODELabel
+            app.MODELabel = uilabel(app.GridLayout6);
+            app.MODELabel.FontSize = 14;
+            app.MODELabel.FontWeight = 'bold';
+            app.MODELabel.Layout.Row = 1;
+            app.MODELabel.Layout.Column = [1 2];
+            app.MODELabel.Text = 'MODE:  ';
+
+            % Create Image
+            app.Image = uiimage(app.GridLayout);
+            app.Image.Layout.Row = [2 3];
+            app.Image.Layout.Column = [2 11];
+            app.Image.HorizontalAlignment = 'left';
+            app.Image.ImageSource = 'logo_xmap_final.png';
 
             % Show the figure after all components are created
             app.DataExport.Visible = 'on';

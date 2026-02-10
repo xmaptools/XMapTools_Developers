@@ -10,7 +10,7 @@ This release is highly recommended for all users as it includes new features, pe
   - MacOS Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command: curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install. In the future, XMapTools updates on MacOS will be distributed using the terminal command: curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update.
   - Windows Installation and Update: The initial installation of XMapTools 4.5 and MATLAB Runtime 25.1 can be performed using the terminal command: iex "& { $(irm https://xmaptools.ch/install.ps1) } --install". In the future, XMapTools updates on Windows will be distributed using the terminal command: iex "& { $(irm https://xmaptools.ch/install.ps1) } --update". Please note that you will need to run PowerShell as an administrator in order to update XMapTools. 
 
-- New feature with Spot Data  
+- New feature: introducing Spot Data 
   - Add a new data type that can be used to interact extract information from the maps and spot data from X–Y positions.
   - Add tools to generate datasets and populate them with spots that have been entered manually or randomly onto the displayed data. 
   - Add a sampling function that allows data to be extracted using the median value of an ROI defined around each spot. Data for each pixel can be displayed, and outliers can be manually removed.
@@ -26,6 +26,7 @@ This release is highly recommended for all users as it includes new features, pe
   - Add an external function for olivine thermobarometry including the calibrations SC13: Shejwalkar and Coogan (2013) and B17: Bussweiler et al (2017). 
   - Add the monticellite end-member to the olivine structural formula calculation.
   - Add the creation of colormap data on opening to allow modules to use the default colormap before the first map is displayed.
+  - Hide the map navigation slider when an item is selected from the secondary menu. While this changes the behaviour of the interface, it prevents a lot of potential instability.
 
 - LA-ICP-MS: 
   - Add a signal selector module to the converter module to manually select background signals if the background is not measured before each measurement. This module includes a manual mode in which each background measurement can be selected using a ROI, and an automated mode based on a similarity check from a single ROI.
@@ -52,9 +53,11 @@ This release is highly recommended for all users as it includes new features, pe
   - Correct an error in the LOD calculation equation with very minor effect on the LOD value. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the LOD calculation for the PRIP module. This error only affected the LOD calculated for ROIs, not the LOD for maps or the LOD filter. The LOD was underestimated by about 10–30% depending on the number of pixels in the ROI. Thanks to Thorsten Markmann for reporting this issue.
   - Correct an error in the data converter for the LA-ICP-MS module that prevented the manual adjustment of the integration sweep for the primary and secondary standards.
+  - Correct an error in the LA-ICP-MS Converter module that prevented the secondary standard data from being plotted.
   - Correct an error in the log generator module that was preventing the 'Apply to All' option from being used.  
   - Correct an error that prevented LA-ICP-MS projects generated with XMapTools 4.1 from being opened.
   - Correct an error that occurs during startup if the directory is not selected correctly, or if the Cancel button is pressed.
+  - Other minor bug and fixes.
 
   
 

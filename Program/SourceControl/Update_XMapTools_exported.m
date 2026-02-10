@@ -31,7 +31,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -52,13 +52,13 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             movegui(app.Update_XMapTools_GUI,'center');
             
             if ispc
-                app.CodeToCopyEditField.Value = 'iex ((New-Object System.Net.WebClient).DownloadString(''https://xmaptools.ch/update.ps1''))';
+                app.CodeToCopyEditField.Value = 'iex "& { $(irm https://xmaptools.ch/install.ps1) } --update"';
                 app.CodeToCopyEditField.FontSize = 12;
                 app.InstructionsLabel.FontSize = 14;
-                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a PowerShell as an administrator (right-click on the application)','- Paste the code in the terminal and press return to update'};
+                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a PowerShell as an administrator (right-click on the application)','- Paste the code, and press Enter to update.'};
             else
                 app.CodeToCopyEditField.Value = 'curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update';
-                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a terminal, and paste the code to update'};
+                app.InstructionsLabel.Text = {'Instructions:','- Press the button Close XMapTools -->','- Open a terminal window, paste the code, and press Enter to update.'};
             end
             
             app.Update_XMapTools_GUI.Visible = 'on';

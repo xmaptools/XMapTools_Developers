@@ -144,7 +144,7 @@ classdef ImageConverter_exported < matlab.apps.AppBase
         function startupFcn(app, XMapToolsApp)
             
             % XMapTools is a free software solution for the analysis of chemical maps
-            % Copyright © 2022-2025 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
+            % Copyright © 2022-2026 University of Lausanne, Institute of Earth Sciences, Pierre Lanari
             
             % XMapTools is free software: you can redistribute it and/or modify
             % it under the terms of the GNU General Public License as published by
@@ -242,7 +242,8 @@ classdef ImageConverter_exported < matlab.apps.AppBase
             [FileName,PathName] = uiputfile([NameFileOri,'.txt'], 'Save the map as...');
             close(f);
             figure(app.ImageConverterGUI)
-            if isempty(FileName)
+            
+            if isempty(FileName) || isequal(FileName,0)
                 close(app.WaitBar);
                 return
             end

@@ -10,18 +10,16 @@
 set -euo pipefail
 
 # ---- Configuration ---------------------------------------------------------
-DATEUPDATED="06.02.2026"
-VERSIONS=("Intel" "Rosetta" "AppleSilicon")
+DATEUPDATED="08.02.2026"
+VERSIONS=("Intel" "AppleSilicon")
 
 INSTALL_URLS=(
     "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_Intel.zip"
-    "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_Rosetta.zip"
     "https://xmaptools.ch/releases/XMapToolsInstaller_macOS_AppleSilicon.zip"
 )
 
 UPDATE_URLS=(
     "https://xmaptools.ch/releases/XMapTools_macOS_Intel.zip"
-    "https://xmaptools.ch/releases/XMapTools_macOS_Rosetta.zip"
     "https://xmaptools.ch/releases/XMapTools_macOS_AppleSilicon.zip"
 )
 
@@ -44,7 +42,7 @@ print_banner() {
     echo "  -------------------------------------------------------------------"
     echo "  | XMapTools macOS bootstrap script for installation and updates   |"
     echo "  |            https://xmaptools.ch - P. Lanari, 2025-2026          |"
-    echo "  |                    last update: $DATEUPDATED                      |"
+    echo "  |                Shell script version: $DATEUPDATED                 |"
     echo "  -------------------------------------------------------------------"
     echo ""
 }
@@ -57,7 +55,9 @@ print_info() {
     for i in "${!VERSIONS[@]}"; do
         echo "    ${VERSIONS[$i]}"
         echo "      Installer: ${INSTALL_URLS[$i]}"
+        print_remote_timestamp "${INSTALL_URLS[$i]}"
         echo "      Update:    ${UPDATE_URLS[$i]}"
+        print_remote_timestamp "${UPDATE_URLS[$i]}"
         echo ""
     done
 
@@ -73,10 +73,7 @@ print_info() {
                     echo "    v99  (R2020b, Intel)"
                     found=1
                     ;;
-                v912)
-                    echo "    v912 (R2022a, Rosetta)"
-                    found=1
-                    ;;
+
                 R2025a)
                     echo "    R2025a (Apple Silicon native)"
                     found=1
@@ -100,9 +97,9 @@ print_info() {
     echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- <arguments>"
     echo ""
     echo "    Arguments:"
-    echo "      --install [Intel|Rosetta|AppleSilicon]   Full installation"
-    echo "      --update  [Intel|Rosetta|AppleSilicon]   Update the app bundle only"
-    echo "      --info                                   Show this information"
+    echo "      --install [Intel|AppleSilicon]   Full installation"
+    echo "      --update  [Intel|AppleSilicon]   Update the app bundle only"
+    echo "      --info                           Show this information"
     echo ""
     echo "  Notes:"
     echo ""
@@ -127,15 +124,61 @@ check_mcr() {
     echo ""
 }
 
+print_remote_timestamp() {
+    local url="$1"
+    local ts
+    ts=$(curl -sI "$url" | grep -i '^Last-Modified:' | sed 's/^[Ll]ast-[Mm]odified: *//')
+    if [ -n "$ts" ]; then
+        echo "    ** XMapTools version: $ts"
+    else
+        echo "  [WARNING] Could not retrieve remote file timestamp."
+    fi
+}
+
+setup_terminal_command() {
+    local wrapper="/usr/local/bin/xmaptools"
+    local app_path="$UPDATE_TARGET_DIR/XMapTools.app"
+
+    echo "  Setting up terminal command ..."
+
+    sudo mkdir -p /usr/local/bin
+
+    sudo tee "$wrapper" > /dev/null <<EOF
+#!/usr/bin/env bash
+# Launch XMapTools from the terminal
+open "$app_path" "\$@"
+EOF
+
+    sudo chmod +x "$wrapper"
+    echo "    Terminal command installed: $wrapper"
+    echo "    You can now launch XMapTools by typing 'XMapTools' or 'xmaptools' in your terminal."
+
+    # Ensure /usr/local/bin is on the PATH for the current user's shell
+    local shell_rc=""
+    case "$(basename "$SHELL")" in
+        zsh)  shell_rc="$HOME/.zshrc" ;;
+        bash) shell_rc="$HOME/.bash_profile" ;;
+        *)    shell_rc="$HOME/.profile" ;;
+    esac
+
+    if [ -n "$shell_rc" ]; then
+        if ! grep -qF '/usr/local/bin' "$shell_rc" 2>/dev/null; then
+            echo '' >> "$shell_rc"
+            echo '# Added by XMapTools installer' >> "$shell_rc"
+            echo 'export PATH="/usr/local/bin:$PATH"' >> "$shell_rc"
+            echo "    Updated $shell_rc to include /usr/local/bin in PATH."
+        fi
+    fi
+    echo ""
+}
+
 detect_arch_index() {
     local arch
     arch=$(uname -m)
     if [[ "$arch" == "arm64" ]]; then
-        echo 2   # Apple Silicon
-    elif [[ "$arch" == "x86_64" ]]; then
-        echo 0   # Intel
+        echo 1   # Apple Silicon
     else
-        echo 1   # fallback Rosetta
+        echo 0   # Intel
     fi
 }
 
@@ -143,12 +186,11 @@ resolve_index() {
     local choice="${1:-auto}"
     case "$choice" in
         Intel) echo 0 ;;
-        Rosetta) echo 1 ;;
-        AppleSilicon) echo 2 ;;
+        AppleSilicon) echo 1 ;;
         auto) detect_arch_index ;;
         *)
             echo "[ERROR] Unknown version: $choice" >&2
-            echo "Valid options: Intel | Rosetta | AppleSilicon" >&2
+            echo "Valid options: Intel | AppleSilicon" >&2
             exit 1
             ;;
     esac
@@ -173,6 +215,7 @@ case "$MODE" in
         clear
         print_banner
         echo "  Installing XMapTools (${VERSIONS[$IDX]}) ..."
+        print_remote_timestamp "$ZIP_URL"
         echo ""
 
         echo "  Preparing temporary workspace ..."
@@ -184,6 +227,8 @@ case "$MODE" in
             sudo rm -rf "$INSTALL_DIR"
         fi
 
+        print_remote_timestamp "$ZIP_URL"
+        echo ""
         echo "  Downloading installer ..."
         echo "    $ZIP_URL"
         sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
@@ -198,6 +243,8 @@ case "$MODE" in
         echo "  Launching graphical installer ..."
         open "$APP_PATH"
         echo ""
+
+        setup_terminal_command
 
         check_mcr
 
@@ -220,6 +267,7 @@ case "$MODE" in
         clear
         print_banner
         echo "  Updating XMapTools (${VERSIONS[$IDX]}) ..."
+        print_remote_timestamp "$ZIP_URL"
         echo ""
 
         echo "  Verifying existing installation ..."
@@ -236,8 +284,10 @@ case "$MODE" in
         sudo rm -rf "$TMP_DIR"
         sudo mkdir -p "$TMP_DIR"
 
+        echo ""
         echo "  Downloading latest version ..."
         echo "    $ZIP_URL"
+        print_remote_timestamp "$ZIP_URL"
         sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
         echo ""
 
@@ -265,6 +315,8 @@ case "$MODE" in
         echo ""
 
         cleanup
+
+        setup_terminal_command
 
         check_mcr
 
