@@ -2770,10 +2770,17 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 if isempty(app.FigMain)
                     disp('Container for plot created');
-                    TileContainer = tiledlayout(app.PanelFigMain,1,1,'Padding','compact');
-                    app.FigMain = nexttile(TileContainer);
+                    
+                    app.FigMain = uiaxes(app.PanelFigMain);
+                    app.FigMain.Units = 'pixels';
+                    app.FigMain.Position = app.PanelFigMain.InnerPosition;
+                    
+                    %TileContainer = tiledlayout(app.PanelFigMain,1,1,'Padding','compact');
+                    %app.FigMain = nexttile(TileContainer);
                     
                     imagesc(app.FigMain,app.Data2Plot+1);
+                    
+                    axis(app.FigMain, 'image');
                     
                     ApplySettingsPlotEngine(app);
                     
@@ -6629,9 +6636,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 case '4.5'                             % Implemented in 4.4
                     
-                    axis(app.FigMain,'equal');
-                    axis(app.FigMain,'image');
-                    axis(app.FigMain,'equal');
+                    %axis(app.FigMain,'equal');
+                    %axis(app.FigMain,'image');
+                    %axis(app.FigMain,'equal');
                     
                     app.FigMain.Color = [0.94,0.94,0.94];
                     app.FigMain.XColor = [0.94,0.94,0.94];
@@ -6641,6 +6648,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     app.FigMain.YTick = [];
                     
                     app.FigMain.Box = 'off';
+                    
+                    % Attempt to solve the ROI issue:
+                    %app.FigMain.PositionConstraint = 'innerposition';
+                    %axis(app.FigMain,'normal');
+                    
+                    %app.FigMain.PlotBoxAspectRatioMode = 'auto';
+                    %app.FigMain.DataAspectRatioMode    = 'auto';
+                    
+                    % keyboard
                     
                     
                 case '4.3 (legacy)'
