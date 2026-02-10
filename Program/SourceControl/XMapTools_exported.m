@@ -6541,6 +6541,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                     app.Assistant_TextArea.BackgroundColor = [0.66,0.62,0.91];
                     
+                    % This could solve the problem of ROI that are not at
+                    % the clicked position: 
+                    app.FigMain.Units = 'pixels';
+                    
                     switch Type
                         case 'Rectangle'
                             app.Assistant_TextArea.Value = {'> Draw a "Rectangle ROI" on the main figure',' ','> To draw the ROI, position the pointer on the image. Click on the displayed image to select the first corner, hold on and drag the mouse to the opposite corner defining a rectangle.'};
