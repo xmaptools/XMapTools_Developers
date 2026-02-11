@@ -9,7 +9,7 @@
 $ErrorActionPreference = "Stop"
 
 # ---- Configuration ---------------------------------------------------------
-$DateUpdated   = "08.02.2026"
+$DateUpdated   = "11.02.2026"
 
 $InstallUrl    = "https://xmaptools.ch/releases/XMapToolsInstaller_Windows.zip"
 $UpdateUrl     = "https://xmaptools.ch/releases/XMapTools_Windows.zip"
@@ -43,7 +43,7 @@ function Write-Info {
 
     Write-Host "  Available version:"
     Write-Host ""
-    Write-Host "    Windows (R2025a)"
+    Write-Host "    Windows (v99 / R2020b)"
     Write-Host "      Installer: $InstallUrl"
     Get-RemoteTimestamp $InstallUrl
     Write-Host "      Update:    $UpdateUrl"
@@ -56,10 +56,8 @@ function Write-Info {
         $found = $false
         Get-ChildItem -Path $MCRDir -Directory | ForEach-Object {
             switch ($_.Name) {
-                "v99"    { Write-Host "    v99  (R2020b)"; $found = $true }
-                "v912"   { Write-Host "    v912 (R2022a)"; $found = $true }
-                "R2025a" { Write-Host "    R2025a"; $found = $true }
-                default  { Write-Host "    $($_.Name) (unknown/unsupported version)"; $found = $true }
+                "v99"    { Write-Host "    v99  (R2020b) [supported]"; $found = $true }
+                default  { Write-Host "    $($_.Name) (unsupported version)"; $found = $true }
             }
         }
         if (-not $found) {
