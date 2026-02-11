@@ -112,6 +112,55 @@ function Test-MCR {
     Write-Host ""
 }
 
+# ---- Install function ------------------------------------------------------
+function Invoke-Install {
+    $ZipPath       = "$TmpDir\XMapToolsInstaller.zip"
+    $InstallerName = "XMapToolsInstaller_Windows.exe"
+    $InstallerPath = "$TmpDir\$InstallerName"
+
+    Clear-Host
+    Write-Banner
+    Write-Host "  Installing XMapTools ..."
+    Write-Host ""
+
+    Write-Host "  Preparing temporary workspace ..."
+    Remove-TmpDir
+    New-Item -ItemType Directory -Path $TmpDir | Out-Null
+
+    if (Test-Path $InstallDir) {
+        Write-Host "  Removing previous installation ..."
+        Remove-Item -Recurse -Force $InstallDir
+    }
+
+    Get-RemoteTimestamp $InstallUrl
+    Write-Host ""
+    Write-Host "  Downloading installer ..."
+    Write-Host "    $InstallUrl"
+    Invoke-WebRequest -Uri $InstallUrl -OutFile $ZipPath -UseBasicParsing
+    Write-Host ""
+
+    Write-Host "  Extracting installer ..."
+    Expand-Archive -LiteralPath $ZipPath -DestinationPath $TmpDir -Force
+
+    if (-not (Test-Path $InstallerPath)) {
+        Write-Host "  [ERROR] Expected $InstallerName inside the archive, but it was not found."
+        Remove-TmpDir
+        Read-Host "  Press Enter to close this window"
+        exit 1
+    }
+
+    Write-Host "  Launching graphical installer ..."
+    Start-Process -FilePath $InstallerPath
+    Write-Host ""
+
+    Test-MCR
+
+    Write-Host "  [OK] The request to launch the XMapTools installer was sent successfully."
+    Write-Host "  Please be patient, the installer window may take a few minutes to appear."
+    Write-Host "  Follow the on-screen instructions to complete the installation."
+    Write-Host ""
+}
+
 # ---- Main logic ------------------------------------------------------------
 $Mode = if ($args.Count -gt 0) { $args[0] } else { "" }
 
@@ -122,49 +171,7 @@ switch ($Mode) {
     }
 
     "--install" {
-        $ZipPath       = "$TmpDir\XMapToolsInstaller.zip"
-        $InstallerName = "XMapToolsInstaller_Windows.exe"
-        $InstallerPath = "$TmpDir\$InstallerName"
-
-        Clear-Host
-        Write-Banner
-        Write-Host "  Installing XMapTools ..."
-        Write-Host ""
-
-        Write-Host "  Preparing temporary workspace ..."
-        Remove-TmpDir
-        New-Item -ItemType Directory -Path $TmpDir | Out-Null
-
-        if (Test-Path $InstallDir) {
-            Write-Host "  Removing previous installation ..."
-            Remove-Item -Recurse -Force $InstallDir
-        }
-
-        Get-RemoteTimestamp $InstallUrl
-        Write-Host ""
-        Write-Host "  Downloading installer ..."
-        Write-Host "    $InstallUrl"
-        Invoke-WebRequest -Uri $InstallUrl -OutFile $ZipPath -UseBasicParsing
-        Write-Host ""
-
-        Write-Host "  Extracting installer ..."
-        Expand-Archive -LiteralPath $ZipPath -DestinationPath $TmpDir -Force
-
-        if (-not (Test-Path $InstallerPath)) {
-            Write-Host "  [ERROR] Expected $InstallerName inside the archive, but it was not found."
-            Remove-TmpDir
-            exit 1
-        }
-
-        Write-Host "  Launching graphical installer ..."
-        Start-Process -FilePath $InstallerPath
-        Write-Host ""
-
-        Test-MCR
-
-        Write-Host "  [OK] The XMapTools installer window should now be open."
-        Write-Host "  Follow the on-screen instructions to complete the installation."
-        Write-Host ""
+        Invoke-Install
     }
 
     "--update" {
@@ -185,8 +192,30 @@ switch ($Mode) {
             Write-Host "  XMapTools does not appear to be installed. Please run a full"
             Write-Host "  installation first:"
             Write-Host "    iex ""& { `$(irm https://xmaptools.ch/install.ps1) } --install"""
+            Read-Host "  Press Enter to close this window"
             exit 1
         }
+
+        Write-Host "  Checking MATLAB Runtime ..."
+        $MCRv99 = "$MCRDir\v99"
+        if (-not (Test-Path $MCRv99)) {
+            Write-Host ""
+            Write-Host "  [WARNING] MATLAB Runtime v99 (R2020b) is not installed."
+            Write-Host "  XMapTools 4.5 requires MATLAB Runtime v99 to run."
+            Write-Host ""
+            $answer = Read-Host "  Would you like to run a full installation instead? (y/n)"
+            if ($answer -eq "y" -or $answer -eq "Y") {
+                Invoke-Install
+                return
+            } else {
+                Write-Host ""
+                Write-Host "  Update cancelled."
+                Read-Host "  Press Enter to close this window"
+                exit 1
+            }
+        }
+        Write-Host "    MATLAB Runtime v99 (R2020b) found."
+        Write-Host ""
 
         Write-Host "  Preparing temporary workspace ..."
         Remove-TmpDir
@@ -208,6 +237,7 @@ switch ($Mode) {
         if (-not (Test-Path $SrcExe)) {
             Write-Host "  [ERROR] Expected $ExeName inside the archive, but it was not found."
             Remove-TmpDir
+            Read-Host "  Press Enter to close this window"
             exit 1
         }
 
