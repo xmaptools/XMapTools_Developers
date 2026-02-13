@@ -2,15 +2,15 @@
 #
 # XMapTools – macOS bootstrap script
 # Usage examples:
-#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install AppleSilicon
-#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update Rosetta
+#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install
+#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update
 #   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --info
 # ----------------------------------------------------------------------------
 
 set -euo pipefail
 
 # ---- Configuration ---------------------------------------------------------
-DATEUPDATED="08.02.2026"
+DATEUPDATED="13.02.2026"
 VERSIONS=("Intel" "AppleSilicon")
 
 INSTALL_URLS=(
@@ -219,6 +219,65 @@ resolve_index() {
     esac
 }
 
+# ---- Install function ------------------------------------------------------
+do_install() {
+    local idx="$1"
+    local zip_url="${INSTALL_URLS[$idx]}"
+    local zip_path="$TMP_DIR/XMapToolsInstaller.zip"
+    local app_name="XMapToolsInstaller_macOS.app"
+    local app_path="$TMP_DIR/$app_name"
+
+    clear
+    print_banner
+    echo "  Installing XMapTools (${VERSIONS[$idx]}) ..."
+    print_remote_timestamp "$zip_url"
+    echo ""
+
+    echo "  Preparing temporary workspace (you might have to type your password)..."
+    sudo rm -rf "$TMP_DIR"
+    sudo mkdir -p "$TMP_DIR"
+
+    if [ -d "$INSTALL_DIR" ]; then
+        echo "  Removing previous installation ..."
+        sudo rm -rf "$INSTALL_DIR"
+    fi
+
+    print_remote_timestamp "$zip_url"
+    echo ""
+    echo "  Downloading installer ..."
+    echo "    $zip_url"
+    sudo curl -fSL "$zip_url" -o "$zip_path"
+    echo ""
+
+    echo "  Extracting installer ..."
+    sudo unzip -q "$zip_path" -d "$TMP_DIR"
+
+    echo "  Setting execute permissions on installer binary ..."
+    sudo chmod +x "$app_path/Contents/MacOS/"* || true
+    sudo find "$app_path" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+
+    echo "  Clearing Gatekeeper quarantine flags ..."
+    sudo xattr -cr "$app_path" || true
+
+    echo "  Re-signing installer bundle (ad-hoc) ..."
+    sudo codesign --force --deep --sign - "$app_path" 2>/dev/null || true
+
+    echo "  Launching graphical installer ..."
+    open "$app_path"
+    echo ""
+
+    setup_terminal_command
+
+    check_mcr
+
+    echo "  [OK] The XMapTools installer window should now be open."
+    echo "  Follow the on-screen instructions to complete the installation."
+    echo ""
+    echo "  Waiting in background for installation to finish to fix permissions ..."
+    wait_and_fix_permissions &
+    disown
+}
+
 # ---- Main logic ------------------------------------------------------------
 MODE="${1:-}"
 
@@ -230,60 +289,7 @@ case "$MODE" in
     --install)
         ARCH="${2:-auto}"
         IDX=$(resolve_index "$ARCH")
-        ZIP_URL="${INSTALL_URLS[$IDX]}"
-        ZIP_PATH="$TMP_DIR/XMapToolsInstaller.zip"
-        APP_NAME="XMapToolsInstaller_macOS.app"
-        APP_PATH="$TMP_DIR/$APP_NAME"
-
-        clear
-        print_banner
-        echo "  Installing XMapTools (${VERSIONS[$IDX]}) ..."
-        print_remote_timestamp "$ZIP_URL"
-        echo ""
-
-        echo "  Preparing temporary workspace ..."
-        sudo rm -rf "$TMP_DIR"
-        sudo mkdir -p "$TMP_DIR"
-
-        if [ -d "$INSTALL_DIR" ]; then
-            echo "  Removing previous installation ..."
-            sudo rm -rf "$INSTALL_DIR"
-        fi
-
-        print_remote_timestamp "$ZIP_URL"
-        echo ""
-        echo "  Downloading installer ..."
-        echo "    $ZIP_URL"
-        sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
-        echo ""
-
-        echo "  Extracting installer ..."
-        sudo unzip -q "$ZIP_PATH" -d "$TMP_DIR"
-
-        echo "  Setting execute permissions on installer binary ..."
-        sudo chmod +x "$APP_PATH/Contents/MacOS/"* || true
-        sudo find "$APP_PATH" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
-
-        echo "  Clearing Gatekeeper quarantine flags ..."
-        sudo xattr -cr "$APP_PATH" || true
-
-        echo "  Re-signing installer bundle (ad-hoc) ..."
-        sudo codesign --force --deep --sign - "$APP_PATH" 2>/dev/null || true
-
-        echo "  Launching graphical installer ..."
-        open "$APP_PATH"
-        echo ""
-
-        setup_terminal_command
-
-        check_mcr
-
-        echo "  [OK] The XMapTools installer window should now be open."
-        echo "  Follow the on-screen instructions to complete the installation."
-        echo ""
-        echo "  Waiting in background for installation to finish to fix permissions ..."
-        wait_and_fix_permissions &
-        disown
+        do_install "$IDX"
         exit 0
         ;;
 
@@ -313,7 +319,34 @@ case "$MODE" in
             exit 1
         fi
 
-        echo "  Preparing temporary workspace ..."
+        echo "  Checking MATLAB Runtime ..."
+        if [ "$IDX" -eq 0 ]; then
+            MCR_EXPECTED="$MCR_DIR/v99"
+            MCR_LABEL="v99 (R2020b, Intel)"
+        else
+            MCR_EXPECTED="$MCR_DIR/R2025a"
+            MCR_LABEL="R2025a (Apple Silicon)"
+        fi
+
+        if [ ! -d "$MCR_EXPECTED" ]; then
+            echo ""
+            echo "  [WARNING] MATLAB Runtime $MCR_LABEL is not installed."
+            echo "  XMapTools requires this runtime version to run."
+            echo ""
+            read -rp "  Would you like to run a full installation instead? (y/n) " answer < /dev/tty
+            if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+                do_install "$IDX"
+                exit 0
+            else
+                echo ""
+                echo "  Update cancelled."
+                exit 1
+            fi
+        fi
+        echo "    MATLAB Runtime $MCR_LABEL found."
+        echo ""
+
+        echo "  Preparing temporary workspace (you might have to type your password) ..."
         sudo rm -rf "$TMP_DIR"
         sudo mkdir -p "$TMP_DIR"
 
