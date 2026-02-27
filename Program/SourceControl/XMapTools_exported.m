@@ -234,6 +234,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SpotData_ApplySpotSizeGradientCheckBox  matlab.ui.control.CheckBox
         Image_38                        matlab.ui.control.Image
         SpotDataTab_help                matlab.ui.control.Button
+        SpotData_SelectShapeROIDropDown  matlab.ui.control.DropDown
         ADDONSTab                       matlab.ui.container.Tab
         GridLayout_AddonsTab            matlab.ui.container.GridLayout
         AddonsTab_help                  matlab.ui.control.Button
@@ -872,16 +873,18 @@ classdef XMapTools_exported < matlab.apps.AppBase
             MapData.MaskFile.Masks(1).SubMask(1).Info.Modes = [];
             
             % -------------------------------------------------------------
-            % Initialize SpotData
+            % Initialize SpotData                               % added 4.5
             % -------------------------------------------------------------
             
             SpotData.Names = '';
-            SpotData.Dataset(1).Names = '';
+            SpotData.Types = [];                                % added 4.6
+            SpotData.Dataset(1).Names = '';                 
             SpotData.Dataset(1).XYCoordinates = [];
             SpotData.Dataset(1).ColumnNames = '';
             SpotData.Dataset(1).Data = [];
             SpotData.Dataset(1).PxSelection(1).Selection = 0;
             SpotData.Dataset(1).PxSelection(1).XYCoord = [];
+            SpotData.Dataset(1).ROI(1).Position = [];           % added 4.6
             
             
             % -------------------------------------------------------------
@@ -7515,7 +7518,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.5 Public build 260210';
+            app.XMapTools_VER = 'XMapTools 4.6 a1 build 260210';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -16988,6 +16991,29 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 app.Id_HelpTool.UpdateTextHelp('Workspace_SpotData.html');
             end
         end
+
+        % Value changed function: SpotData_SelectShapeROIDropDown
+        function SpotData_SelectShapeROIDropDownValueChanged(app, event)
+            if isequal(app.SpotData_SelectShapeROIDropDown.Value,1)
+                app.Spotdata_ActivateROI.Enable = 'on';
+                app.xLabel.Enable = 'on';
+                app.Spotdata_ROISize_X.Enable = 'on';
+                app.Spotdata_ROISize_Y.Enable = 'on';
+                
+                app.Spotdata_RandomlyPopulateOption.Enable = 'on';
+                app.Spotdata_SufixEditField.Enable = 'on';
+                app.Spotdata_NbEditField.Enable = 'on';
+            else
+                app.Spotdata_ActivateROI.Enable = 'off';
+                app.xLabel.Enable = 'off';
+                app.Spotdata_ROISize_X.Enable = 'off';
+                app.Spotdata_ROISize_Y.Enable = 'off';
+                
+                app.Spotdata_RandomlyPopulateOption.Enable = 'off';
+                app.Spotdata_SufixEditField.Enable = 'off';
+                app.Spotdata_NbEditField.Enable = 'off';
+            end
+        end
     end
 
     % Component initialization
@@ -18718,7 +18744,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
 
             % Create GridLayout_SpotData
             app.GridLayout_SpotData = uigridlayout(app.SPOTDATATab);
-            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x'};
+            app.GridLayout_SpotData.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '0.3x', '1x'};
             app.GridLayout_SpotData.RowHeight = {'1x', '1x', '1x', '0.6x'};
             app.GridLayout_SpotData.ColumnSpacing = 4;
             app.GridLayout_SpotData.RowSpacing = 4;
@@ -18825,7 +18851,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % Create Image_36
             app.Image_36 = uiimage(app.GridLayout_SpotData);
             app.Image_36.Layout.Row = [1 4];
-            app.Image_36.Layout.Column = 15;
+            app.Image_36.Layout.Column = 17;
             app.Image_36.ImageSource = 'ImageDelimiter.png';
 
             % Create SPOTTOOLSLabel
@@ -18835,7 +18861,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SPOTTOOLSLabel.FontSize = 9;
             app.SPOTTOOLSLabel.FontColor = [0.149 0.149 0.149];
             app.SPOTTOOLSLabel.Layout.Row = 4;
-            app.SPOTTOOLSLabel.Layout.Column = [9 15];
+            app.SPOTTOOLSLabel.Layout.Column = [9 17];
             app.SPOTTOOLSLabel.Text = 'SPOT TOOLS';
 
             % Create SPOTEXTERNALDATALabel
@@ -18845,24 +18871,24 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SPOTEXTERNALDATALabel.FontSize = 9;
             app.SPOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
             app.SPOTEXTERNALDATALabel.Layout.Row = 4;
-            app.SPOTEXTERNALDATALabel.Layout.Column = [16 22];
+            app.SPOTEXTERNALDATALabel.Layout.Column = [18 24];
             app.SPOTEXTERNALDATALabel.Text = 'SPOT EXTERNAL DATA';
 
             % Create Spotdata_ActivateROI
             app.Spotdata_ActivateROI = uicheckbox(app.GridLayout_SpotData);
             app.Spotdata_ActivateROI.ValueChangedFcn = createCallbackFcn(app, @Spotdata_ActivateROIValueChanged, true);
-            app.Spotdata_ActivateROI.Tooltip = {'Randomly add spots to your dataset'};
-            app.Spotdata_ActivateROI.Text = 'Integrate Pixels';
+            app.Spotdata_ActivateROI.Tooltip = {'Select pixels around each spot'};
+            app.Spotdata_ActivateROI.Text = 'Pixels (n x n)';
             app.Spotdata_ActivateROI.FontSize = 9;
-            app.Spotdata_ActivateROI.Layout.Row = 1;
-            app.Spotdata_ActivateROI.Layout.Column = [11 14];
+            app.Spotdata_ActivateROI.Layout.Row = 2;
+            app.Spotdata_ActivateROI.Layout.Column = [11 13];
             app.Spotdata_ActivateROI.Value = true;
 
             % Create xLabel
             app.xLabel = uilabel(app.GridLayout_SpotData);
             app.xLabel.HorizontalAlignment = 'center';
             app.xLabel.Layout.Row = 2;
-            app.xLabel.Layout.Column = 12;
+            app.xLabel.Layout.Column = 15;
             app.xLabel.Text = 'x';
 
             % Create Spotdata_ROISize_X
@@ -18872,9 +18898,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Spotdata_ROISize_X.ValueChangedFcn = createCallbackFcn(app, @Spotdata_ROISize_XValueChanged, true);
             app.Spotdata_ROISize_X.HorizontalAlignment = 'center';
             app.Spotdata_ROISize_X.FontSize = 10;
-            app.Spotdata_ROISize_X.Tooltip = {'Set '};
+            app.Spotdata_ROISize_X.Tooltip = {'Set the number of pixels in X (odd number)'};
             app.Spotdata_ROISize_X.Layout.Row = 2;
-            app.Spotdata_ROISize_X.Layout.Column = 11;
+            app.Spotdata_ROISize_X.Layout.Column = 14;
             app.Spotdata_ROISize_X.Value = 5;
 
             % Create Spotdata_ROISize_Y
@@ -18883,15 +18909,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Spotdata_ROISize_Y.ValueChangedFcn = createCallbackFcn(app, @Spotdata_ROISize_YValueChanged, true);
             app.Spotdata_ROISize_Y.HorizontalAlignment = 'center';
             app.Spotdata_ROISize_Y.FontSize = 10;
-            app.Spotdata_ROISize_Y.Tooltip = {'Set '};
+            app.Spotdata_ROISize_Y.Tooltip = {'Set the number of pixels in Y (odd number)'};
             app.Spotdata_ROISize_Y.Layout.Row = 2;
-            app.Spotdata_ROISize_Y.Layout.Column = 13;
+            app.Spotdata_ROISize_Y.Layout.Column = 16;
             app.Spotdata_ROISize_Y.Value = 5;
 
             % Create Image_37
             app.Image_37 = uiimage(app.GridLayout_SpotData);
             app.Image_37.Layout.Row = [1 4];
-            app.Image_37.Layout.Column = 22;
+            app.Image_37.Layout.Column = 24;
             app.Image_37.ImageSource = 'ImageDelimiter.png';
 
             % Create SpotData_ButtonImport
@@ -18902,7 +18928,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ButtonImport.FontSize = 10;
             app.SpotData_ButtonImport.Tooltip = {'Import Spot Data from a Data File'};
             app.SpotData_ButtonImport.Layout.Row = [1 2];
-            app.SpotData_ButtonImport.Layout.Column = [16 17];
+            app.SpotData_ButtonImport.Layout.Column = [18 19];
             app.SpotData_ButtonImport.Text = 'Import';
 
             % Create SpotData_ButtonDisplayTable
@@ -18913,7 +18939,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ButtonDisplayTable.FontSize = 10;
             app.SpotData_ButtonDisplayTable.Tooltip = {'Display All Spot Data in a table'};
             app.SpotData_ButtonDisplayTable.Layout.Row = [1 2];
-            app.SpotData_ButtonDisplayTable.Layout.Column = [20 21];
+            app.SpotData_ButtonDisplayTable.Layout.Column = [22 23];
             app.SpotData_ButtonDisplayTable.Text = 'Display';
 
             % Create SpotData_NbDataColLabel
@@ -18922,7 +18948,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_NbDataColLabel.VerticalAlignment = 'bottom';
             app.SpotData_NbDataColLabel.FontSize = 9;
             app.SpotData_NbDataColLabel.Layout.Row = 1;
-            app.SpotData_NbDataColLabel.Layout.Column = [18 19];
+            app.SpotData_NbDataColLabel.Layout.Column = [20 21];
             app.SpotData_NbDataColLabel.Text = {'Available'; 'Variables'};
 
             % Create SpotData_NbDataColField
@@ -18931,7 +18957,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_NbDataColField.HorizontalAlignment = 'center';
             app.SpotData_NbDataColField.FontSize = 10;
             app.SpotData_NbDataColField.Layout.Row = 2;
-            app.SpotData_NbDataColField.Layout.Column = [18 19];
+            app.SpotData_NbDataColField.Layout.Column = [20 21];
 
             % Create PLOTEXTERNALDATALabel
             app.PLOTEXTERNALDATALabel = uilabel(app.GridLayout_SpotData);
@@ -18940,7 +18966,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.PLOTEXTERNALDATALabel.FontSize = 9;
             app.PLOTEXTERNALDATALabel.FontColor = [0.149 0.149 0.149];
             app.PLOTEXTERNALDATALabel.Layout.Row = 4;
-            app.PLOTEXTERNALDATALabel.Layout.Column = [23 35];
+            app.PLOTEXTERNALDATALabel.Layout.Column = [25 35];
             app.PLOTEXTERNALDATALabel.Text = 'PLOT EXTERNAL DATA';
 
             % Create AddtoplotLabel
@@ -18948,7 +18974,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.AddtoplotLabel.HorizontalAlignment = 'right';
             app.AddtoplotLabel.FontSize = 10;
             app.AddtoplotLabel.Layout.Row = 1;
-            app.AddtoplotLabel.Layout.Column = [23 25];
+            app.AddtoplotLabel.Layout.Column = [25 27];
             app.AddtoplotLabel.Text = 'Add to plot';
 
             % Create SpotData_PlotDropDown
@@ -18958,7 +18984,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_PlotDropDown.ValueChangedFcn = createCallbackFcn(app, @SpotData_PlotDropDownValueChanged, true);
             app.SpotData_PlotDropDown.FontSize = 10;
             app.SpotData_PlotDropDown.Layout.Row = 1;
-            app.SpotData_PlotDropDown.Layout.Column = [26 28];
+            app.SpotData_PlotDropDown.Layout.Column = [28 30];
             app.SpotData_PlotDropDown.Value = 0;
 
             % Create SpotData_ApplyColorGradientCheckBox
@@ -18967,7 +18993,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ApplyColorGradientCheckBox.Text = 'Apply Color Gradient';
             app.SpotData_ApplyColorGradientCheckBox.FontSize = 10;
             app.SpotData_ApplyColorGradientCheckBox.Layout.Row = 1;
-            app.SpotData_ApplyColorGradientCheckBox.Layout.Column = [29 33];
+            app.SpotData_ApplyColorGradientCheckBox.Layout.Column = [31 35];
             app.SpotData_ApplyColorGradientCheckBox.Value = true;
 
             % Create SpotData_ApplySpotSizeGradientCheckBox
@@ -18976,7 +19002,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotData_ApplySpotSizeGradientCheckBox.Text = 'Apply Spot Size Gradient';
             app.SpotData_ApplySpotSizeGradientCheckBox.FontSize = 10;
             app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Row = 2;
-            app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Column = [29 33];
+            app.SpotData_ApplySpotSizeGradientCheckBox.Layout.Column = [31 35];
 
             % Create Image_38
             app.Image_38 = uiimage(app.GridLayout_SpotData);
@@ -18992,6 +19018,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SpotDataTab_help.Layout.Row = 1;
             app.SpotDataTab_help.Layout.Column = 37;
             app.SpotDataTab_help.Text = '';
+
+            % Create SpotData_SelectShapeROIDropDown
+            app.SpotData_SelectShapeROIDropDown = uidropdown(app.GridLayout_SpotData);
+            app.SpotData_SelectShapeROIDropDown.Items = {'Spots (n x n square ROI)', 'Polygon ROI'};
+            app.SpotData_SelectShapeROIDropDown.ItemsData = [1 2];
+            app.SpotData_SelectShapeROIDropDown.ValueChangedFcn = createCallbackFcn(app, @SpotData_SelectShapeROIDropDownValueChanged, true);
+            app.SpotData_SelectShapeROIDropDown.FontSize = 10;
+            app.SpotData_SelectShapeROIDropDown.Layout.Row = 1;
+            app.SpotData_SelectShapeROIDropDown.Layout.Column = [11 16];
+            app.SpotData_SelectShapeROIDropDown.Value = 1;
 
             % Create ADDONSTab
             app.ADDONSTab = uitab(app.TabButtonGroup);
