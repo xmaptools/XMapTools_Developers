@@ -337,8 +337,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -362,8 +362,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -878,7 +878,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             SpotData.Names = '';
             SpotData.Types = [];                                % added 4.6
-            SpotData.Dataset(1).Names = '';                 
+            SpotData.Dataset(1).Names = '';
             SpotData.Dataset(1).XYCoordinates = [];
             SpotData.Dataset(1).ColumnNames = '';
             SpotData.Dataset(1).Data = [];
@@ -1870,6 +1870,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             % Check for SpotData (4.5)
             if exist('SpotData','var')
+                
+                if ~isfield(SpotData,'Types') % Update SpotData structure to 4.6 format
+                    SpotData.Types = ones(size(SpotData.Names));
+                    for i = 1:numel(SpotData.Dataset)
+                        SpotData.Dataset(i).ROI(1).Position = []; 
+                    end
+                end
+
                 app.XMapToolsData.SpotData = SpotData;
             end
             % Otherwise it is already initialised above.
@@ -5407,29 +5415,48 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function SpotData_MovingStdROI_Main(app,ROI)
             NodeData = app.TreeData_Additional.SelectedNodes.NodeData;
             
-            XYCoordinates = round(ROI.Position);
-            
-            app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = XYCoordinates;
-            
-            if isequal(app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection,1)
-                dX = app.Spotdata_ROISize_X.Value;
-                dY = app.Spotdata_ROISize_Y.Value;
-                
-                ShitX = (dX-1)/2;
-                ShitY = (dY-1)/2;
-                
-                Xi = XYCoordinates(1)-ShitX:XYCoordinates(1)+ShitX;
-                Yi = XYCoordinates(2)-ShitY:XYCoordinates(2)+ShitY;
-                
-                [Xgrid,Ygrid] = meshgrid(Xi,Yi);
-                
-                app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
-                app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(:),Ygrid(:)];
-                
-            else
-                app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = XYCoordinates;
+            switch app.XMapToolsData.SpotData.Types(NodeData(2))
+                case 1
+                    XYCoordinates = round(ROI.Position);
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = XYCoordinates;
+                    
+                    if isequal(app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection,1)
+                        dX = app.Spotdata_ROISize_X.Value;
+                        dY = app.Spotdata_ROISize_Y.Value;
+                        
+                        ShitX = (dX-1)/2;
+                        ShitY = (dY-1)/2;
+                        
+                        Xi = XYCoordinates(1)-ShitX:XYCoordinates(1)+ShitX;
+                        Yi = XYCoordinates(2)-ShitY:XYCoordinates(2)+ShitY;
+                        
+                        [Xgrid,Ygrid] = meshgrid(Xi,Yi);
+                        
+                        app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
+                        app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(:),Ygrid(:)];
+                        
+                    else
+                        app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = XYCoordinates;
+                    end
+                    
+                case 2
+                    Position = ROI.Position;
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).ROI(NodeData(3)).Position = Position;
+                    
+                    MapSize = app.XMapToolsData.MapSizeCheck.ActualSize;
+                    
+                    TheMask = poly2mask(Position(:,1),Position(:,2),MapSize(1),MapSize(2));
+                    
+                    [Xgrid,Ygrid] = meshgrid([1:MapSize(2)],[1:MapSize(1)]);
+                    
+                    SelectedPx = find(TheMask);
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(SelectedPx),Ygrid(SelectedPx)];
+                    
             end
-            
             
             TreeData_AdditionalSelectionChanged(app,0);
             
@@ -9067,8 +9094,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
             end
             
+            
+            % -------------------------------------------------------------------------------------------------------------------
+            %                              SPOT DATA
+            % -------------------------------------------------------------------------------------------------------------------
             if isequal(SelectedAdditional(1),17)
-                % First attempt to implement...
                 
                 if isequal(SelectedAdditional(2),0) && isequal(SelectedAdditional(3),0)
                     app.Spotdata_AddDataset.Enable = 'on';
@@ -9087,12 +9117,20 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     if isequal(SelectedAdditional(3),0)
                         % We plot all points
                         if numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names) > 0
-                            
                             if isequal(app.SpotData_PlotDropDown.Value,0)
                                 for i = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names)
-                                    XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
-                                    NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
-                                    app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                                    
+                                    switch app.XMapToolsData.SpotData.Types(SelectedAdditional(2))
+                                        case 1
+                                            XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,:);
+                                            NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
+                                            app.ROI_SpotData(i).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                                        case 2
+                                            Position = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).ROI(i).Position;
+                                            NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{i};
+                                            app.ROI_SpotData(i).ROI = drawpolygon(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',Position);
+                                    end
+                                    
                                 end
                             else
                                 XYCoordinatesAll = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates;
@@ -9139,16 +9177,33 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             app.TabGroup.SelectedTab = app.SpotDataTab;
                             
                             DataPlot = app.Data2Plot;
-                            CompData = zeros(size(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates,1),1);
-                            for i = 1:numel(CompData)
-                                CompData(i) = DataPlot(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,2),app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,1));
+                            switch app.XMapToolsData.SpotData.Types(SelectedAdditional(2))
+                                case 1
+                                    CompData = zeros(size(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates,1),1);
+                                    for i = 1:numel(CompData)
+                                        CompData(i) = DataPlot(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,2),app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(i,1));
+                                    end
+                                case 2
+                                    CompData = zeros(numel((app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).ROI),1));
+                                    for i = 1:numel(CompData)
+                                        SelectedData = zeros(size(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).PxSelection(i).XYCoord(:,2)));
+                                        for j = 1:numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).PxSelection(i).XYCoord(:,2))
+                                            SelectedData(j) = DataPlot(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).PxSelection(i).XYCoord(j,2),app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).PxSelection(i).XYCoord(j,1));
+                                        end
+                                        CompData(i) = median(SelectedData);
+                                    end
                             end
                             
                             Cell4Display = cell(numel(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names),4);
                             
                             Cell4Display(:,1) = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names;
-                            Cell4Display(:,2) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,1)));
-                            Cell4Display(:,3) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,2)));
+                            switch app.XMapToolsData.SpotData.Types(SelectedAdditional(2))
+                                case 1
+                                    Cell4Display(:,2) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,1)));
+                                    Cell4Display(:,3) = num2cell(uint16(app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(:,2)));
+                                case 2
+                                    % leave these columns empty
+                            end
                             Cell4Display(:,4) = num2cell(CompData);
                             
                             app.SDL_UITable.Data = Cell4Display;
@@ -9169,10 +9224,18 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         
                         app.SubTabSpotData.Visible = 'on';
                         
-                        % We plot a single point:
-                        XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(SelectedAdditional(3),:);
-                        NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{SelectedAdditional(3)};
-                        app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                        switch app.XMapToolsData.SpotData.Types(SelectedAdditional(2))
+                            case 1
+                                % We plot a single point:
+                                XYCoordinates = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).XYCoordinates(SelectedAdditional(3),:);
+                                NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{SelectedAdditional(3)};
+                                app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',XYCoordinates,'MarkerSize',10);
+                            case 2
+                                Position = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).ROI(SelectedAdditional(3)).Position;
+                                NameLabel = app.XMapToolsData.SpotData.Dataset(SelectedAdditional(2)).Names{SelectedAdditional(3)};
+                                app.ROI_SpotData(1).ROI = drawpolygon(app.FigMain,'InteractionsAllowed','all','Color',GetROIColor(app),'Label',['  ',NameLabel,'  '],'LabelAlpha',1,'LabelTextColor','w','Position',Position);
+                        end
+                        
                         app.ROI_SpotData_Listener = addlistener(app.ROI_SpotData(1).ROI, 'ROIMoved', @(varargin)SpotData_MovingStdROI_Main(app, app.ROI_SpotData(1).ROI));
                         
                         % Update Table
@@ -16643,10 +16706,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             NodeData = SelectedNodes.NodeData;
             
             SpotData.Names{Idx} = app.Spotdata_NameField.Value;
+            SpotData.Types(Idx) = app.SpotData_SelectShapeROIDropDown.Value;                % added 4.6
             
             p = uitreenode(app.SpotDatasetNode,'Text',char(SpotData.Names{Idx}),'NodeData',[17,Idx,0]);
             
             % Check if spots should be added automatically
+            % This option is only available for spots (with or without n x n integration)
             if isequal(app.Spotdata_RandomlyPopulateOption.Value,1)
                 
                 % Get a list of the possible pixels
@@ -16660,7 +16725,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 SelectedPx = zeros (size(CurrentMap));
                 SelectedPx (SelPxId) = 1;
                 
-                % eliminate the borders:
+                % eliminate the borders of the map:
                 if isequal(app.Spotdata_ActivateROI.Value, 1)
                     SelectedPx(1:app.Spotdata_ROISize_Y.Value,:) = 0;
                     SelectedPx(end-app.Spotdata_ROISize_Y.Value:end,:) = 0;
@@ -16668,7 +16733,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     SelectedPx(:,end-app.Spotdata_ROISize_X.Value:end) = 0;
                 end
                 
-                % Apply a BRC:
+                % Apply a BRC filter (from XMapTools 3):
                 BRC_Map = CalculateBRC(app, SelectedPx, 3,80);
                 BCR_FilterIdx = find(BRC_Map);
                 SelectedPx(BCR_FilterIdx) = 0;
@@ -16748,23 +16813,30 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Idx = NodeData(2);
             NbExistingSpots = numel(SpotData.Dataset(Idx).Names);
             
-            DrawingMode(app,'on','Spot')
-            app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['ManualSpot_',num2str(NbExistingSpots+1)],'LabelAlpha',1,'LabelTextColor','w','MarkerSize',10);
-            DrawingMode(app,'off')
+            switch app.SpotData_SelectShapeROIDropDown.Value
+                case 1
+                    DrawingMode(app,'on','Spot')
+                    app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['ManualSpot_',num2str(NbExistingSpots+1)],'LabelAlpha',1,'LabelTextColor','w','MarkerSize',10);
+                    DrawingMode(app,'off')
+                    
+                    app.XMapToolsData.SpotData.Dataset(Idx).XYCoordinates(NbExistingSpots+1,1:2) = round(app.ROI_SpotData(1).ROI.Position);
+                    app.ROI_SpotData(1).ROI.Position = round(app.ROI_SpotData(1).ROI.Position);
+                    
+                case 2
+                    DrawingMode(app,'on','Polygon')
+                    app.ROI_SpotData(1).ROI = drawpolygon(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['ManualPolygon_',num2str(NbExistingSpots+1)],'LabelAlpha',1,'LabelTextColor','w');
+                    DrawingMode(app,'off')
+                    
+                    app.XMapToolsData.SpotData.Dataset(Idx).ROI(NbExistingSpots+1).Position = app.ROI_SpotData(1).ROI.Position;
+            end
             
-            % app.ROI_SpotData_Listener = addlistener(app.ROI_SpotData(1).ROI, 'ROIMoved', @(varargin)SpotData_MovingStdROI_Main(app, app.ROI_SpotData(1).ROI));
-            
-            % Add the spot to the data
             app.XMapToolsData.SpotData.Dataset(Idx).Names{NbExistingSpots+1} = app.ROI_SpotData(1).ROI.Label;
-            app.XMapToolsData.SpotData.Dataset(Idx).XYCoordinates(NbExistingSpots+1,1:2) = round(app.ROI_SpotData(1).ROI.Position);
-            
-            app.ROI_SpotData(1).ROI.Position = round(app.ROI_SpotData(1).ROI.Position);
             
             p1 = uitreenode(app.SpotDatasetNode.Children(Idx),'Text',char(app.ROI_SpotData(1).ROI.Label),'NodeData',[17,Idx,NbExistingSpots+1]);
             
             app.TreeData_Additional.SelectedNodes = p1;
             
-            SDL_ResetButtonPushed(app, 1);
+            SDL_ResetButtonPushed(app, 1); % To calculate the pixels in the ROI and select them all (reset)
             
         end
 
@@ -16828,21 +16900,43 @@ classdef XMapTools_exported < matlab.apps.AppBase
             SelectedNodes = app.TreeData_Additional.SelectedNodes;
             NodeData = SelectedNodes.NodeData;
             
-            XYCoordinates = app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:);
-            
-            dX = app.Spotdata_ROISize_X.Value;
-            dY = app.Spotdata_ROISize_Y.Value;
-            
-            ShitX = (dX-1)/2;
-            ShitY = (dY-1)/2;
-            
-            Xi = XYCoordinates(1)-ShitX:XYCoordinates(1)+ShitX;
-            Yi = XYCoordinates(2)-ShitY:XYCoordinates(2)+ShitY;
-            
-            [Xgrid,Ygrid] = meshgrid(Xi,Yi);
-            
-            app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
-            app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(:),Ygrid(:)];
+            switch app.SpotData_SelectShapeROIDropDown.Value
+                case 1
+                    
+                    XYCoordinates = app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:);
+                    
+                    dX = app.Spotdata_ROISize_X.Value;
+                    dY = app.Spotdata_ROISize_Y.Value;
+                    
+                    ShitX = (dX-1)/2;
+                    ShitY = (dY-1)/2;
+                    
+                    Xi = XYCoordinates(1)-ShitX:XYCoordinates(1)+ShitX;
+                    Yi = XYCoordinates(2)-ShitY:XYCoordinates(2)+ShitY;
+                    
+                    [Xgrid,Ygrid] = meshgrid(Xi,Yi);
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(:),Ygrid(:)];
+                    
+                case 2
+                    
+                    Position = app.XMapToolsData.SpotData.Dataset(NodeData(2)).ROI(NodeData(3)).Position;
+                    
+                    MapSize = app.XMapToolsData.MapSizeCheck.ActualSize;
+                    
+                    TheMask = poly2mask(Position(:,1),Position(:,2),MapSize(1),MapSize(2));
+                    
+                    % figure, imagesc(TheMask), axis image, colorbar
+                    
+                    [Xgrid,Ygrid] = meshgrid([1:MapSize(2)],[1:MapSize(1)]);
+                    
+                    SelectedPx = find(TheMask);
+                    
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).Selection = 1;
+                    app.XMapToolsData.SpotData.Dataset(NodeData(2)).PxSelection(NodeData(3)).XYCoord = [Xgrid(SelectedPx),Ygrid(SelectedPx)];
+                    
+            end
             
             TreeData_AdditionalSelectionChanged(app);
             
@@ -17003,6 +17097,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 app.Spotdata_RandomlyPopulateOption.Enable = 'on';
                 app.Spotdata_SufixEditField.Enable = 'on';
                 app.Spotdata_NbEditField.Enable = 'on';
+                
             else
                 app.Spotdata_ActivateROI.Enable = 'off';
                 app.xLabel.Enable = 'off';
@@ -17010,6 +17105,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 app.Spotdata_ROISize_Y.Enable = 'off';
                 
                 app.Spotdata_RandomlyPopulateOption.Enable = 'off';
+                app.Spotdata_RandomlyPopulateOption.Value = 0;
                 app.Spotdata_SufixEditField.Enable = 'off';
                 app.Spotdata_NbEditField.Enable = 'off';
             end
@@ -19886,19 +19982,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20080,16 +20176,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -20099,6 +20185,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
