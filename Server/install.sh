@@ -23,6 +23,7 @@ UPDATE_URLS=(
     "https://xmaptools.ch/releases/XMapTools_macOS_AppleSilicon.zip"
 )
 
+ANALYTICS_URL="https://xmaptools.ch/api/count.php"
 TMP_DIR="/tmp/xmaptools_task"
 INSTALL_DIR="/Applications/XMapTools"
 UPDATE_TARGET_DIR="$INSTALL_DIR/application"
@@ -30,6 +31,13 @@ MCR_DIR="/Applications/MATLAB/MATLAB_Runtime"
 # ----------------------------------------------------------------------------
 
 # ---- Helper functions ------------------------------------------------------
+
+track_event() {
+    local action="$1" arch="$2"
+    curl -fsSL -o /dev/null -m 5 \
+        "${ANALYTICS_URL}?action=${action}&arch=${arch}&os=macOS&v=${DATEUPDATED}" \
+        2>/dev/null || true
+}
 
 cleanup() {
     if [ -d "$TMP_DIR" ]; then
@@ -230,6 +238,7 @@ do_install() {
     clear
     print_banner
     echo "  Installing XMapTools (${VERSIONS[$idx]}) ..."
+    track_event "install" "${VERSIONS[$idx]}"
     print_remote_timestamp "$zip_url"
     echo ""
 
@@ -306,6 +315,7 @@ case "$MODE" in
         clear
         print_banner
         echo "  Updating XMapTools (${VERSIONS[$IDX]}) ..."
+        track_event "update" "${VERSIONS[$IDX]}"
         print_remote_timestamp "$ZIP_URL"
         echo ""
 

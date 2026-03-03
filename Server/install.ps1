@@ -18,9 +18,23 @@ $TmpDir        = "$env:TEMP\xmaptools_task"
 $InstallDir    = "C:\Program Files\XMapTools"
 $TargetDir     = "$InstallDir\application"
 $MCRDir        = "C:\Program Files\MATLAB\MATLAB Runtime"
+$AnalyticsUrl  = "https://xmaptools.ch/api/count.php"
 # ----------------------------------------------------------------------------
 
 # ---- Helper functions ------------------------------------------------------
+
+function Send-TrackEvent {
+    param(
+        [string]$Action,
+        [string]$Arch = "Windows"
+    )
+    try {
+        $uri = "${AnalyticsUrl}?action=${Action}&arch=${Arch}&os=Windows&v=${DateUpdated}"
+        Invoke-WebRequest -Uri $uri -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue | Out-Null
+    } catch {
+        # Analytics failure must never block the script
+    }
+}
 
 function Remove-TmpDir {
     if (Test-Path $TmpDir) {
@@ -121,6 +135,7 @@ function Invoke-Install {
     Clear-Host
     Write-Banner
     Write-Host "  Installing XMapTools ..."
+    Send-TrackEvent -Action "install"
     Write-Host ""
 
     Write-Host "  Preparing temporary workspace ..."
@@ -183,6 +198,7 @@ switch ($Mode) {
         Clear-Host
         Write-Banner
         Write-Host "  Updating XMapTools ..."
+        Send-TrackEvent -Action "update"
         Write-Host ""
 
         Write-Host "  Verifying existing installation ..."
