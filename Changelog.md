@@ -1,6 +1,30 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.5 (no build yet)
+## XMapTools 4.6 (no build yet)
+
+This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
+
+
+
+
+- Spot data: 
+  - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes cannot be mixed within a single dataset. 
+
+
+
+
+- Other:
+  -
+
+
+
+
+
+
+
+
+
+## XMapTools 4.5 (build 260210)
 
 This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
 
