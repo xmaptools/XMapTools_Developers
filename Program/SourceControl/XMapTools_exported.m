@@ -337,8 +337,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -362,8 +362,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -599,7 +599,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         ContextMenu_MainTree_IDD            % Menu: Info/Duplicate/Delete
         ContextMenu_MainTree_IDCD           % Menu: Info/Duplicate/Convert/Delete
         ContextMenu_MainTree_IDCED          % Menu: Info/Duplicate/Convert/Export All/Delete
-        ContextMenu_MainTree_IDCSD          % Menu: Info/Duplicate/Convert/Split/Delete
+        ContextMenu_MainTree_IDCSFD         % Menu: Info/Duplicate/Convert/Split/Fractionate/Delete
         ContextMenu_MainTree_I              % Menu: Info
         ContextMenu_MainTree_D              % Menu: Delete
         ContextMenu_MainTree_DG             % Menu: Delete/SaveAsGIF
@@ -4365,6 +4365,75 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
         end
         
+        function ContextMenu_MainTree_FractionatePushed(app, ~)
+            % Only accessible if a maskfile is selected
+            
+            NodeData = app.TreeData_Main.SelectedNodes.NodeData;
+            SelMaskFile = app.TreeData_Additional.SelectedNodes.NodeData(2);
+            MaskFile = app.XMapToolsData.MapData.MaskFile.Masks(SelMaskFile);
+            
+            ListMaskSubMask = [];
+            MaskSubMaskID = [];
+            for i = 2:length(MaskFile.Names)
+                ListMaskSubMask{end+1} = MaskFile.Names{i};
+                MaskSubMaskID(end+1,:) = [i,0];
+                if ~isempty(MaskFile.SubMask(i).Names)
+                    for j = 2:length(MaskFile.SubMask(i).Names)
+                        ListMaskSubMask{end+1} = MaskFile.SubMask(i).Names{j};
+                        MaskSubMaskID(end+1,:) = [i,j];
+                    end
+                end
+            end
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Select phase(s) to fractionate (eliminate) and press OK to continue...';
+            waitfor(Selector(app,ListMaskSubMask,'Select phases in the list below','Multiple'));
+            close(app.WaitBar)
+            
+            s = app.ExchangeSelectorId;                                     % changed 4.4
+            
+            if isempty(s)
+                figure(app.XMapTools_GUI);
+                return
+            end
+            
+            Pos = NodeData(2);
+            
+            Pixels2Eliminate = zeros(size(MaskFile.MaskMap));
+            
+            for i = 1:length(ListMaskSubMask)
+                if ~isempty(find(ismember(i,s)))
+                    disp(i)
+                    % We eliminate the corresponding pixels
+                    if isequal(MaskSubMaskID(i,2),0)
+                        % Mask
+                        PxIdx = find(MaskFile.MaskMap == MaskSubMaskID(i,1)-1);
+                        Pixels2Eliminate(PxIdx) = 1;
+                    else
+                        %Submask
+                        PxIdx = find(MaskFile.SubMask(MaskSubMaskID(i,1)).MaskSelMaskMap == MaskSubMaskID(i,2)-1);
+                        Pixels2Eliminate(PxIdx) = 1;
+                    end
+                end
+            end
+            
+            %figure, imagesc(Pixels2Eliminate), axis image, colorbar
+            
+            IdxPx = find(Pixels2Eliminate);
+            % Eliminate data
+            for i = 1:length(app.XMapToolsData.MapData.Me.Data(Pos).CData)
+                app.XMapToolsData.MapData.Me.Data(Pos).CData(i).Map(IdxPx) = zeros(size(IdxPx)); 
+            end
+                
+            TreeData_MainSelectionChanged(app, 1);
+            
+            app.SaveRequired = 1;
+            
+            close(app.WaitBar);
+            
+        end
+        
+        
         function ContextMenu_MainTree_SplitPushed(app, ~)
             % Only accessible if a maskfile is selected
             
@@ -7678,12 +7747,13 @@ classdef XMapTools_exported < matlab.apps.AppBase
             m5 = uimenu(app.ContextMenu_MainTree_IDCED,'Text','Delete','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_DeletePushed(app));
             
             
-            app.ContextMenu_MainTree_IDCSD = uicontextmenu(app.XMapTools_GUI);
-            m1 = uimenu(app.ContextMenu_MainTree_IDCSD,'Text','Infos','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_InfoPushed(app));
-            m2 = uimenu(app.ContextMenu_MainTree_IDCSD,'Text','Duplicate','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_DuplicatePushed(app));
-            m3 = uimenu(app.ContextMenu_MainTree_IDCSD,'Text','Convert','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_ConvertPushed(app));
-            m4 = uimenu(app.ContextMenu_MainTree_IDCSD,'Text','Split (using maskfile)','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_SplitPushed(app));
-            m5 = uimenu(app.ContextMenu_MainTree_IDCSD,'Text','Delete','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_DeletePushed(app));
+            app.ContextMenu_MainTree_IDCSFD = uicontextmenu(app.XMapTools_GUI);
+            m1 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Infos','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_InfoPushed(app));
+            m2 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Duplicate','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_DuplicatePushed(app));
+            m3 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Convert','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_ConvertPushed(app));
+            m4 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Split (using maskfile)','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_SplitPushed(app));
+            m5 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Fractionate (using maskfile)','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_FractionatePushed(app));
+            m6 = uimenu(app.ContextMenu_MainTree_IDCSFD,'Text','Delete','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_DeletePushed(app));
             
             app.ContextMenu_MainTree_I = uicontextmenu(app.XMapTools_GUI);
             m1 = uimenu(app.ContextMenu_MainTree_I,'Text','Infos','MenuSelectedFcn',@(varargin)ContextMenu_MainTree_InfoPushed(app));
@@ -8182,7 +8252,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     if NodeData(2) > 0 && isequal(NodeData(3),0)
                         if ~isempty(app.TreeData_Additional.SelectedNodes)
                             if isequal(app.TreeData_Additional.SelectedNodes.NodeData(1),11) && app.TreeData_Additional.SelectedNodes.NodeData(2) > 0
-                                app.Node_Me.Children(NodeData(2)).ContextMenu = app.ContextMenu_MainTree_IDCSD;
+                                app.Node_Me.Children(NodeData(2)).ContextMenu = app.ContextMenu_MainTree_IDCSFD;
                             else
                                 app.Node_Me.Children(NodeData(2)).ContextMenu = app.ContextMenu_MainTree_IDCD;
                             end
@@ -8190,7 +8260,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             app.Node_Me.Children(NodeData(2)).ContextMenu = app.ContextMenu_MainTree_IDCD;
                         end
                         
-                        %ContextMenu_MainTree_IDCSD
+                        %ContextMenu_MainTree_IDCSFD
                         
                     end
                     if NodeData(2) > 0 && NodeData(3) > 0
@@ -19992,19 +20062,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20186,16 +20256,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -20205,6 +20265,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
