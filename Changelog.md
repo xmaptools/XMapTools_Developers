@@ -1,21 +1,21 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.6 (no build yet)
+## XMapTools 4.6 beta 1 (no build yet)
 
-This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
+This release is a developer version that includes new features and bug fixes to the software. 
 
 
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
+  - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
+
 
 - Spot data: 
-  - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes cannot be mixed within a single dataset. 
-
-
+  - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes of different types cannot be mixed within a single dataset. 
 
 
 - Other:
-  -
+  - Other minor bug and fixes.
 
 
 
