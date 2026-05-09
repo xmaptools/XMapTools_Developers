@@ -24,8 +24,8 @@ __Last update 07.02.2026 (Pierre Lanari)__
   - Program/Dev/Data_Std_LAICPMS/ [note: add Additional File label to standard files]
   - Program/Dev/help [note: add Additional File label to the help files]
   - Program/Dev/help/img [note: add Additional File label to the image files]
-  
 - Remove the label "artefact" to the html help files and add the label "Additional File".
+- Check that the file SF_OxNorm_iter.m is added (for the optimisation toolbox)
   
 - Select the icon
 
