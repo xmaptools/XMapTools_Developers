@@ -3,7 +3,7 @@
  * XMapTools – Lightweight anonymous download/update counter
  *
  * Accepts GET requests with the following parameters:
- *   action  = install | update | info   (required)
+ *   action  = install | update | info | install-dev | update-dev   (required)
  *   arch    = Intel | AppleSilicon | Windows  (required)
  *   os      = macOS | Windows           (optional)
  *   v       = script version string     (optional)
@@ -28,7 +28,7 @@ define('LOG_FILE', DATA_DIR . '/xmaptools_stats.tsv');
 // is skipped; rely on web-server rate-limiting for production).
 
 // Allowed values for each parameter (whitelist)
-$ALLOWED_ACTIONS = ['install', 'update', 'info'];
+$ALLOWED_ACTIONS = ['install', 'update', 'info', 'install-dev', 'update-dev'];
 $ALLOWED_ARCHS   = ['Intel', 'AppleSilicon', 'Windows'];
 $ALLOWED_OS      = ['macOS', 'Windows'];
 
