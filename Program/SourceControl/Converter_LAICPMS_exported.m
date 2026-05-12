@@ -7,6 +7,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         ConvertFIN2toCSVMenu            matlab.ui.container.Menu
         OptionsMenu                     matlab.ui.container.Menu
         SkipDateTimeformatconfirmationMenu  matlab.ui.container.Menu
+        AdvancedlaserONOFFvisualisationMenu  matlab.ui.container.Menu
         GridLayout                      matlab.ui.container.GridLayout
         Image                           matlab.ui.control.Image
         Tree                            matlab.ui.container.Tree
@@ -201,6 +202,9 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                         %Filter = round(length(tback)*0.05);
                         %BackMeas(tback(Filter:end-Filter)) = ones(size(tback(Filter:end-Filter)));
                         %BackMeasID(tback(Filter:end-Filter)) = i*ones(size(tback(Filter:end-Filter)));
+                        
+                        % disp('Laser On')
+                        
                         break
                     end
                 end
@@ -534,9 +538,29 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.Plot.Interactions = [rp];
             app.Plot.Visible = 'on';
             
-            LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
-            TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
-            plot(app.Plot,[TimeLaserOn,TimeLaserOn]',repmat([app.Plot.YLim(1),app.Plot.YLim(2)],length(TimeLaserOn),1)','r-');
+            if isequal(app.AdvancedlaserONOFFvisualisationMenu.Checked,0)
+                LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
+                TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
+                
+                for i = 1:length(TimeLaserOn)
+                    xline(app.Plot,TimeLaserOn(i), '-b', 'LineWidth', 2)
+                end
+                
+            else
+                LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
+                TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
+                
+                for i = 1:length(TimeLaserOn)
+                    xline(app.Plot,TimeLaserOn(i), '-b', 'On', 'LineWidth', 2)
+                end
+                
+                LaserOff = find(ismember(app.Log.Table.LaserState,'Off'));
+                TimeLaserOff = app.Log.DT_Log_Corr(LaserOff);
+                
+                for i = 1:length(TimeLaserOff)
+                    xline(app.Plot,TimeLaserOff(i), '-r', 'LineWidth', 2)
+                end
+            end
             
             tb = axtoolbar(app.Plot,{'export','pan','zoomin','zoomout','restoreview'});
         end
@@ -2786,7 +2810,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     end
                     
                 catch ME
-                   errordlg('This file is not yet a valid file for XMapTools. ','XMapTools')
+                   errordlg({'An error occurred while importing a file.','This file cannot be read by XMapTools.'},'XMapTools')
                    close(app.WaitBar)
                    return
                 end
@@ -2870,9 +2894,35 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 app.Log.Table = TableLOG;
                 app.Log.DT_Log = DtLOG;
                 
-            end
-            
-            if isequal(app.LogfileCheckBox.Value,0)
+                
+                if isequal(app.TypeOfFileDropDown.Value,'Multiple-file')
+                    % We are in this situation when we have multiple files
+                    % but a log file.                   (4.6 – 12.05.2026)
+                    
+                    % Here we merge the multiple files into one measurement
+                    % file.
+                    
+                    DataFiles = app.DataFiles;
+                    
+                    NewDataFiles = DataFiles(1);
+                    
+                    for i = 2:length(DataFiles)
+                        
+                        NewDataFiles.DataCps = [NewDataFiles.DataCps;DataFiles(i).DataCps];
+                        NewDataFiles.t = [NewDataFiles.t;DataFiles(i).t];
+                        NewDataFiles.DT_Map = [NewDataFiles.DT_Map;DataFiles(i).DT_Map];
+                        NewDataFiles.DT_DN = [NewDataFiles.DT_DN;DataFiles(i).DT_DN];
+                        
+                    end
+                    
+                    NewDataFiles.FileName = 'MergedFromMultipleFiles.csv';
+                    
+                    app.DataFiles = NewDataFiles;
+                end
+                
+            else
+                % There is no log file available
+                
                 app.WaitBar.Message = 'Waiting for file definitions from the LOG Generator';
                 
                 waitfor(LogGenerator(app,app.DataFiles, app.XMapToolsApp));
@@ -4794,6 +4844,25 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             close(app.WaitBar);
         end
+
+        % Menu selected function: SkipDateTimeformatconfirmationMenu
+        function SkipDateTimeformatconfirmationMenuSelected(app, event)
+            if isequal(app.SkipDateTimeformatconfirmationMenu.Checked,1)
+                app.SkipDateTimeformatconfirmationMenu.Checked = 0;
+            else
+                app.SkipDateTimeformatconfirmationMenu.Checked = 1;
+            end
+        end
+
+        % Menu selected function: 
+        % AdvancedlaserONOFFvisualisationMenu
+        function AdvancedlaserONOFFvisualisationMenuSelected(app, event)
+            if isequal(app.AdvancedlaserONOFFvisualisationMenu.Checked,1)
+                app.AdvancedlaserONOFFvisualisationMenu.Checked = 0;
+            else
+                app.AdvancedlaserONOFFvisualisationMenu.Checked = 1;
+            end
+        end
     end
 
     % Component initialization
@@ -4823,8 +4892,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create SkipDateTimeformatconfirmationMenu
             app.SkipDateTimeformatconfirmationMenu = uimenu(app.OptionsMenu);
+            app.SkipDateTimeformatconfirmationMenu.MenuSelectedFcn = createCallbackFcn(app, @SkipDateTimeformatconfirmationMenuSelected, true);
             app.SkipDateTimeformatconfirmationMenu.Checked = 'on';
             app.SkipDateTimeformatconfirmationMenu.Text = 'Skip Date/Time format confirmation';
+
+            % Create AdvancedlaserONOFFvisualisationMenu
+            app.AdvancedlaserONOFFvisualisationMenu = uimenu(app.OptionsMenu);
+            app.AdvancedlaserONOFFvisualisationMenu.MenuSelectedFcn = createCallbackFcn(app, @AdvancedlaserONOFFvisualisationMenuSelected, true);
+            app.AdvancedlaserONOFFvisualisationMenu.Text = 'Advanced laser ON/OFF visualisation';
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.ConverterLAICPMS);

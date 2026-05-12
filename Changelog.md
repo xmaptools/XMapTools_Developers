@@ -7,7 +7,12 @@ This release is a developer version that includes new features and bug fixes to 
 
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
+  
+  
+- LA-ICP-MS:
   - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
+  - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected.  
+  - In the converter module, improve the laser ON/OFF visualisation plot by plotting both states in different colours (blue for on and red for off). This advanced plotting mode can be activated via the menu using the "Advanced laser ON/OFF visualisation" option.
 
 
 - Spot data: 
@@ -15,6 +20,7 @@ This release is a developer version that includes new features and bug fixes to 
 
 
 - Other:
+  - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
   - Other minor bug and fixes.
 
 
