@@ -21,6 +21,7 @@ This release is a developer version that includes new features and bug fixes to 
 
 - Other:
   - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
+  - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
   - Other minor bug and fixes.
 
 
