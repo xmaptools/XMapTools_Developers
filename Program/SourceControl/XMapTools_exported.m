@@ -4403,7 +4403,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             for i = 1:length(ListMaskSubMask)
                 if ~isempty(find(ismember(i,s)))
-                    disp(i)
+                    % disp(i)
                     % We eliminate the corresponding pixels
                     if isequal(MaskSubMaskID(i,2),0)
                         % Mask
@@ -4894,6 +4894,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                     if NodeData(3) > 0
                         app.XMapToolsData.SpotData.Dataset(NodeData(2)).Names(NodeData(3)) = [];
+                        app.XMapToolsData.SpotData.Dataset(NodeData(2)).Type(NodeData(3)) = [];
                         app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = [];
                     else
                         app.XMapToolsData.SpotData.Names(NodeData(2)) = [];
@@ -16907,7 +16908,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 return
             end
             
-            switch app.SpotData_SelectShapeROIDropDown.Value
+            switch SpotData.Types(Idx)
                 case 1
                     DrawingMode(app,'on','Spot')
                     app.ROI_SpotData(1).ROI = drawpoint(app.FigMain,'InteractionsAllowed','none','Color',GetROIColor(app),'Label',['ManualSpot_',num2str(NbExistingSpots+1)],'LabelAlpha',1,'LabelTextColor','w','MarkerSize',10);

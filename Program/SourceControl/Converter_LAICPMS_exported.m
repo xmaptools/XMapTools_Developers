@@ -4849,8 +4849,10 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         function SkipDateTimeformatconfirmationMenuSelected(app, event)
             if isequal(app.SkipDateTimeformatconfirmationMenu.Checked,1)
                 app.SkipDateTimeformatconfirmationMenu.Checked = 0;
+                app.CheckDateTimeFormat = 1;
             else
                 app.SkipDateTimeformatconfirmationMenu.Checked = 1;
+                app.CheckDateTimeFormat = 0;
             end
         end
 
