@@ -11,7 +11,8 @@ This release is a developer version that includes new features and bug fixes to 
   
 - LA-ICP-MS:
   - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
-  - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected.  
+  - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected. 
+  - In the converter module, add a new mode for the laser log file (GeoStar PAbB) for analyses where pre-ablation is performed prior to the background measurement.  
   - In the converter module, improve the laser ON/OFF visualisation plot by plotting both states in different colours (blue for on and red for off). This advanced plotting mode can be activated via the menu using the "Advanced laser ON/OFF visualisation" option.
 
 
