@@ -41,9 +41,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SaveunfilteredmapsCheckBox      matlab.ui.control.CheckBox
         BydefaultLODfilteredmapsaresavedLabel  matlab.ui.control.Label
         LODfilteringLabel               matlab.ui.control.Label
-        Plot2                           matlab.ui.control.UIAxes
-        Plot3                           matlab.ui.control.UIAxes
         Plot1                           matlab.ui.control.UIAxes
+        Plot3                           matlab.ui.control.UIAxes
+        Plot2                           matlab.ui.control.UIAxes
         PixelReconstructionandImprovedPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
@@ -1725,6 +1725,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             
             SelROI = app.PRIP_Table_ROI.Selection;
             
+            if isempty(SelROI)
+                return
+            end
+            
             % -------------------------------------------------------------
             % This strategy is taken from CalculateCalibrationROIs(app): 
             PxCoordXY = app.PRIP_ROIs_Data(SelROI).PxCoordXY;
@@ -2570,14 +2574,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.LODfilteringLabel.Layout.Column = [1 4];
             app.LODfilteringLabel.Text = 'LOD filtering';
 
-            % Create Plot2
-            app.Plot2 = uiaxes(app.GridLayout6);
-            title(app.Plot2, 'Title')
-            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot2.XTick = [];
-            app.Plot2.YTick = [];
-            app.Plot2.Layout.Row = [7 12];
-            app.Plot2.Layout.Column = [7 9];
+            % Create Plot1
+            app.Plot1 = uiaxes(app.GridLayout6);
+            title(app.Plot1, 'Title')
+            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot1.XTick = [];
+            app.Plot1.YTick = [];
+            app.Plot1.Layout.Row = [7 12];
+            app.Plot1.Layout.Column = [1 3];
 
             % Create Plot3
             app.Plot3 = uiaxes(app.GridLayout6);
@@ -2588,14 +2592,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.Plot3.Layout.Row = [7 12];
             app.Plot3.Layout.Column = [4 6];
 
-            % Create Plot1
-            app.Plot1 = uiaxes(app.GridLayout6);
-            title(app.Plot1, 'Title')
-            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot1.XTick = [];
-            app.Plot1.YTick = [];
-            app.Plot1.Layout.Row = [7 12];
-            app.Plot1.Layout.Column = [1 3];
+            % Create Plot2
+            app.Plot2 = uiaxes(app.GridLayout6);
+            title(app.Plot2, 'Title')
+            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot2.XTick = [];
+            app.Plot2.YTick = [];
+            app.Plot2.Layout.Row = [7 12];
+            app.Plot2.Layout.Column = [7 9];
 
             % Create PixelReconstructionandImprovedPrecisionPRIPTab
             app.PixelReconstructionandImprovedPrecisionPRIPTab = uitab(app.TabGroup);

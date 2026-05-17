@@ -4894,10 +4894,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                     if NodeData(3) > 0
                         app.XMapToolsData.SpotData.Dataset(NodeData(2)).Names(NodeData(3)) = [];
-                        app.XMapToolsData.SpotData.Dataset(NodeData(2)).Types(NodeData(3)) = [];
                         app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:) = [];
                     else
                         app.XMapToolsData.SpotData.Names(NodeData(2)) = [];
+                        app.XMapToolsData.SpotData.Types(NodeData(2)) = [];
                         app.XMapToolsData.SpotData.Dataset(NodeData(2)) = [];
                     end
                     
@@ -6894,6 +6894,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
             a.delete;
             
             a = app.Node_MapStandards.Children; % Map Standards
+            a.delete;
+            
+            a = app.Node_LOD.Children; % LOD
+            a.delete;
+            
+            a = app.SpotDatasetNode.Children; % Spot data
             a.delete;
             
         end
@@ -16995,7 +17001,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             SelectedNodes = app.TreeData_Additional.SelectedNodes;
             NodeData = SelectedNodes.NodeData;
             
-            switch app.SpotData_SelectShapeROIDropDown.Value
+            Idx = NodeData(2);
+            
+            switch app.XMapToolsData.SpotData.Types(Idx)
                 case 1
                     
                     XYCoordinates = app.XMapToolsData.SpotData.Dataset(NodeData(2)).XYCoordinates(NodeData(3),:);

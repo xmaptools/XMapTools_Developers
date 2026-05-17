@@ -218,7 +218,7 @@ function Invoke-Update {
         Write-Host "  [ERROR] Target directory does not exist: $TargetDir"
         Write-Host "  XMapTools does not appear to be installed. Please run a full"
         Write-Host "  installation first:"
-        Write-Host "    iex ""& { `$(irm https://xmaptools.ch/install.ps1) } --install"""
+        Write-Host "    iex ""& { `$(irm https://xmaptools.ch/install.ps1) } --$FallbackInstallAction"""
         Read-Host "  Press Enter to close this window"
         exit 1
     }

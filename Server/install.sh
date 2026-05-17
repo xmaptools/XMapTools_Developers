@@ -334,7 +334,7 @@ do_update() {
         echo "  [ERROR] Target directory does not exist: $target_dir"
         echo "  XMapTools does not appear to be installed. Please run a full"
         echo "  installation first:"
-        echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install"
+        echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --${install_action}"
         exit 1
     fi
 

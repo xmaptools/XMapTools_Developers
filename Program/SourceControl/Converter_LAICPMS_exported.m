@@ -319,35 +319,62 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 if isequal(app.TypeOfLogFileDropDown.Value,'GeoStar')
                     tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1))));
+                    
+                    if ~isempty(tAblation)
+                        app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
+                        
+                        % add later the coordinates and scan speed, etc...
+                        app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1));
+                        app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
+                        app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
+                        
+                        % Check scan velocity (v 4.5)
+                        if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                            
+                            Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                            dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                            
+                            app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                        end
+                    else
+                        disp([num2str(i),'  –  ',SeqName, 'skipped (empty)'])
+                    end
+                    
                 else
                     tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end))));
-                end
-                
-                if ~isempty(tAblation)
-                
-                    app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
-                    app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
-                    app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
                     
-                    % add later the coordinates and scan speed, etc...
-                    app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                    app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                    app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1));
-                    app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
-                    app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                    app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
-                    
-                    % Check scan velocity (v 4.5)
-                    if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                    if ~isempty(tAblation)
+                        app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
                         
-                        Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
-                        dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                        % add later the coordinates and scan speed, etc...
+                        app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end));
+                        app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end));
+                        app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end));
                         
-                        app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                        % Check scan velocity (v 4.5)
+                        if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                            
+                            Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                            dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                            
+                            app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                        end
+                    else
+                        disp([num2str(i),'  –  ',SeqName, 'skipped (empty)'])
                     end
-                else
-                    disp([num2str(i),'  –  ',SeqName, 'skipped (empty)'])
                 end
+                
+                
             end
             
             if isempty(app.Integrations.Background.Names)
