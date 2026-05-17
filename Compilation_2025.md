@@ -2,6 +2,8 @@
 
 __Last update 07.02.2026 (Pierre Lanari)__
 
+UPDATE the splash screen before to start to compile! 
+
 - Copy the Program/ folder into a compilation folder.
 - Run RESET_CONFIG.
 - Run Install_XMapTools_MATLAB.
@@ -25,7 +27,7 @@ __Last update 07.02.2026 (Pierre Lanari)__
   - Program/Dev/help [note: add Additional File label to the help files]
   - Program/Dev/help/img [note: add Additional File label to the image files]
 - Remove the label "artefact" to the html help files and add the label "Additional File".
-- Check that the file SF_OxNorm_iter.m is added (for the optimisation toolbox)
+- Select the file SF_OxNorm_iter.m and run Find Dependencies using a right click (for the optimisation toolbox).
   
 - Select the icon
 
