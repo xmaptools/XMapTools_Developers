@@ -32,7 +32,7 @@ Remember that you need to update permissions on macOS before to run XMapTools: h
 Open a terminal and type in: chmod -R 755 /Applications/XMapTools/
 ```
 
-- Select Runtime downloaded from web and change name to XMapToolsInstaller_macOS_Intel or XMapToolsInstaller_macOS_AppleSilicon or XMapToolsInstaller_WIN
+- Select Runtime downloaded from web and change name to XMapToolsInstaller_macOS_Intel or XMapToolsInstaller_macOS_AppleSilicon or XMapToolsInstaller_Windows
 
 - Add the folder "Program" to the files required for your application to run and wait until it updates the display
 
@@ -40,4 +40,7 @@ Open a terminal and type in: chmod -R 755 /Applications/XMapTools/
 
 - Click "Package"
 
-- If this is a public version, update the version online!  
+- If this is a public version, update the version online!
+
+- ZIP XMapToolsInstaller_Windows.exe into XMapToolsInstaller_Windows.zip
+- Create a new folder containing XMapTools.exe and Splash.png. Select both files and zip them into XMapTools_Windows.zip
