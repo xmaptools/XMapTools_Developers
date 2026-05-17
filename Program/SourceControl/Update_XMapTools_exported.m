@@ -135,7 +135,7 @@ classdef Update_XMapTools_exported < matlab.apps.AppBase
             app.Copyright.FontAngle = 'italic';
             app.Copyright.Layout.Row = 14;
             app.Copyright.Layout.Column = [2 14];
-            app.Copyright.Text = '© 2021-2025, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
+            app.Copyright.Text = '© 2021-2026, University of Lausanne, Institute of Earth Sciences, Pierre Lanari';
 
             % Create CodeToCopyEditField
             app.CodeToCopyEditField = uieditfield(app.GridLayout, 'text');

@@ -41,9 +41,9 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         SaveunfilteredmapsCheckBox      matlab.ui.control.CheckBox
         BydefaultLODfilteredmapsaresavedLabel  matlab.ui.control.Label
         LODfilteringLabel               matlab.ui.control.Label
-        Plot2                           matlab.ui.control.UIAxes
-        Plot3                           matlab.ui.control.UIAxes
         Plot1                           matlab.ui.control.UIAxes
+        Plot3                           matlab.ui.control.UIAxes
+        Plot2                           matlab.ui.control.UIAxes
         PixelReconstructionandImprovedPrecisionPRIPTab  matlab.ui.container.Tab
         PRIP_GridLayout                 matlab.ui.container.GridLayout
         PRIP_Table_ROI                  matlab.ui.control.Table
@@ -53,6 +53,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
         PRIP_DeleteROI                  matlab.ui.control.Button
         PRIP_MenuROI                    matlab.ui.control.DropDown
         PRIP_Export                     matlab.ui.control.Button
+        PRIP_PlotROI                    matlab.ui.control.Button
         GridLayout9                     matlab.ui.container.GridLayout
         PRIP_MapMenu                    matlab.ui.control.DropDown
         PRIP_Limits_Min                 matlab.ui.control.NumericEditField
@@ -732,13 +733,13 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             for iROI = 1:length(app.PRIP_ROIs_Data)
                 for iStd = 1:length(app.MapStandards)
                     
-                    PxIdxROI_XMap = app.PRIP_ROIs_Data(iROI).PxIdx;                       % This doesn't work for PxDataRaw, but I don't understand why!
+                    PxIdxROI_XMap = app.PRIP_ROIs_Data(iROI).PxIdx;                         % This doesn't work for PxDataRaw, but I don't understand why!
                     
                     PxCoordXY = app.PRIP_ROIs_Data(iROI).PxCoordXY;
                     PxCoordXY_data = app.PxDataRaw.PixelCoordXY;
                     
                     % Rows of the ROI for background calculation (added 11.12.2025)
-                    Unique_Rows = unique(PxCoordXY(:,1));                   % In this format this is the number of rows (Y not X)
+                    Unique_Rows = unique(PxCoordXY(:,1));                                   % In this format this is the number of rows (Y not X)
                     PxCoordXY_FirstPxRows = zeros(length(Unique_Rows),2);
                     PxCoordXY_FirstPxRowsIdx = zeros(length(Unique_Rows),1);
                     for i = 1:length(Unique_Rows)
@@ -747,7 +748,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                         PxCoordXY_FirstPxRowsIdx(i) = PxIdxROI_XMap(SelPxRow(1));    
                     end
                     
-                    PxIdxROI = find(ismember(PxCoordXY_data,PxCoordXY,'rows'));     % This works
+                    PxIdxROI = find(ismember(PxCoordXY_data,PxCoordXY,'rows'));             % This works
                     
                     %figure, imagesc(app.PRIP_ROIs_Data(iROI).Mask), hold on, plot(app.PRIP_ROIs_Data(iROI).PxCoordXY(:,1),app.PRIP_ROIs_Data(iROI).PxCoordXY(:,2),'or'), axis image
                     
@@ -1257,6 +1258,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_ROIs.Nb = 0;
             app.PRIP_Table_ROI.SelectionType = 'row';
             
+            app.PRIP_DeleteROI.Enable = 'off';
+            app.PRIP_PlotROI.Enable = 'off';
+            app.PRIP_Export.Enable = 'off';
+            
             app.SetasPredictorButton.Enable = 'off';
             app.SetasOutputButton.Enable = 'off';
             
@@ -1684,6 +1689,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             
             PRIP_ROIs_DataExtraction(app, app.PRIP_ROIs);
             
+            app.PRIP_DeleteROI.Enable = 'on';
+            app.PRIP_PlotROI.Enable = 'on';
+            app.PRIP_Export.Enable = 'on';
+            
         end
 
         % Button pushed function: PRIP_DeleteROI
@@ -1702,6 +1711,56 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
                 
                 PRIP_Table_ROICellSelection(app);
             end
+            
+            if isequal(app.PRIP_ROIs.Nb,0)
+                app.PRIP_DeleteROI.Enable = 'off';
+                app.PRIP_PlotROI.Enable = 'off';
+                app.PRIP_Export.Enable = 'off';
+            end
+            
+        end
+
+        % Button pushed function: PRIP_PlotROI
+        function PRIP_PlotROIButtonPushed(app, event)
+            
+            SelROI = app.PRIP_Table_ROI.Selection;
+            
+            if isempty(SelROI)
+                return
+            end
+            
+            % -------------------------------------------------------------
+            % This strategy is taken from CalculateCalibrationROIs(app): 
+            PxCoordXY = app.PRIP_ROIs_Data(SelROI).PxCoordXY;
+            PxCoordXY_data = app.PxDataRaw.PixelCoordXY;
+            
+            PxIdxROI = find(ismember(PxCoordXY_data,PxCoordXY,'rows'));             % This works
+            
+            % Calculate It_Unk for the ROI
+            DataSweeps = zeros(1,length(app.PxDataRaw.ElNames));
+            Pos = 1;
+            
+            for iPx = 1:length(PxIdxROI)
+                if iPx > 1
+                    Pos = size(DataSweeps,1)+1;
+                end
+                for iElem = 1:length(app.PxDataRaw.ElNames)
+                    IntData = app.PxDataRaw.ElData(iElem).PxData(PxIdxROI(iPx)).Intensity;
+                    DataSweeps(Pos:Pos+length(IntData)-1,iElem) = IntData;
+                end
+            end
+            
+            IdxNaN = find(isnan(DataSweeps));
+            DataSweeps(IdxNaN) = 0;
+            % -------------------------------------------------------------
+            
+            figure,
+            plot(DataSweeps,'.-','MarkerSize',5);
+            legend(app.PxDataRaw.ElNames,'Location','best');
+            ap = gca;
+            ap.YScale = 'log';
+            xlabel('Sweeps')
+            ylabel('Intensity (cps)')
             
         end
 
@@ -1773,6 +1832,10 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             %if app.UpdatePlotROI
             
             eliminate_ROI(app);
+            
+            if isempty(SelROI)
+                return
+            end
             
             switch app.PRIP_ROIs.ROI_Data(SelROI).Type
                 
@@ -2511,14 +2574,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.LODfilteringLabel.Layout.Column = [1 4];
             app.LODfilteringLabel.Text = 'LOD filtering';
 
-            % Create Plot2
-            app.Plot2 = uiaxes(app.GridLayout6);
-            title(app.Plot2, 'Title')
-            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot2.XTick = [];
-            app.Plot2.YTick = [];
-            app.Plot2.Layout.Row = [7 12];
-            app.Plot2.Layout.Column = [7 9];
+            % Create Plot1
+            app.Plot1 = uiaxes(app.GridLayout6);
+            title(app.Plot1, 'Title')
+            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot1.XTick = [];
+            app.Plot1.YTick = [];
+            app.Plot1.Layout.Row = [7 12];
+            app.Plot1.Layout.Column = [1 3];
 
             % Create Plot3
             app.Plot3 = uiaxes(app.GridLayout6);
@@ -2529,14 +2592,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.Plot3.Layout.Row = [7 12];
             app.Plot3.Layout.Column = [4 6];
 
-            % Create Plot1
-            app.Plot1 = uiaxes(app.GridLayout6);
-            title(app.Plot1, 'Title')
-            app.Plot1.PlotBoxAspectRatio = [1.40467625899281 1 1];
-            app.Plot1.XTick = [];
-            app.Plot1.YTick = [];
-            app.Plot1.Layout.Row = [7 12];
-            app.Plot1.Layout.Column = [1 3];
+            % Create Plot2
+            app.Plot2 = uiaxes(app.GridLayout6);
+            title(app.Plot2, 'Title')
+            app.Plot2.PlotBoxAspectRatio = [1.40467625899281 1 1];
+            app.Plot2.XTick = [];
+            app.Plot2.YTick = [];
+            app.Plot2.Layout.Row = [7 12];
+            app.Plot2.Layout.Column = [7 9];
 
             % Create PixelReconstructionandImprovedPrecisionPRIPTab
             app.PixelReconstructionandImprovedPrecisionPRIPTab = uitab(app.TabGroup);
@@ -2564,7 +2627,7 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
 
             % Create GridLayout8
             app.GridLayout8 = uigridlayout(app.PRIP_GridLayout);
-            app.GridLayout8.ColumnWidth = {'1x', '0.5x', '1x', '1x', '0.5x', '1x'};
+            app.GridLayout8.ColumnWidth = {'1x', '0.5x', '1x', '1x', '1x', '1x'};
             app.GridLayout8.RowHeight = {'1x'};
             app.GridLayout8.Padding = [0 2 0 2];
             app.GridLayout8.Layout.Row = 1;
@@ -2600,6 +2663,14 @@ classdef Calibration_LAICPMS_exported < matlab.apps.AppBase
             app.PRIP_Export.Layout.Row = 1;
             app.PRIP_Export.Layout.Column = 6;
             app.PRIP_Export.Text = 'Export';
+
+            % Create PRIP_PlotROI
+            app.PRIP_PlotROI = uibutton(app.GridLayout8, 'push');
+            app.PRIP_PlotROI.ButtonPushedFcn = createCallbackFcn(app, @PRIP_PlotROIButtonPushed, true);
+            app.PRIP_PlotROI.Icon = '314-menu.png';
+            app.PRIP_PlotROI.Layout.Row = 1;
+            app.PRIP_PlotROI.Layout.Column = 5;
+            app.PRIP_PlotROI.Text = 'Plot ROI';
 
             % Create GridLayout9
             app.GridLayout9 = uigridlayout(app.PRIP_GridLayout);

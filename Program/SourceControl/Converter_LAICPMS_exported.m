@@ -7,6 +7,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         ConvertFIN2toCSVMenu            matlab.ui.container.Menu
         OptionsMenu                     matlab.ui.container.Menu
         SkipDateTimeformatconfirmationMenu  matlab.ui.container.Menu
+        AdvancedlaserONOFFvisualisationMenu  matlab.ui.container.Menu
         GridLayout                      matlab.ui.container.GridLayout
         Image                           matlab.ui.control.Image
         Tree                            matlab.ui.container.Tree
@@ -23,6 +24,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         MassSpectrometerLabel           matlab.ui.control.Label
         LaserLabel                      matlab.ui.control.Label
         NameFormatDropDown              matlab.ui.control.DropDown
+        TypeOfLogFileDropDown           matlab.ui.control.DropDown
+        FormatLabel                     matlab.ui.control.Label
         BACKGROUNDPanel                 matlab.ui.container.Panel
         GridLayout5                     matlab.ui.container.GridLayout
         ExtractIntegrationsBackgroundButton  matlab.ui.control.Button
@@ -193,16 +196,30 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 SeqLaserState = app.Log.Table.LaserState(Id1:Id2);
                 IsLaserOn = find(ismember(SeqLaserState,'On'));
                 
-                StartSeq(tf(1)) = 1;
-                for j = Id1:Id2
-                    if isequal(app.Log.Table.LaserState{j},'On')
-                        tback = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)),app.Log.DT_Log_Corr(j)));
-                        % we filter 10%
-                        %Filter = round(length(tback)*0.05);
-                        %BackMeas(tback(Filter:end-Filter)) = ones(size(tback(Filter:end-Filter)));
-                        %BackMeasID(tback(Filter:end-Filter)) = i*ones(size(tback(Filter:end-Filter)));
-                        break
+                % Automated detection of background integrations:
+                if isequal(app.TypeOfLogFileDropDown.Value,'GeoStar')
+                    % StartSeq(tf(1)) = 1;     % commented in 4.6 – unused?
+                    for j = Id1:Id2
+                        if isequal(app.Log.Table.LaserState{j},'On')
+                            
+                            tback = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)),app.Log.DT_Log_Corr(j)));
+                            
+                            % we filter 10%
+                            %Filter = round(length(tback)*0.05);
+                            %BackMeas(tback(Filter:end-Filter)) = ones(size(tback(Filter:end-Filter)));
+                            %BackMeasID(tback(Filter:end-Filter)) = i*ones(size(tback(Filter:end-Filter)));
+                            
+                            % disp('Laser On')
+                            
+                            % keyboard
+                            
+                            break
+                        end
                     end
+                else
+                    % This is for case GeoStar PAbB where the pre-ablation
+                    % is measured first before the background. 
+                    tback = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(1)+1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end)-1)));
                 end
                 
                 SeqName = app.Log.Table.Comment{SqIndex(i)};  
@@ -300,28 +317,64 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 
                 app.Integrations.Measurements(IsSeq).Names{IdxCount} = SeqName;
                 
-                tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1))));
-                
-                app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
-                app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
-                app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
-                
-                % add later the coordinates and scan speed, etc...
-                app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1));
-                app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
-                app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
-                app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
-                
-                % Check scan velocity (v 4.5)
-                if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                if isequal(app.TypeOfLogFileDropDown.Value,'GeoStar')
+                    tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end-1))));
                     
-                    Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
-                    dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                    if ~isempty(tAblation)
+                        app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
+                        
+                        % add later the coordinates and scan speed, etc...
+                        app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end-1));
+                        app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end-1));
+                        app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end-1)-1);
+                        app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end-1));
+                        
+                        % Check scan velocity (v 4.5)
+                        if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                            
+                            Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                            dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                            
+                            app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                        end
+                    else
+                        disp([num2str(i),'  –  ',SeqName, 'skipped (empty)'])
+                    end
                     
-                    app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                else
+                    tAblation = find(isbetween(app.Data.time_DT,app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end)-1),app.Log.DT_Log_Corr(SqIndex(i)+IsLaserOn(end))));
+                    
+                    if ~isempty(tAblation)
+                        app.Integrations.Measurements(IsSeq).PositionsOri(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Positions(IdxCount,1:2) = [tAblation(1),tAblation(end)];
+                        app.Integrations.Measurements(IsSeq).Times(IdxCount,1:2) = [app.Data.time_DT(tAblation(1)),app.Data.time_DT(tAblation(end))];
+                        
+                        % add later the coordinates and scan speed, etc...
+                        app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq)) = app.Log.Table.X_um_(SqIndex(i)+IsLaserOn(end));
+                        app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq)) = app.Log.Table.Y_um_(SqIndex(i)+IsLaserOn(end));
+                        app.Integrations.Measurements(IsSeq).SpotSize(CountMeasurements(IsSeq)) = app.Log.Table.SpotSize_um_(SqIndex(i)+IsLaserOn(end)-1);
+                        app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = app.Log.Table.ScanVelocity_um_s_(SqIndex(i)+IsLaserOn(end));
+                        
+                        % Check scan velocity (v 4.5)
+                        if isnan(app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)))
+                            
+                            Distance = sqrt((app.Integrations.Measurements(IsSeq).X2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).X1(CountMeasurements(IsSeq)))^2 + (app.Integrations.Measurements(IsSeq).Y2(CountMeasurements(IsSeq))-app.Integrations.Measurements(IsSeq).Y1(CountMeasurements(IsSeq)))^2);
+                            dt = seconds(app.Integrations.Measurements(IsSeq).Times(IdxCount,2) -  app.Integrations.Measurements(IsSeq).Times(IdxCount,1));
+                            
+                            app.Integrations.Measurements(IsSeq).ScanVel(CountMeasurements(IsSeq)) = Distance/dt;
+                        end
+                    else
+                        disp([num2str(i),'  –  ',SeqName, 'skipped (empty)'])
+                    end
                 end
+                
+                
             end
             
             if isempty(app.Integrations.Background.Names)
@@ -534,9 +587,29 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.Plot.Interactions = [rp];
             app.Plot.Visible = 'on';
             
-            LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
-            TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
-            plot(app.Plot,[TimeLaserOn,TimeLaserOn]',repmat([app.Plot.YLim(1),app.Plot.YLim(2)],length(TimeLaserOn),1)','r-');
+            if isequal(app.AdvancedlaserONOFFvisualisationMenu.Checked,0)
+                LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
+                TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
+                
+                for i = 1:length(TimeLaserOn)
+                    xline(app.Plot,TimeLaserOn(i), '-b', 'LineWidth', 2)
+                end
+                
+            else
+                LaserOn = find(ismember(app.Log.Table.LaserState,'On'));
+                TimeLaserOn = app.Log.DT_Log_Corr(LaserOn);
+                
+                for i = 1:length(TimeLaserOn)
+                    xline(app.Plot,TimeLaserOn(i), '-b', 'On', 'LineWidth', 2)
+                end
+                
+                LaserOff = find(ismember(app.Log.Table.LaserState,'Off'));
+                TimeLaserOff = app.Log.DT_Log_Corr(LaserOff);
+                
+                for i = 1:length(TimeLaserOff)
+                    xline(app.Plot,TimeLaserOff(i), '-r', 'LineWidth', 2)
+                end
+            end
             
             tb = axtoolbar(app.Plot,{'export','pan','zoomin','zoomout','restoreview'});
         end
@@ -2786,7 +2859,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                     end
                     
                 catch ME
-                   errordlg('This file is not yet a valid file for XMapTools. ','XMapTools')
+                   errordlg({'An error occurred while importing a file.','This file cannot be read by XMapTools.'},'XMapTools')
                    close(app.WaitBar)
                    return
                 end
@@ -2870,9 +2943,35 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 app.Log.Table = TableLOG;
                 app.Log.DT_Log = DtLOG;
                 
-            end
-            
-            if isequal(app.LogfileCheckBox.Value,0)
+                
+                if isequal(app.TypeOfFileDropDown.Value,'Multiple-file')
+                    % We are in this situation when we have multiple files
+                    % but a log file.                   (4.6 – 12.05.2026)
+                    
+                    % Here we merge the multiple files into one measurement
+                    % file.
+                    
+                    DataFiles = app.DataFiles;
+                    
+                    NewDataFiles = DataFiles(1);
+                    
+                    for i = 2:length(DataFiles)
+                        
+                        NewDataFiles.DataCps = [NewDataFiles.DataCps;DataFiles(i).DataCps];
+                        NewDataFiles.t = [NewDataFiles.t;DataFiles(i).t];
+                        NewDataFiles.DT_Map = [NewDataFiles.DT_Map;DataFiles(i).DT_Map];
+                        NewDataFiles.DT_DN = [NewDataFiles.DT_DN;DataFiles(i).DT_DN];
+                        
+                    end
+                    
+                    NewDataFiles.FileName = 'MergedFromMultipleFiles.csv';
+                    
+                    app.DataFiles = NewDataFiles;
+                end
+                
+            else
+                % There is no log file available
+                
                 app.WaitBar.Message = 'Waiting for file definitions from the LOG Generator';
                 
                 waitfor(LogGenerator(app,app.DataFiles, app.XMapToolsApp));
@@ -4794,6 +4893,36 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             close(app.WaitBar);
         end
+
+        % Menu selected function: SkipDateTimeformatconfirmationMenu
+        function SkipDateTimeformatconfirmationMenuSelected(app, event)
+            if isequal(app.SkipDateTimeformatconfirmationMenu.Checked,1)
+                app.SkipDateTimeformatconfirmationMenu.Checked = 0;
+                app.CheckDateTimeFormat = 1;
+            else
+                app.SkipDateTimeformatconfirmationMenu.Checked = 1;
+                app.CheckDateTimeFormat = 0;
+            end
+        end
+
+        % Menu selected function: 
+        % AdvancedlaserONOFFvisualisationMenu
+        function AdvancedlaserONOFFvisualisationMenuSelected(app, event)
+            if isequal(app.AdvancedlaserONOFFvisualisationMenu.Checked,1)
+                app.AdvancedlaserONOFFvisualisationMenu.Checked = 0;
+            else
+                app.AdvancedlaserONOFFvisualisationMenu.Checked = 1;
+            end
+        end
+
+        % Value changed function: LogfileCheckBox
+        function LogfileCheckBoxValueChanged(app, event)
+            if isequal(app.LogfileCheckBox.Value,1)
+                app.TypeOfLogFileDropDown.Enable = 'on';
+            else
+                app.TypeOfLogFileDropDown.Enable = 'off';
+            end
+        end
     end
 
     % Component initialization
@@ -4804,7 +4933,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create ConverterLAICPMS and hide until all components are created
             app.ConverterLAICPMS = uifigure('Visible', 'off');
-            app.ConverterLAICPMS.Position = [100 100 1258 774];
+            app.ConverterLAICPMS.Position = [100 100 1400 861];
             app.ConverterLAICPMS.Name = 'Converter For LA-ICPMS Data – XMapTools';
             app.ConverterLAICPMS.CloseRequestFcn = createCallbackFcn(app, @ConverterLAICPMSCloseRequest, true);
 
@@ -4823,8 +4952,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create SkipDateTimeformatconfirmationMenu
             app.SkipDateTimeformatconfirmationMenu = uimenu(app.OptionsMenu);
+            app.SkipDateTimeformatconfirmationMenu.MenuSelectedFcn = createCallbackFcn(app, @SkipDateTimeformatconfirmationMenuSelected, true);
             app.SkipDateTimeformatconfirmationMenu.Checked = 'on';
             app.SkipDateTimeformatconfirmationMenu.Text = 'Skip Date/Time format confirmation';
+
+            % Create AdvancedlaserONOFFvisualisationMenu
+            app.AdvancedlaserONOFFvisualisationMenu = uimenu(app.OptionsMenu);
+            app.AdvancedlaserONOFFvisualisationMenu.MenuSelectedFcn = createCallbackFcn(app, @AdvancedlaserONOFFvisualisationMenuSelected, true);
+            app.AdvancedlaserONOFFvisualisationMenu.Text = 'Advanced laser ON/OFF visualisation';
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.ConverterLAICPMS);
@@ -4871,7 +5006,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create GridLayout2
             app.GridLayout2 = uigridlayout(app.GridLayout);
-            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
             app.GridLayout2.RowHeight = {'1x'};
             app.GridLayout2.ColumnSpacing = 5;
             app.GridLayout2.RowSpacing = 5;
@@ -4884,21 +5019,22 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.LoadDatafilesButton.Icon = '323-add.png';
             app.LoadDatafilesButton.FontSize = 13;
             app.LoadDatafilesButton.Layout.Row = 1;
-            app.LoadDatafilesButton.Layout.Column = [21 24];
+            app.LoadDatafilesButton.Layout.Column = [24 27];
             app.LoadDatafilesButton.Text = ' Load Datafiles';
 
             % Create TypeOfInstrumentDropDown
             app.TypeOfInstrumentDropDown = uidropdown(app.GridLayout2);
             app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo CSV', 'Thermo FIN2', 'PerkinElmer'};
             app.TypeOfInstrumentDropDown.Layout.Row = 1;
-            app.TypeOfInstrumentDropDown.Layout.Column = [6 8];
+            app.TypeOfInstrumentDropDown.Layout.Column = [5 7];
             app.TypeOfInstrumentDropDown.Value = 'Agilent';
 
             % Create LogfileCheckBox
             app.LogfileCheckBox = uicheckbox(app.GridLayout2);
+            app.LogfileCheckBox.ValueChangedFcn = createCallbackFcn(app, @LogfileCheckBoxValueChanged, true);
             app.LogfileCheckBox.Text = 'Log-file';
             app.LogfileCheckBox.Layout.Row = 1;
-            app.LogfileCheckBox.Layout.Column = [14 15];
+            app.LogfileCheckBox.Layout.Column = [13 14];
             app.LogfileCheckBox.Value = true;
 
             % Create TypeOfFileDropDown
@@ -4906,7 +5042,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.TypeOfFileDropDown.Items = {'Single-file', 'Multiple-file'};
             app.TypeOfFileDropDown.ValueChangedFcn = createCallbackFcn(app, @TypeOfFileDropDownValueChanged, true);
             app.TypeOfFileDropDown.Layout.Row = 1;
-            app.TypeOfFileDropDown.Layout.Column = [9 11];
+            app.TypeOfFileDropDown.Layout.Column = [8 10];
             app.TypeOfFileDropDown.Value = 'Single-file';
 
             % Create HelpButton
@@ -4914,7 +5050,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.HelpButton.ButtonPushedFcn = createCallbackFcn(app, @HelpButtonPushed, true);
             app.HelpButton.Icon = '061-info.png';
             app.HelpButton.Layout.Row = 1;
-            app.HelpButton.Layout.Column = 26;
+            app.HelpButton.Layout.Column = 28;
             app.HelpButton.Text = '';
 
             % Create MassSpectrometerLabel
@@ -4923,7 +5059,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.MassSpectrometerLabel.FontSize = 14;
             app.MassSpectrometerLabel.FontWeight = 'bold';
             app.MassSpectrometerLabel.Layout.Row = 1;
-            app.MassSpectrometerLabel.Layout.Column = [1 5];
+            app.MassSpectrometerLabel.Layout.Column = [1 4];
             app.MassSpectrometerLabel.Text = 'Mass Spectrometer:  ';
 
             % Create LaserLabel
@@ -4932,7 +5068,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.LaserLabel.FontSize = 14;
             app.LaserLabel.FontWeight = 'bold';
             app.LaserLabel.Layout.Row = 1;
-            app.LaserLabel.Layout.Column = [12 13];
+            app.LaserLabel.Layout.Column = [11 12];
             app.LaserLabel.Text = 'Laser: ';
 
             % Create NameFormatDropDown
@@ -4941,8 +5077,24 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             app.NameFormatDropDown.ValueChangedFcn = createCallbackFcn(app, @NameFormatDropDownValueChanged, true);
             app.NameFormatDropDown.FontSize = 10;
             app.NameFormatDropDown.Layout.Row = 1;
-            app.NameFormatDropDown.Layout.Column = [16 19];
+            app.NameFormatDropDown.Layout.Column = [20 23];
             app.NameFormatDropDown.Value = 'Format 1 (Name - ID)';
+
+            % Create TypeOfLogFileDropDown
+            app.TypeOfLogFileDropDown = uidropdown(app.GridLayout2);
+            app.TypeOfLogFileDropDown.Items = {'GeoStar', 'GeoStar PAbB'};
+            app.TypeOfLogFileDropDown.Layout.Row = 1;
+            app.TypeOfLogFileDropDown.Layout.Column = [15 17];
+            app.TypeOfLogFileDropDown.Value = 'GeoStar';
+
+            % Create FormatLabel
+            app.FormatLabel = uilabel(app.GridLayout2);
+            app.FormatLabel.HorizontalAlignment = 'right';
+            app.FormatLabel.FontSize = 14;
+            app.FormatLabel.FontWeight = 'bold';
+            app.FormatLabel.Layout.Row = 1;
+            app.FormatLabel.Layout.Column = [18 19];
+            app.FormatLabel.Text = 'Format: ';
 
             % Create BACKGROUNDPanel
             app.BACKGROUNDPanel = uipanel(app.GridLayout);
@@ -5087,7 +5239,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
 
             % Create SecondaryStd_UITable
             app.SecondaryStd_UITable = uitable(app.GridLayout7);
-            app.SecondaryStd_UITable.ColumnName = {'El'; 'Ref (ppm)'; 'Calc (ppm)'; 'Delta (%)'};
+            app.SecondaryStd_UITable.ColumnName = {'El'; 'Ref (µg/g)'; 'Calc (µg/g)'; 'Delta (%)'};
             app.SecondaryStd_UITable.RowName = {};
             app.SecondaryStd_UITable.Layout.Row = [2 6];
             app.SecondaryStd_UITable.Layout.Column = [2 10];

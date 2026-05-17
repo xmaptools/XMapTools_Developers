@@ -4,6 +4,8 @@
 # Usage examples:
 #   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install
 #   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update
+#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install-dev
+#   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --update-dev
 #   curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --info
 # ----------------------------------------------------------------------------
 
@@ -23,6 +25,17 @@ UPDATE_URLS=(
     "https://xmaptools.ch/releases/XMapTools_macOS_AppleSilicon.zip"
 )
 
+DEV_INSTALL_URLS=(
+    "https://xmaptools.ch/dev-releases/XMapToolsInstaller_macOS_Intel.zip"
+    "https://xmaptools.ch/dev-releases/XMapToolsInstaller_macOS_AppleSilicon.zip"
+)
+
+DEV_UPDATE_URLS=(
+    "https://xmaptools.ch/dev-releases/XMapTools_macOS_Intel.zip"
+    "https://xmaptools.ch/dev-releases/XMapTools_macOS_AppleSilicon.zip"
+)
+
+ANALYTICS_URL="https://xmaptools.ch/api/count.php"
 TMP_DIR="/tmp/xmaptools_task"
 INSTALL_DIR="/Applications/XMapTools"
 UPDATE_TARGET_DIR="$INSTALL_DIR/application"
@@ -30,6 +43,13 @@ MCR_DIR="/Applications/MATLAB/MATLAB_Runtime"
 # ----------------------------------------------------------------------------
 
 # ---- Helper functions ------------------------------------------------------
+
+track_event() {
+    local action="$1" arch="$2"
+    curl -fsSL -o /dev/null -m 5 \
+        "${ANALYTICS_URL}?action=${action}&arch=${arch}&os=macOS&v=${DATEUPDATED}" \
+        2>/dev/null || true
+}
 
 cleanup() {
     if [ -d "$TMP_DIR" ]; then
@@ -54,10 +74,14 @@ print_info() {
     echo ""
     for i in "${!VERSIONS[@]}"; do
         echo "    ${VERSIONS[$i]}"
-        echo "      Installer: ${INSTALL_URLS[$i]}"
+        echo "      Stable installer: ${INSTALL_URLS[$i]}"
         print_remote_timestamp "${INSTALL_URLS[$i]}"
-        echo "      Update:    ${UPDATE_URLS[$i]}"
+        echo "      Stable update:    ${UPDATE_URLS[$i]}"
         print_remote_timestamp "${UPDATE_URLS[$i]}"
+        echo "      Dev installer:    ${DEV_INSTALL_URLS[$i]}"
+        print_remote_timestamp "${DEV_INSTALL_URLS[$i]}"
+        echo "      Dev update:       ${DEV_UPDATE_URLS[$i]}"
+        print_remote_timestamp "${DEV_UPDATE_URLS[$i]}"
         echo ""
     done
 
@@ -97,9 +121,11 @@ print_info() {
     echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- <arguments>"
     echo ""
     echo "    Arguments:"
-    echo "      --install [Intel|AppleSilicon]   Full installation"
-    echo "      --update  [Intel|AppleSilicon]   Update the app bundle only"
-    echo "      --info                           Show this information"
+    echo "      --install     [Intel|AppleSilicon]   Full installation (stable)"
+    echo "      --update      [Intel|AppleSilicon]   Update the app bundle only (stable)"
+    echo "      --install-dev [Intel|AppleSilicon]   Full installation (developer)"
+    echo "      --update-dev  [Intel|AppleSilicon]   Update the app bundle only (developer)"
+    echo "      --info                               Show this information"
     echo ""
     echo "  Notes:"
     echo ""
@@ -108,6 +134,8 @@ print_info() {
     echo "    - The script may prompt for your password to perform privileged tasks."
     echo "    - If XMapTools reports an invalid MCR version after updating, please"
     echo "      perform a full reinstallation using the --install option."
+    echo "    - Developer versions (--install-dev / --update-dev) are for testing"
+    echo "      purposes and may be unstable."
     echo ""
     exit 0
 }
@@ -222,7 +250,8 @@ resolve_index() {
 # ---- Install function ------------------------------------------------------
 do_install() {
     local idx="$1"
-    local zip_url="${INSTALL_URLS[$idx]}"
+    local zip_url="${2:-${INSTALL_URLS[$idx]}}"
+    local action="${3:-install}"
     local zip_path="$TMP_DIR/XMapToolsInstaller.zip"
     local app_name="XMapToolsInstaller_macOS.app"
     local app_path="$TMP_DIR/$app_name"
@@ -230,6 +259,7 @@ do_install() {
     clear
     print_banner
     echo "  Installing XMapTools (${VERSIONS[$idx]}) ..."
+    track_event "$action" "${VERSIONS[$idx]}"
     print_remote_timestamp "$zip_url"
     echo ""
 
@@ -278,6 +308,115 @@ do_install() {
     disown
 }
 
+# ---- Update function -------------------------------------------------------
+do_update() {
+    local idx="$1"
+    local zip_url="$2"
+    local action="${3:-update}"
+    local install_url="${4:-${INSTALL_URLS[$idx]}}"
+    local install_action="${5:-install}"
+    local zip_path="$TMP_DIR/XMapTools.zip"
+    local app_name="XMapTools.app"
+    local extracted_app_path="$TMP_DIR/$app_name"
+    local target_dir="$UPDATE_TARGET_DIR"
+    local target_app_path="$target_dir/$app_name"
+
+    clear
+    print_banner
+    echo "  Updating XMapTools (${VERSIONS[$idx]}) ..."
+    track_event "$action" "${VERSIONS[$idx]}"
+    print_remote_timestamp "$zip_url"
+    echo ""
+
+    echo "  Verifying existing installation ..."
+    if [ ! -d "$target_dir" ]; then
+        echo ""
+        echo "  [ERROR] Target directory does not exist: $target_dir"
+        echo "  XMapTools does not appear to be installed. Please run a full"
+        echo "  installation first:"
+        echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --${install_action}"
+        exit 1
+    fi
+
+    echo "  Checking MATLAB Runtime ..."
+    local mcr_expected mcr_label
+    if [ "$idx" -eq 0 ]; then
+        mcr_expected="$MCR_DIR/v99"
+        mcr_label="v99 (R2020b, Intel)"
+    else
+        mcr_expected="$MCR_DIR/R2025a"
+        mcr_label="R2025a (Apple Silicon)"
+    fi
+
+    if [ ! -d "$mcr_expected" ]; then
+        echo ""
+        echo "  [WARNING] MATLAB Runtime $mcr_label is not installed."
+        echo "  XMapTools requires this runtime version to run."
+        echo ""
+        read -rp "  Would you like to run a full installation instead? (y/n) " answer < /dev/tty
+        if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+            do_install "$idx" "$install_url" "$install_action"
+            exit 0
+        else
+            echo ""
+            echo "  Update cancelled."
+            exit 1
+        fi
+    fi
+    echo "    MATLAB Runtime $mcr_label found."
+    echo ""
+
+    echo "  Preparing temporary workspace (you might have to type your password) ..."
+    sudo rm -rf "$TMP_DIR"
+    sudo mkdir -p "$TMP_DIR"
+
+    echo ""
+    echo "  Downloading latest version ..."
+    echo "    $zip_url"
+    print_remote_timestamp "$zip_url"
+    sudo curl -fSL "$zip_url" -o "$zip_path"
+    echo ""
+
+    echo "  Extracting archive ..."
+    sudo unzip -q "$zip_path" -d "$TMP_DIR"
+
+    if [ ! -d "$extracted_app_path" ]; then
+        echo "  [ERROR] Expected $app_name inside the archive, but it was not found."
+        cleanup
+        exit 1
+    fi
+
+    echo "  Removing previous app bundle ..."
+    sudo rm -rf "$target_app_path"
+
+    echo "  Installing new app bundle ..."
+    sudo mv "$extracted_app_path" "$target_dir"
+
+    echo "  Setting execute permissions on app binary ..."
+    sudo chmod +x "$target_app_path/Contents/MacOS/"* || true
+    sudo find "$target_app_path" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+
+    echo "  Clearing Gatekeeper quarantine flags ..."
+    sudo xattr -cr "$target_app_path" || true
+
+    echo "  Re-signing app bundle (ad-hoc) ..."
+    sudo codesign --force --deep --sign - "$target_app_path" 2>/dev/null || true
+
+    echo "  Setting write permissions on user configuration files ..."
+    sudo chown "$(logname)" "$target_app_path/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
+    sudo chmod 644 "$target_app_path/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
+    echo ""
+
+    cleanup
+
+    setup_terminal_command
+
+    check_mcr
+
+    echo "  [OK] XMapTools has been updated successfully."
+    echo ""
+}
+
 # ---- Main logic ------------------------------------------------------------
 MODE="${1:-}"
 
@@ -289,112 +428,28 @@ case "$MODE" in
     --install)
         ARCH="${2:-auto}"
         IDX=$(resolve_index "$ARCH")
-        do_install "$IDX"
+        do_install "$IDX" "${INSTALL_URLS[$IDX]}" "install"
+        exit 0
+        ;;
+
+    --install-dev)
+        ARCH="${2:-auto}"
+        IDX=$(resolve_index "$ARCH")
+        do_install "$IDX" "${DEV_INSTALL_URLS[$IDX]}" "install-dev"
         exit 0
         ;;
 
     --update)
         ARCH="${2:-auto}"
         IDX=$(resolve_index "$ARCH")
-        ZIP_URL="${UPDATE_URLS[$IDX]}"
-        ZIP_PATH="$TMP_DIR/XMapTools.zip"
-        APP_NAME="XMapTools.app"
-        EXTRACTED_APP_PATH="$TMP_DIR/$APP_NAME"
-        TARGET_DIR="$UPDATE_TARGET_DIR"
-        TARGET_APP_PATH="$TARGET_DIR/$APP_NAME"
+        do_update "$IDX" "${UPDATE_URLS[$IDX]}" "update" "${INSTALL_URLS[$IDX]}" "install"
+        exit 0
+        ;;
 
-        clear
-        print_banner
-        echo "  Updating XMapTools (${VERSIONS[$IDX]}) ..."
-        print_remote_timestamp "$ZIP_URL"
-        echo ""
-
-        echo "  Verifying existing installation ..."
-        if [ ! -d "$TARGET_DIR" ]; then
-            echo ""
-            echo "  [ERROR] Target directory does not exist: $TARGET_DIR"
-            echo "  XMapTools does not appear to be installed. Please run a full"
-            echo "  installation first:"
-            echo "    curl -fsSL https://xmaptools.ch/install.sh | bash -s -- --install"
-            exit 1
-        fi
-
-        echo "  Checking MATLAB Runtime ..."
-        if [ "$IDX" -eq 0 ]; then
-            MCR_EXPECTED="$MCR_DIR/v99"
-            MCR_LABEL="v99 (R2020b, Intel)"
-        else
-            MCR_EXPECTED="$MCR_DIR/R2025a"
-            MCR_LABEL="R2025a (Apple Silicon)"
-        fi
-
-        if [ ! -d "$MCR_EXPECTED" ]; then
-            echo ""
-            echo "  [WARNING] MATLAB Runtime $MCR_LABEL is not installed."
-            echo "  XMapTools requires this runtime version to run."
-            echo ""
-            read -rp "  Would you like to run a full installation instead? (y/n) " answer < /dev/tty
-            if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
-                do_install "$IDX"
-                exit 0
-            else
-                echo ""
-                echo "  Update cancelled."
-                exit 1
-            fi
-        fi
-        echo "    MATLAB Runtime $MCR_LABEL found."
-        echo ""
-
-        echo "  Preparing temporary workspace (you might have to type your password) ..."
-        sudo rm -rf "$TMP_DIR"
-        sudo mkdir -p "$TMP_DIR"
-
-        echo ""
-        echo "  Downloading latest version ..."
-        echo "    $ZIP_URL"
-        print_remote_timestamp "$ZIP_URL"
-        sudo curl -fSL "$ZIP_URL" -o "$ZIP_PATH"
-        echo ""
-
-        echo "  Extracting archive ..."
-        sudo unzip -q "$ZIP_PATH" -d "$TMP_DIR"
-
-        if [ ! -d "$EXTRACTED_APP_PATH" ]; then
-            echo "  [ERROR] Expected $APP_NAME inside the archive, but it was not found."
-            cleanup
-            exit 1
-        fi
-
-        echo "  Removing previous app bundle ..."
-        sudo rm -rf "$TARGET_APP_PATH"
-
-        echo "  Installing new app bundle ..."
-        sudo mv "$EXTRACTED_APP_PATH" "$TARGET_DIR"
-
-        echo "  Setting execute permissions on app binary ..."
-        sudo chmod +x "$TARGET_APP_PATH/Contents/MacOS/"* || true
-        sudo find "$TARGET_APP_PATH" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
-
-        echo "  Clearing Gatekeeper quarantine flags ..."
-        sudo xattr -cr "$TARGET_APP_PATH" || true
-
-        echo "  Re-signing app bundle (ad-hoc) ..."
-        sudo codesign --force --deep --sign - "$TARGET_APP_PATH" 2>/dev/null || true
-
-        echo "  Setting write permissions on user configuration files ..."
-        sudo chown "$(logname)" "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
-        sudo chmod 644 "$TARGET_APP_PATH/Contents/Resources/XMapTools_mcr/XMapTools/config_xmaptools.mat"
-        echo ""
-
-        cleanup
-
-        setup_terminal_command
-
-        check_mcr
-
-        echo "  [OK] XMapTools has been updated successfully."
-        echo ""
+    --update-dev)
+        ARCH="${2:-auto}"
+        IDX=$(resolve_index "$ARCH")
+        do_update "$IDX" "${DEV_UPDATE_URLS[$IDX]}" "update-dev" "${DEV_INSTALL_URLS[$IDX]}" "install-dev"
         exit 0
         ;;
 

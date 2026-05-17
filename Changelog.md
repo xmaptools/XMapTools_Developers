@@ -1,6 +1,40 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.5 (no build yet)
+## XMapTools 4.6 beta 1 (260516)
+
+This release is a developer version that includes new features and bug fixes to the software. 
+
+
+- General: 
+  - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
+  
+  
+- LA-ICP-MS:
+  - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
+  - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected. 
+  - In the converter module, add a new mode for the laser log file (GeoStar PAbB) for analyses where pre-ablation is performed prior to the background measurement.  
+  - In the converter module, improve the laser ON/OFF visualisation plot by plotting both states in different colours (blue for on and red for off). This advanced plotting mode can be activated via the menu using the "Advanced laser ON/OFF visualisation" option.
+
+
+- Spot data: 
+  - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes of different types cannot be mixed within a single dataset. 
+
+
+- Other:
+  - Fix an error that was preventing projects containing spot data from loading properly when spot data already existed in the current window. 
+  - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
+  - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
+  - Other minor bug fixes.
+
+
+
+
+
+
+
+
+
+## XMapTools 4.5 (build 260210)
 
 This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
 
