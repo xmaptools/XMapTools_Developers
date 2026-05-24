@@ -6,7 +6,7 @@ classdef Import_Tool_exported < matlab.apps.AppBase
         GridLayout                      matlab.ui.container.GridLayout
         Image                           matlab.ui.control.Image
         GridLayout3                     matlab.ui.container.GridLayout
-        ImportdataButton                matlab.ui.control.Button
+        ImportmapstoXMapToolsButton     matlab.ui.control.Button
         GridLayout2                     matlab.ui.container.GridLayout
         Button_add                      matlab.ui.control.Button
         Button_help                     matlab.ui.control.Button
@@ -41,13 +41,22 @@ classdef Import_Tool_exported < matlab.apps.AppBase
         ScalingfactorLabel              matlab.ui.control.Label
         Label                           matlab.ui.control.Label
         ReplaceINF                      matlab.ui.control.CheckBox
+        DataFormatFiltersforlargedatasetsLabel  matlab.ui.control.Label
+        SelectaformatDropDownLabel      matlab.ui.control.Label
+        SelectaformatDropDown           matlab.ui.control.DropDown
+        ApplyafilterDropDownLabel       matlab.ui.control.Label
+        ApplyafilterDropDown            matlab.ui.control.DropDown
+        MedianFilterValueEditField      matlab.ui.control.NumericEditField
         VisualizationTab                matlab.ui.container.Tab
         GridLayout6                     matlab.ui.container.GridLayout
         ListMaps                        matlab.ui.control.DropDown
         UncorrecteddataLabel            matlab.ui.control.Label
         CorrecteddataLabel              matlab.ui.control.Label
-        UIAxes_Cor                      matlab.ui.control.UIAxes
-        UIAxes_Ori                      matlab.ui.control.UIAxes
+        MinEditFieldLabel               matlab.ui.control.Label
+        MinEditField                    matlab.ui.control.NumericEditField
+        MaxEditFieldLabel               matlab.ui.control.Label
+        MaxEditField                    matlab.ui.control.NumericEditField
+        PanelPlot                       matlab.ui.container.Panel
     end
 
     
@@ -134,9 +143,9 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             
             if isequal(GlobalCheck,1)
-                app.ImportdataButton.Enable = 'on';
+                app.ImportmapstoXMapToolsButton.Enable = 'on';
             else
-                app.ImportdataButton.Enable = 'off';
+                app.ImportmapstoXMapToolsButton.Enable = 'off';
             end
             
             % Apply corrections and update fields
@@ -159,18 +168,53 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             if ~isequal(app.ListMaps.Value,'No map available')
                 
-                imagesc(app.UIAxes_Ori,app.ImportData(app.ListMaps.Value).Data)
-                axis(app.UIAxes_Ori,'image');
-                colorbar(app.UIAxes_Ori);
+                Data = app.ImportData(app.ListMaps.Value).Data;
+                DataCorr = app.ImportData(app.ListMaps.Value).DataCorr;
                 
-                imagesc(app.UIAxes_Cor,app.ImportData(app.ListMaps.Value).DataCorr)
-                axis(app.UIAxes_Cor,'image');
-                colorbar(app.UIAxes_Cor);
+                if isequal(app.ApplyafilterDropDown.Value,'Median')
+                    MedianFilter = app.MedianFilterValueEditField.Value;
+                    DataCorr = medfilt2(DataCorr,[MedianFilter,MedianFilter]);
+                end
+                
+                switch app.SelectaformatDropDown.Value
+                    case 'Single'
+                        DataCorr = single(DataCorr);
+                    case 'INT16'
+                        DataCorr = uint16(DataCorr);
+                    case 'INT8'
+                        DataCorr = uint8(DataCorr);
+                end
+                
+                % cla(app.PanelPlot,'reset');
+                if isempty(app.PanelPlot.Children)
+                    tl = tiledlayout(app.PanelPlot,1,2);
+                    
+                    ax1 = nexttile(tl);
+                    imagesc(ax1,Data)
+                    axis(ax1,'image');
+                    colorbar(ax1);
+                    colormap(ax1,app.XMapToolsApp.ColorMapValues);
+                    
+                    ax2 = nexttile(tl);
+                    imagesc(ax2,DataCorr)
+                    axis(ax2,'image');
+                    colorbar(ax2);
+                    colormap(ax2,app.XMapToolsApp.ColorMapValues);
+                    
+                    linkaxes([ax1 ax2],'xy');
+                else
+                    app.PanelPlot.Children(1).Children(4).Children.CData = Data;
+                    app.PanelPlot.Children(1).Children(2).Children.CData = DataCorr;
+                end
                 
                 app.NbColMod.Value = size(app.ImportData(app.ListMaps.Value).DataCorr,2);
                 app.NbLinMod.Value = size(app.ImportData(app.ListMaps.Value).DataCorr,1);
                 
+                app.MinEditField.Value = double(min([min(Data(:)),min(DataCorr(:))]));
+                app.MaxEditField.Value = double(max([max(Data(:)),max(DataCorr(:))]));
+                
                 % app.XMapToolsApp.ActiveColorbar
+                
                 
             end
         end
@@ -318,6 +362,117 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             
             
+        end
+        
+        function Cancel = CheckDataFormat(app)
+            
+            Cancel = 0;
+            
+            NbMaps = length(app.ImportData);
+            
+            Resolution = zeros(NbMaps,2);
+            NbPixels = zeros(NbMaps,1);
+            MapSize = zeros(NbMaps,1);
+            
+            MapSizeDouble = zeros(NbMaps,1);
+            MapSizeSingle = zeros(NbMaps,1);
+            MapSizeInt8 = zeros(NbMaps,1);
+            MapSizeInt16 = zeros(NbMaps,1);
+            
+            MinValue = zeros(NbMaps,1);
+            MaxValue = zeros(NbMaps,1);
+            
+            for i = 1:NbMaps
+                Resolution(i,:) = size(app.ImportData(i).Data);
+                NbPixels(i) = prod(Resolution(i,:));
+                
+                MapSizeDouble(i) = NbPixels(i)*8;
+                MapSizeSingle(i) = NbPixels(i)*4;
+                MapSizeInt16(i) = NbPixels(i)*2;
+                MapSizeInt8(i) = NbPixels(i);
+                
+                switch app.SelectaformatDropDown.Value
+                    case 'Double'
+                        MapSize(i) = MapSizeDouble(i);
+                    case 'Single'
+                        MapSize(i) = MapSizeSingle(i);
+                    case 'INT16'
+                        MapSize(i) = MapSizeInt16(i);
+                    case 'INT8'
+                        MapSize(i) = MapSizeInt8(i);
+                end
+                
+                MinValue(i) = min(app.ImportData(i).Data(:));
+                MaxValue(i) = max(app.ImportData(i).Data(:));
+            end
+            
+            SelectedFormat = app.SelectaformatDropDown.Value;
+            
+            SuggestedFormat = '';
+            
+            if NbPixels(1) > 1e6 && isequal(SelectedFormat,'Double')
+                if isequal(sum(MinValue >= 0),length(MinValue)) && isequal(sum(MaxValue <= 255),length(MaxValue))
+                    SuggestedFormat = 'INT8';
+                    MemorySaveMo = (MapSizeDouble-MapSizeInt8)*NbMaps/1e6;
+                    
+                elseif isequal(sum(MinValue >= 0),length(MinValue)) && isequal(sum(MaxValue <= 65535),length(MaxValue))
+                    SuggestedFormat = 'INT16';
+                    MemorySaveMo = (MapSizeDouble-MapSizeInt16)*NbMaps/1e6;
+                else
+                    SuggestedFormat = 'Single';
+                    MemorySaveMo = (MapSizeDouble-MapSizeSingle)*NbMaps/1e6;
+                end
+            end
+            
+            if isempty(SuggestedFormat)
+                SuggestedFormat = app.SelectaformatDropDown.Value;
+                selection = 'Yes';
+            else
+                msg = {['The recommended format for this dataset is ',SuggestedFormat],['This will save ',num2str(sum(MemorySaveMo)),' Mo for the selected maps'],['Do you want to switch to the format ',SuggestedFormat,'?']};
+                title = 'XMapTools';
+                selection = uiconfirm(app.ImportToolXMapToolsUIFigure,msg,title,'Options',{'Yes','No','Cancel'},'DefaultOption',1,'CancelOption',3);
+            end
+            
+            switch selection
+                case 'Yes'
+                    switch SuggestedFormat
+                        case 'INT8'
+                            for i = 1:NbMaps
+                                app.ImportData(i).Data = uint8(app.ImportData(i).Data);
+                                app.ImportData(i).DataCorr = uint8(app.ImportData(i).DataCorr);
+                            end
+                        case 'INT16'
+                            for i = 1:NbMaps
+                                app.ImportData(i).Data = uint16(app.ImportData(i).Data);
+                                app.ImportData(i).DataCorr = uint16(app.ImportData(i).DataCorr);
+                            end
+                        case 'Single'
+                            for i = 1:NbMaps
+                                app.ImportData(i).Data = single(app.ImportData(i).Data);
+                                app.ImportData(i).DataCorr = single(app.ImportData(i).DataCorr);
+                            end
+                    end 
+                case 'Cancel'
+                    Cancel = 1;
+            end
+        end
+        
+        function ApplyMedianFilter(app)
+            
+            d = uiprogressdlg(app.ImportToolXMapToolsUIFigure,'Message','Applying median filter','Title','XMapTools');
+            d.Value = 0;
+            
+            if isequal(app.ApplyafilterDropDown.Value,'Median')
+                NbMaps = length(app.ImportData);
+                MedianFilter = app.MedianFilterValueEditField.Value;
+                for i = 1:NbMaps
+                    app.ImportData(i).Data = medfilt2(app.ImportData(i).Data,[MedianFilter,MedianFilter]);
+                    app.ImportData(i).DataCorr = medfilt2(app.ImportData(i).DataCorr,[MedianFilter,MedianFilter]);
+                    d.Value = i/NbMaps;
+                end
+            end
+            
+            close(d)
         end
     end
     
@@ -608,6 +763,13 @@ classdef Import_Tool_exported < matlab.apps.AppBase
                     app.ImportData(PrevPos+i-Skip).OxInd = OxInd;
                     app.ImportData(PrevPos+i-Skip).Checked = 1;
                     
+                    switch app.SelectaformatDropDown.Value
+                        case 'INT8'
+                            NewMap = uint8(NewMap);
+                        case 'INT16'
+                            NewMap = uint16(NewMap);
+                    end
+                    
                     app.ImportData(PrevPos+i-Skip).Data = NewMap;
                     app.ImportData(PrevPos+i-Skip).DataCorr = NewMap;
                 end
@@ -632,7 +794,7 @@ classdef Import_Tool_exported < matlab.apps.AppBase
                 app.ImportData(indices(1)) = [];
                 if isempty(app.ImportData)
                     app.UITable.Data = {};
-                    app.ImportdataButton.Enable = 'off';
+                    app.ImportmapstoXMapToolsButton.Enable = 'off';
                     return
                 else
                     GenerateTable(app);
@@ -808,8 +970,16 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
         end
 
-        % Button pushed function: ImportdataButton
-        function ImportdataButtonPushed(app, event)
+        % Button pushed function: ImportmapstoXMapToolsButton
+        function ImportmapstoXMapToolsButtonPushed(app, event)
+            
+            Cancel = CheckDataFormat(app);
+            
+            if isequal(Cancel,1)
+                return
+            end
+            
+            ApplyMedianFilter(app)
             
             % we add the data to the XMapTools' data and close the window
             
@@ -913,10 +1083,7 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             fprintf(fid,'%s\t\t\t%.0f\n','Replace_Negative_Values:',app.ReplaceNeG.Value);
             fprintf(fid,'%s\t\t\t\t\t%.0f\n','Replace_NaN_Values:',app.ReplaceNaN.Value);
             fclose(fid);
-            
-            
-            
-            
+           
             %keyboard
             
             %app.XMapToolsApp.XMapToolsData.MapData
@@ -940,6 +1107,37 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             a = 1;
             delete(app)
             pause(0.1)
+        end
+
+        % Value changed function: SelectaformatDropDown
+        function SelectaformatDropDownValueChanged(app, event)
+            GeneratePlot(app);
+        end
+
+        % Value changed function: ApplyafilterDropDown
+        function ApplyafilterDropDownValueChanged(app, event)
+            GeneratePlot(app);
+        end
+
+        % Value changed function: MedianFilterValueEditField
+        function MedianFilterValueEditFieldValueChanged(app, event)
+            GeneratePlot(app);
+        end
+
+        % Value changed function: MaxEditField
+        function MaxEditFieldValueChanged(app, event)
+            Min = app.MinEditField.Value;
+            Max = app.MaxEditField.Value;
+            caxis(app.PanelPlot.Children(1).Children(2),[Min,Max]);
+            caxis(app.PanelPlot.Children(1).Children(4),[Min,Max]);
+        end
+
+        % Value changed function: MinEditField
+        function MinEditFieldValueChanged(app, event)
+            Min = app.MinEditField.Value;
+            Max = app.MaxEditField.Value;
+            caxis(app.PanelPlot.Children(1).Children(2),[Min,Max]);
+            caxis(app.PanelPlot.Children(1).Children(4),[Min,Max]);
         end
     end
 
@@ -970,22 +1168,22 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             app.GridLayout3 = uigridlayout(app.GridLayout);
             app.GridLayout3.ColumnWidth = {'1x'};
             app.GridLayout3.RowHeight = {'1x'};
-            app.GridLayout3.Padding = [50 10 50 10];
+            app.GridLayout3.Padding = [30 10 30 10];
             app.GridLayout3.Layout.Row = 1;
             app.GridLayout3.Layout.Column = 3;
 
-            % Create ImportdataButton
-            app.ImportdataButton = uibutton(app.GridLayout3, 'push');
-            app.ImportdataButton.ButtonPushedFcn = createCallbackFcn(app, @ImportdataButtonPushed, true);
-            app.ImportdataButton.Icon = '323-add.png';
-            app.ImportdataButton.Enable = 'off';
-            app.ImportdataButton.Layout.Row = 1;
-            app.ImportdataButton.Layout.Column = 1;
-            app.ImportdataButton.Text = 'Import data';
+            % Create ImportmapstoXMapToolsButton
+            app.ImportmapstoXMapToolsButton = uibutton(app.GridLayout3, 'push');
+            app.ImportmapstoXMapToolsButton.ButtonPushedFcn = createCallbackFcn(app, @ImportmapstoXMapToolsButtonPushed, true);
+            app.ImportmapstoXMapToolsButton.Icon = 'xmaptools_logo_2025.png';
+            app.ImportmapstoXMapToolsButton.Enable = 'off';
+            app.ImportmapstoXMapToolsButton.Layout.Row = 1;
+            app.ImportmapstoXMapToolsButton.Layout.Column = 1;
+            app.ImportmapstoXMapToolsButton.Text = 'Import maps to XMapTools';
 
             % Create GridLayout2
             app.GridLayout2 = uigridlayout(app.GridLayout);
-            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout2.ColumnWidth = {'1x', '1.6x', '1x', '1x', '1x', '1.6x'};
             app.GridLayout2.RowHeight = {'1x'};
             app.GridLayout2.Layout.Row = 1;
             app.GridLayout2.Layout.Column = 2;
@@ -994,10 +1192,9 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             app.Button_add = uibutton(app.GridLayout2, 'push');
             app.Button_add.ButtonPushedFcn = createCallbackFcn(app, @Button_addPushed, true);
             app.Button_add.Icon = '056-plus.png';
-            app.Button_add.IconAlignment = 'center';
             app.Button_add.Layout.Row = 1;
-            app.Button_add.Layout.Column = 4;
-            app.Button_add.Text = '';
+            app.Button_add.Layout.Column = [3 5];
+            app.Button_add.Text = 'Load files';
 
             % Create Button_help
             app.Button_help = uibutton(app.GridLayout2, 'push');
@@ -1216,6 +1413,52 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             app.ReplaceINF.Layout.Column = [8 10];
             app.ReplaceINF.Value = true;
 
+            % Create DataFormatFiltersforlargedatasetsLabel
+            app.DataFormatFiltersforlargedatasetsLabel = uilabel(app.GridLayout5);
+            app.DataFormatFiltersforlargedatasetsLabel.FontWeight = 'bold';
+            app.DataFormatFiltersforlargedatasetsLabel.Layout.Row = 12;
+            app.DataFormatFiltersforlargedatasetsLabel.Layout.Column = [1 5];
+            app.DataFormatFiltersforlargedatasetsLabel.Text = 'Data Format & Filters for large datasets';
+
+            % Create SelectaformatDropDownLabel
+            app.SelectaformatDropDownLabel = uilabel(app.GridLayout5);
+            app.SelectaformatDropDownLabel.HorizontalAlignment = 'right';
+            app.SelectaformatDropDownLabel.Layout.Row = 13;
+            app.SelectaformatDropDownLabel.Layout.Column = [1 2];
+            app.SelectaformatDropDownLabel.Text = 'Select a format';
+
+            % Create SelectaformatDropDown
+            app.SelectaformatDropDown = uidropdown(app.GridLayout5);
+            app.SelectaformatDropDown.Items = {'Double', 'Single', 'INT16', 'INT8'};
+            app.SelectaformatDropDown.ValueChangedFcn = createCallbackFcn(app, @SelectaformatDropDownValueChanged, true);
+            app.SelectaformatDropDown.Layout.Row = 13;
+            app.SelectaformatDropDown.Layout.Column = [3 5];
+            app.SelectaformatDropDown.Value = 'Double';
+
+            % Create ApplyafilterDropDownLabel
+            app.ApplyafilterDropDownLabel = uilabel(app.GridLayout5);
+            app.ApplyafilterDropDownLabel.HorizontalAlignment = 'right';
+            app.ApplyafilterDropDownLabel.Layout.Row = 13;
+            app.ApplyafilterDropDownLabel.Layout.Column = [6 7];
+            app.ApplyafilterDropDownLabel.Text = 'Apply a filter';
+
+            % Create ApplyafilterDropDown
+            app.ApplyafilterDropDown = uidropdown(app.GridLayout5);
+            app.ApplyafilterDropDown.Items = {'None', 'Median'};
+            app.ApplyafilterDropDown.ValueChangedFcn = createCallbackFcn(app, @ApplyafilterDropDownValueChanged, true);
+            app.ApplyafilterDropDown.Layout.Row = 13;
+            app.ApplyafilterDropDown.Layout.Column = [8 9];
+            app.ApplyafilterDropDown.Value = 'None';
+
+            % Create MedianFilterValueEditField
+            app.MedianFilterValueEditField = uieditfield(app.GridLayout5, 'numeric');
+            app.MedianFilterValueEditField.Limits = [3 Inf];
+            app.MedianFilterValueEditField.ValueDisplayFormat = '%.0f';
+            app.MedianFilterValueEditField.ValueChangedFcn = createCallbackFcn(app, @MedianFilterValueEditFieldValueChanged, true);
+            app.MedianFilterValueEditField.Layout.Row = 13;
+            app.MedianFilterValueEditField.Layout.Column = 10;
+            app.MedianFilterValueEditField.Value = 3;
+
             % Create VisualizationTab
             app.VisualizationTab = uitab(app.TabGroup);
             app.VisualizationTab.Title = 'Visualization';
@@ -1223,7 +1466,7 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             % Create GridLayout6
             app.GridLayout6 = uigridlayout(app.VisualizationTab);
             app.GridLayout6.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
-            app.GridLayout6.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout6.RowHeight = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
             app.GridLayout6.Padding = [20 20 20 20];
 
             % Create ListMaps
@@ -1252,23 +1495,35 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             app.CorrecteddataLabel.Layout.Column = [5 8];
             app.CorrecteddataLabel.Text = 'Corrected data';
 
-            % Create UIAxes_Cor
-            app.UIAxes_Cor = uiaxes(app.GridLayout6);
-            xlabel(app.UIAxes_Cor, 'X (columns)')
-            ylabel(app.UIAxes_Cor, 'Y (rows)')
-            app.UIAxes_Cor.PlotBoxAspectRatio = [1.11174242424242 1 1];
-            app.UIAxes_Cor.YTick = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
-            app.UIAxes_Cor.Layout.Row = [3 9];
-            app.UIAxes_Cor.Layout.Column = [5 8];
+            % Create MinEditFieldLabel
+            app.MinEditFieldLabel = uilabel(app.GridLayout6);
+            app.MinEditFieldLabel.HorizontalAlignment = 'right';
+            app.MinEditFieldLabel.Layout.Row = 1;
+            app.MinEditFieldLabel.Layout.Column = 4;
+            app.MinEditFieldLabel.Text = 'Min';
 
-            % Create UIAxes_Ori
-            app.UIAxes_Ori = uiaxes(app.GridLayout6);
-            xlabel(app.UIAxes_Ori, 'X (columns)')
-            ylabel(app.UIAxes_Ori, 'Y (rows)')
-            app.UIAxes_Ori.PlotBoxAspectRatio = [1.11174242424242 1 1];
-            app.UIAxes_Ori.YTick = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
-            app.UIAxes_Ori.Layout.Row = [3 9];
-            app.UIAxes_Ori.Layout.Column = [1 4];
+            % Create MinEditField
+            app.MinEditField = uieditfield(app.GridLayout6, 'numeric');
+            app.MinEditField.ValueChangedFcn = createCallbackFcn(app, @MinEditFieldValueChanged, true);
+            app.MinEditField.Layout.Row = 1;
+            app.MinEditField.Layout.Column = 5;
+
+            % Create MaxEditFieldLabel
+            app.MaxEditFieldLabel = uilabel(app.GridLayout6);
+            app.MaxEditFieldLabel.Layout.Row = 1;
+            app.MaxEditFieldLabel.Layout.Column = 7;
+            app.MaxEditFieldLabel.Text = 'Max';
+
+            % Create MaxEditField
+            app.MaxEditField = uieditfield(app.GridLayout6, 'numeric');
+            app.MaxEditField.ValueChangedFcn = createCallbackFcn(app, @MaxEditFieldValueChanged, true);
+            app.MaxEditField.Layout.Row = 1;
+            app.MaxEditField.Layout.Column = 6;
+
+            % Create PanelPlot
+            app.PanelPlot = uipanel(app.GridLayout6);
+            app.PanelPlot.Layout.Row = [3 11];
+            app.PanelPlot.Layout.Column = [1 8];
 
             % Show the figure after all components are created
             app.ImportToolXMapToolsUIFigure.Visible = 'on';

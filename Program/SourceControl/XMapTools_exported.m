@@ -410,6 +410,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         FileMenu                        matlab.ui.container.Menu
         InfosMenu                       matlab.ui.container.Menu
         SaveImageMenu                   matlab.ui.container.Menu
+        ImportfromProjectMenu           matlab.ui.container.Menu
+        Menu_ImportFromProject_TrainingSetMenu  matlab.ui.container.Menu
         OpenProjectMenu                 matlab.ui.container.Menu
         SaveProjectMenu                 matlab.ui.container.Menu
         SaveProjectAsMenu               matlab.ui.container.Menu
@@ -2840,7 +2842,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
                                 MaskMap = ones(size(SelectedMaskMap));
                             end
                             
-                            app.Data2Plot = app.Data2Plot.*MaskMap;
+                            if ~isfloat(app.Data2Plot)
+                                eval(['app.Data2Plot = app.Data2Plot .* ',class(app.Data2Plot),'(MaskMap);']);
+                            else
+                                app.Data2Plot = app.Data2Plot.*MaskMap;
+                            end
+                            
                             
                             if size(AddCode,1) > 1
                                 app.Info_Phase = 'Multiple selection';
@@ -3231,7 +3238,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
             end
             
             Text2Disp = '';
-            
+            Text2Disp = [Text2Disp,'-----------------------------------------------\n'];
+            Text2Disp = [Text2Disp,'Data format\t\t',class(app.Data2Plot),'\n'];
             Text2Disp = [Text2Disp,'-----------------------------------------------\n'];
             Text2Disp = [Text2Disp,'Map type\t\t\t',app.Info_MapType,'\n'];
             Text2Disp = [Text2Disp,'Dataset\t\t\t',app.Info_Phase,'\n'];
@@ -3246,7 +3254,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Text2Disp = [Text2Disp,'Min\t\t\t\t',num2str(min(app.Data2Plot(IdxPos))),'\n'];
             Text2Disp = [Text2Disp,'Mean\t\t\t',num2str(mean(app.Data2Plot(IdxPos))),'\n'];
             Text2Disp = [Text2Disp,'Median\t\t\t',num2str(median(app.Data2Plot(IdxPos))),'\n'];
-            Text2Disp = [Text2Disp,'Stdev\t\t\t',num2str(std(app.Data2Plot(IdxPos))),'\n'];
+            if ~isinteger(app.Data2Plot(IdxPos))
+                Text2Disp = [Text2Disp,'Stdev\t\t\t',num2str(std(app.Data2Plot(IdxPos))),'\n'];
+            end
             %             if isequal(app.EditField_LivePositionVisible,'on')
             %                 Text2Disp = [Text2Disp,'Peak\t\t\t',num2str(app.EditField_LivePeak.Value),'\n'];
             %             else
@@ -3286,7 +3296,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             Text2Disp = [Text2Disp,'Max\t\t\t\t',num2str(max(DataSel(:))),'\n'];
             Text2Disp = [Text2Disp,'Mean\t\t\t',num2str(mean(DataSel)),'\n'];
             Text2Disp = [Text2Disp,'Median\t\t\t',num2str(median(DataSel)),'\n'];
-            Text2Disp = [Text2Disp,'Stdev\t\t\t',num2str(std(DataSel)),'\n'];
+            if ~isinteger(app.Data2Plot(IdxPos))
+                Text2Disp = [Text2Disp,'Stdev\t\t\t',num2str(std(DataSel)),'\n'];
+            end
             Text2Disp = [Text2Disp,'-----------------------------------------------\n'];
             if WarningLower || WarningUpper
                 Text2Disp = [Text2Disp,'>> Warning: pixel saturation (nb. outside) \n'];
@@ -3300,6 +3312,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 end
                 Text2Disp = [Text2Disp,'-----------------------------------------------\n'];
             end
+            
             
             
             app.MapInfo_TextArea.Value = sprintf(Text2Disp);
@@ -6887,7 +6900,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             a = app.Node_TrainingSet.Children;  % Training Sets
             a.delete;
             
-            a = app.Node_SegScheme.Children;  % Training Sets
+            a = app.Node_SegScheme.Children;  % Segmentation Schemes
             a.delete;
             
             a = app.Node_Standards.Children;  % Standards
@@ -7636,6 +7649,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 release_signature = '';
                 flag = false;
             end
+            
+            app.UPDATEAVAILABLELabel.Visible = 'off';
+            app.UpdateNowButton.Visible = 'off';
 
             if flag && ~isempty(release_signature)
                 
@@ -7712,9 +7728,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     %                         delete(app.XMapTools_GUI);
                     %                         return
                     %                     end
-                else
-                    app.UPDATEAVAILABLELabel.Visible = 'off';
-                    app.UpdateNowButton.Visible = 'off';
                 end
             end
             % Check for Updates ------------------------------------------
@@ -10405,7 +10418,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 % ADD Map Data
                 if isequal(app.Classify_MapsCheckBox.Value,1)
                     % Normalization (always applied for now):
-                    DataTable_REF = Data./repmat(mean(Data,1,'omitnan'),size(Data,1),1);   % as in old XMapTools version
+                    % DataTable_REF = Data./repmat(mean(Data,1,'omitnan'),size(Data,1),1);   % as in old XMapTools version
                     
                     DataTable = Data;
                     for i = 1:size(DataTable,2)
@@ -10643,6 +10656,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                 end
                 
+                % To deal with the new data formats: 
+                
                 app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
                 app.WaitBar.Message = 'Finishing pre-classification tasks';
                 
@@ -10799,7 +10814,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
                         if SubMasking
                             [Res,Posterior,Cost] = predict(BaggedEnsemble,DataTable(SelSubMasking.SelectedData,:));
                         else
-                            [Res,Posterior,Cost] = predict(BaggedEnsemble,DataTable);
+                            if isinteger(DataTable)
+                                [Res,Posterior,Cost] = predict(BaggedEnsemble,single(DataTable));
+                            else
+                                [Res,Posterior,Cost] = predict(BaggedEnsemble,DataTable);
+                            end
                         end
                         h = toc; disp(['Classification (RF): ',num2str(h)])
                         
@@ -12100,6 +12119,72 @@ classdef XMapTools_exported < matlab.apps.AppBase
         % Menu selected function: InfosMenu
         function Menu_FileMapInfosSelected(app, event)
             ContextMenu_MainTree_InfoPushed(app)
+        end
+
+        % Menu selected function: 
+        % Menu_ImportFromProject_TrainingSetMenu
+        function Menu_ImportFromProject_TrainingSetMenuSelected(app, event)
+            
+            f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
+            [ProjectName, ProjectPath] = uigetfile('*.mat', 'Pick a project file');
+            delete(f);
+            figure(app.XMapTools_GUI)
+            if isequal(ProjectName,0)
+                return
+            end
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Reading the project';
+            
+            %load([ProjectPath,'/',ProjectName]);
+            load(fullfile(ProjectPath,ProjectName),'TrainingSet');
+            
+            app.WaitBar.Message = 'Importing the Training Set';
+            
+            Pos = length(app.XMapToolsData.TrainingSet.Names);
+            
+            for i = 1:length(TrainingSet.Names)
+                
+                app.XMapToolsData.TrainingSet.Names{Pos+i} = TrainingSet.Names{i};
+                try 
+                    app.XMapToolsData.TrainingSet.Types(Pos+i) = TrainingSet.Types(i);
+                catch
+                    app.XMapToolsData.TrainingSet.Types(Pos+i) = 1; 
+                end
+                try 
+                    app.XMapToolsData.TrainingSet.MaskSignature(Pos+i) = TrainingSet.MaskSignature(i);
+                catch
+                    app.XMapToolsData.TrainingSet.MaskSignature(Pos+i) = 0; 
+                end
+                try 
+                    app.XMapToolsData.TrainingSet.MaskNode(Pos+i) = TrainingSet.MaskNode(i);
+                catch
+                    app.XMapToolsData.TrainingSet.MaskNode(Pos+i) = 0; 
+                end
+                app.XMapToolsData.TrainingSet.Nb(Pos+i) = TrainingSet.Nb(i);
+                app.XMapToolsData.TrainingSet.Data(Pos+i) = TrainingSet(i).Data;
+            end
+            
+            app.WaitBar.Message = 'Updating the interface';
+            
+            a = app.Node_TrainingSet.Children;  % Training Sets
+            a.delete;
+            
+            % Add Training Sets
+            for i = 1:length(app.XMapToolsData.TrainingSet.Names)
+                p = uitreenode(app.Node_TrainingSet,'Text',char(app.XMapToolsData.TrainingSet.Names{i}),'NodeData',[12,i,0]);
+                for j = 1:length(app.XMapToolsData.TrainingSet.Data(i).Names)
+                    p1 = uitreenode(p,'Text',char(app.XMapToolsData.TrainingSet.Data(i).Names{j}),'NodeData',[12,i,j]);
+                    for k = 1:length(app.XMapToolsData.TrainingSet.Data(i).ROI(j).Types)
+                        p2 = uitreenode(p1,'Text',char(app.XMapToolsData.TrainingSet.Data(i).ROI(j).Types{k}),'NodeData',[12,i,j,k]);
+                    end
+                end
+            end
+            
+            app.SaveRequired = 1;
+            
+            close(app.WaitBar);
+            
         end
 
         % Menu selected function: DuplicateMenu
@@ -20647,6 +20732,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SaveImageMenu = uimenu(app.FileMenu);
             app.SaveImageMenu.MenuSelectedFcn = createCallbackFcn(app, @Menu_FileSaveImageSelected, true);
             app.SaveImageMenu.Text = 'Save Image';
+
+            % Create ImportfromProjectMenu
+            app.ImportfromProjectMenu = uimenu(app.FileMenu);
+            app.ImportfromProjectMenu.Separator = 'on';
+            app.ImportfromProjectMenu.Text = 'Import from Project';
+
+            % Create Menu_ImportFromProject_TrainingSetMenu
+            app.Menu_ImportFromProject_TrainingSetMenu = uimenu(app.ImportfromProjectMenu);
+            app.Menu_ImportFromProject_TrainingSetMenu.MenuSelectedFcn = createCallbackFcn(app, @Menu_ImportFromProject_TrainingSetMenuSelected, true);
+            app.Menu_ImportFromProject_TrainingSetMenu.Text = 'Training Set';
 
             % Create OpenProjectMenu
             app.OpenProjectMenu = uimenu(app.FileMenu);

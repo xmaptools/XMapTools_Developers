@@ -8,7 +8,11 @@ This release is a developer version that includes new features and bug fixes to 
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
   
-  
+- Performance improvements with large datasets: 
+  - Implement an option in the Import tool to convert data to integer.
+  - Improve the data visualisation in the Import tool with linked zoom and compatibility to the new corrections.
+
+
 - LA-ICP-MS:
   - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
   - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected. 
