@@ -337,8 +337,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -362,8 +362,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -412,6 +412,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         SaveImageMenu                   matlab.ui.container.Menu
         ImportfromProjectMenu           matlab.ui.container.Menu
         Menu_ImportFromProject_TrainingSetMenu  matlab.ui.container.Menu
+        Menu_ImportFromProject_MaskfileMenu  matlab.ui.container.Menu
         OpenProjectMenu                 matlab.ui.container.Menu
         SaveProjectMenu                 matlab.ui.container.Menu
         SaveProjectAsMenu               matlab.ui.container.Menu
@@ -12187,6 +12188,84 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
         end
 
+        % Menu selected function: 
+        % Menu_ImportFromProject_MaskfileMenu
+        function Menu_ImportFromProject_MaskfileMenuSelected(app, event)
+            
+            f=figure('Position',[1,1,5,5],'Unit','Pixel'); drawnow; f.Visible = 'off';
+            [ProjectName, ProjectPath] = uigetfile('*.mat', 'Pick a project file');
+            delete(f);
+            figure(app.XMapTools_GUI)
+            if isequal(ProjectName,0)
+                return
+            end
+            
+            app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Reading the project';
+            
+            %load([ProjectPath,'/',ProjectName]);
+            load(fullfile(ProjectPath,ProjectName),'MapData');
+            
+            if ~isempty(MapData.MaskFile.Names)
+                Sel = 1;
+                if numel(MapData.MaskFile.Names) > 1
+                    app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
+                    app.WaitBar.Message = 'Select a mask file to import and press OK to continue...';
+                    waitfor(Selector(app,MapData.MaskFile.Names,'Select mask file in the list below','Single'));
+                    close(app.WaitBar)
+                    
+                    % s = find(ismember(app.XMapToolsData.MapData.Qt.Names,app.ExchangeSelector));
+                    Sel = app.ExchangeSelectorId;                                     % changed 4.4
+                end
+                
+                app.WaitBar.Message = 'Importing the mask file';
+                
+                Pos = length(app.XMapToolsData.MapData.MaskFile.Names) + 1;
+                
+                try 
+                    app.XMapToolsData.MapData.MaskFile.Masks(Pos) = MapData.MaskFile.Masks(Sel);
+                catch
+                    uialert(app.XMapTools_GUI,'This mask file is not compatible with this version of XMapTools','XMapTools','Icon','error');
+                    return
+                end
+                
+                app.XMapToolsData.MapData.MaskFile.Names{Pos} = MapData.MaskFile.Names{Sel};
+                
+                app.XMapToolsData.MapData.MaskFile.Types(Pos) = MapData.MaskFile.Types(Sel);
+                
+                app.XMapToolsData.MapData.MaskFile.NbMasks(Pos) = MapData.MaskFile.NbMasks(Sel);
+                
+            else
+                uialert(app.XMapTools_GUI,'No mask file availabe in this project file','XMapTools','Icon','error');
+            end
+            
+            % HereWeAre
+            
+            app.WaitBar.Message = 'Updating the interface';
+            
+            a = app.Node_Masks.Children;  % Training Sets
+            a.delete;
+            
+            % Add MaskFiles
+            for i = 1:numel(app.XMapToolsData.MapData.MaskFile.Names)
+                p = uitreenode(app.Node_Masks,'Text',char(app.XMapToolsData.MapData.MaskFile.Names{i}),'NodeData',[11,i,0,0]);
+                for j = 1:app.XMapToolsData.MapData.MaskFile.NbMasks(i)
+                    p1 = uitreenode(p,'Text',char(app.XMapToolsData.MapData.MaskFile.Masks(i).Names{j}),'NodeData',[11,i,j,0]);
+                    % disp(app.XMapToolsData.MapData.MaskFile.Masks(i).Names{j})
+                    if ~isempty(app.XMapToolsData.MapData.MaskFile.Masks(i).SubMask(j).Names)
+                        for k = 1:length(app.XMapToolsData.MapData.MaskFile.Masks(i).SubMask(j).Names)
+                            p2 = uitreenode(p1,'Text',char(app.XMapToolsData.MapData.MaskFile.Masks(i).SubMask(j).Names{k}),'NodeData',[11,i,j,k]);
+                        end
+                    end
+                end
+            end
+            
+            app.SaveRequired = 1;
+            
+            close(app.WaitBar);
+            
+        end
+
         % Menu selected function: DuplicateMenu
         function Menu_EditMapDuplicateSelected(app, event)
             ContextMenu_MainTree_DuplicatePushed(app);
@@ -20170,19 +20249,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20364,16 +20443,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -20383,6 +20452,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
@@ -20742,6 +20821,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Menu_ImportFromProject_TrainingSetMenu = uimenu(app.ImportfromProjectMenu);
             app.Menu_ImportFromProject_TrainingSetMenu.MenuSelectedFcn = createCallbackFcn(app, @Menu_ImportFromProject_TrainingSetMenuSelected, true);
             app.Menu_ImportFromProject_TrainingSetMenu.Text = 'Training Set';
+
+            % Create Menu_ImportFromProject_MaskfileMenu
+            app.Menu_ImportFromProject_MaskfileMenu = uimenu(app.ImportfromProjectMenu);
+            app.Menu_ImportFromProject_MaskfileMenu.MenuSelectedFcn = createCallbackFcn(app, @Menu_ImportFromProject_MaskfileMenuSelected, true);
+            app.Menu_ImportFromProject_MaskfileMenu.Text = 'Mask file';
 
             % Create OpenProjectMenu
             app.OpenProjectMenu = uimenu(app.FileMenu);

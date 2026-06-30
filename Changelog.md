@@ -7,6 +7,7 @@ This release is a developer version that includes new features and bug fixes to 
 
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
+  - Add functionality to import a mask file or training set from an existing project. This feature is available via the File > Import from Project > … menu.
   
 - Performance improvements with large datasets: 
   - Implement an option in the Import tool to convert data to integer.
