@@ -4,7 +4,6 @@
 
 This release is a developer version that includes new features and bug fixes to the software. 
 
-
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
   - Add functionality to import a mask file or training set from an existing project. This feature is available via the File > Import from Project > … menu.
@@ -12,6 +11,9 @@ This release is a developer version that includes new features and bug fixes to 
 - Performance improvements with large datasets: 
   - Implement an option in the Import tool to convert data to integer.
   - Improve the data visualisation in the Import tool with linked zoom and compatibility to the new corrections.
+
+- Drift correction module
+  - Add 1D drift correction method for horizontal and vertical drift correction for single mineral as in XMapTools 3. 
 
 
 - LA-ICP-MS:
@@ -28,6 +30,7 @@ This release is a developer version that includes new features and bug fixes to 
 - Other:
   - Fix an error that was preventing projects containing spot data from loading properly when spot data already existed in the current window. 
   - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
+  - Correct a typo in the Calibration module for EPMA data. Thanks to Qian Zhang for identifying this error during a workshop. 
   - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
   - Other minor bug fixes.
 
