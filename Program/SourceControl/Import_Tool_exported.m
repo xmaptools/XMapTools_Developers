@@ -410,7 +410,7 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             SuggestedFormat = '';
             
-            if NbPixels(1) > 1e6 && isequal(SelectedFormat,'Double')
+            if NbPixels(1) > 3e6 && isequal(SelectedFormat,'Double')
                 if isequal(sum(MinValue >= 0),length(MinValue)) && isequal(sum(MaxValue <= 255),length(MaxValue))
                     SuggestedFormat = 'INT8';
                     MemorySaveMo = (MapSizeDouble-MapSizeInt8)*NbMaps/1e6;

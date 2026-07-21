@@ -11129,9 +11129,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 TrainSetListConf = matlab.lang.makeUniqueStrings(TrainSetList);
                 
                 if SubMasking
-                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
+%                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
                 else
-                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
+                     confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
                 end
                 
                 Accuracy = length(find(DataTest_Class == Predicted_TestSet))/length(DataTest_Class);
