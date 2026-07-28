@@ -12,9 +12,11 @@ This release is a developer version that includes new features and bug fixes to 
   - Implement an option in the Import tool to convert data to integer.
   - Improve the data visualisation in the Import tool with linked zoom and compatibility to the new corrections.
 
-- Drift correction module
-  - Add 1D drift correction method for horizontal and vertical drift correction for single mineral as in XMapTools 3. 
-
+- Drift correction module for intensity data:
+  - Add a multi-mineral and multi-map drift correction that can be used to correct for intensity variations caused by fluctuations in beam current during mapping. This tool calculates the time-related drift for each mineral for a given major element (e.g., Si) and employs a weighted interpolation to recalculate the drift function. This feature is particularly effective when an element is not zoned in a significant portion of the minerals (e.g. Si in quart, garnet and plagioclase).
+  - Add 1D drift correction method for horizontal and vertical drift correction for single mineral as in XMapTools 3.
+  - Enhance the existing 1D drift correction methods by saving the most recent drift calculations. This feature enables the application of this correction to other elements.      
+  - Enhance the drift correction module by enabling the correction to be applied to all intensity maps and by saving the corrected maps in a folder named Corrected-Maps. 
 
 - LA-ICP-MS:
   - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
