@@ -5347,7 +5347,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 if length(WhereMap) > 1             % We have several maps...
                     ElementSel = app.ElOxDataDef.ElList(app.XMapToolsData.MapData.It.ElInd(WhereMap(1)));
-                    warndlg({['Several maps found for ',char(ElementSel)],app.XMapToolsData.MapData.It.Names{WhereMap},'The last map was arbitrarly selected!'},'Warning')
+                    uiconfirm(app.XMapTools_GUI,{['Several maps found for ',char(ElementSel)],app.XMapToolsData.MapData.It.Names{WhereMap},'The last map was arbitrarly selected!'},'XMapTools','Options', {'Contine'},'Icon', 'warning');
                     WhereMap = WhereMap(end);
                 end
                 
@@ -5375,6 +5375,37 @@ classdef XMapTools_exported < matlab.apps.AppBase
             close(app.WaitBar);
             
         end
+        
+        function ExcludeStandardsOutsideMap(app)
+            
+            Standards = app.XMapToolsData.Standards;
+            
+            MapSize = size(app.XMapToolsData.MapData.It.Data(1).Map);
+            Xmin = 1;
+            Xmax = MapSize(2);
+            Ymin = 1;
+            Ymax = MapSize(1);
+            
+            ExcludeID = find(Standards.XY(:,1) < Xmin | Standards.XY(:,1) > Xmax | Standards.XY(:,2) < Ymin | Standards.XY(:,2) > Ymax);
+            
+            if ~isempty(ExcludeID)
+                Standards.Coord(ExcludeID,:) = [];
+                Standards.Types(ExcludeID) = [];
+                Standards.Labels(ExcludeID) = [];
+                Standards.XCoo(ExcludeID) = [];
+                Standards.YCoo(ExcludeID) = [];
+                Standards.XY(ExcludeID,:) = [];
+                
+                Standards.DataPro(ExcludeID,:) = [];
+                Standards.DataIt(ExcludeID,:) = [];
+                Standards.DataItAv(ExcludeID,:) = [];
+                
+                app.XMapToolsData.Standards = Standards;
+            end
+            
+            
+        end
+        
         
         function Standards_CalculateMapPosition(app)
             
@@ -14191,6 +14222,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Std_Shift_X.Value = 0;
             app.Std_Shift_Y.Value = 0;
             app.StdAll_Synchronize.Enable = 'off';
+            
+            ExcludeStandardsOutsideMap(app);
+            
+            TreeData_AdditionalSelectionChanged(app,0);
             
             app.SaveRequired = 1;
             
