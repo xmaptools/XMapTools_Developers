@@ -33,9 +33,10 @@ This release is a developer version that includes new features and bug fixes to 
 
 
 - Other:
+  - Fix the standard spot data import function to remove labels for spots outside the map area. Matthew Demmer and Stephen Centrella are thanked for reporting this issue.
   - Fix an error that was preventing projects containing spot data from loading properly when spot data already existed in the current window. 
   - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
-  - Correct a typo in the Calibration module for EPMA data. Thanks to Qian Zhang for identifying this error during a workshop. 
+  - Correct a typo in the Calibration module for EPMA data. Qian Zhang is thanked for identifying this error during a workshop. 
   - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
   - Other minor bug fixes.
 

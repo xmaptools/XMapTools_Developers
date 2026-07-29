@@ -337,8 +337,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -362,8 +362,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -13853,14 +13853,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             if isempty(app.TreeData_Main.SelectedNodes)
                 %errordlg({'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'}, 'XMapTools');
-                uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'},'XMapTools – Error');
+                uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'},'XMapTools – Error','Icon','error');
                 return
             else
                 NodeData = app.TreeData_Main.SelectedNodes.NodeData;
                 
                 if ~isequal(NodeData(1),1) || isequal(NodeData(2),0)
                     %errordlg({'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'}, 'XMapTools');
-                    uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'},'XMapTools – Error');
+                    uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ','Select and display an intensity map to import standard data'},'XMapTools – Error','Icon','error');
                     return
                 end
             end
@@ -13868,7 +13868,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             [Valid,ErrorMessage] = CheckMapSizeConsistencyIntensity(app);
             
             if ~Valid
-                uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ',ErrorMessage},'XMapTools – Error');
+                uialert(gcbf,{'Standard data cannot be imported! Check the error message below','   ',ErrorMessage},'XMapTools – Error' ,'Icon','error');
                 %errordlg({'Standard data cannot be imported! Check the error message below','   ',ErrorMessage}, 'XMapTools');
                 return
             end
@@ -14109,7 +14109,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.XMapToolsData.Standards.Coord = Coord(WithinMapIdx,:);
             app.XMapToolsData.Standards.Types = ones(length(WithinMapIdx),1);
-            app.XMapToolsData.Standards.Labels = Labels;
+            app.XMapToolsData.Standards.Labels = Labels(WithinMapIdx);         % Fixed in XMapTools 4.6
             app.XMapToolsData.Standards.Selected = ones(size(app.XMapToolsData.Standards.Coord,1),1);
             app.XMapToolsData.Standards.XCoo = XCoo(WithinMapIdx);
             app.XMapToolsData.Standards.YCoo = YCoo(WithinMapIdx);
@@ -20250,19 +20250,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20444,16 +20444,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -20463,6 +20453,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);
