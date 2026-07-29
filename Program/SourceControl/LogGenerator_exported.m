@@ -27,6 +27,20 @@ classdef LogGenerator_exported < matlab.apps.AppBase
         FileNames_SplitatthelastCheckBox  matlab.ui.control.CheckBox
         orLabel                         matlab.ui.control.Label
         FileNames_KeepOnlyLetters       matlab.ui.control.Button
+        AdvancedTab                     matlab.ui.container.Tab
+        GridLayout7                     matlab.ui.container.GridLayout
+        FindSimilarFilesButton          matlab.ui.control.Button
+        NewNameEditFieldLabel           matlab.ui.control.Label
+        NewNameEditField                matlab.ui.control.EditField
+        AdvancedApplyFieldNameButton    matlab.ui.control.Button
+        SearchResultLabel               matlab.ui.control.Label
+        LengthCheckBox                  matlab.ui.control.CheckBox
+        LogRatiosCheckBox               matlab.ui.control.CheckBox
+        ThresholdEditFieldLabel         matlab.ui.control.Label
+        ThresholdEditField              matlab.ui.control.NumericEditField
+        AdvancedApplyDropDownNameButton  matlab.ui.control.Button
+        NewStandardDropDownLabel        matlab.ui.control.Label
+        NewStandardDropDown             matlab.ui.control.DropDown
         UITable                         matlab.ui.control.Table
         UITableSignalSelection          matlab.ui.control.Table
         Panel                           matlab.ui.container.Panel
@@ -76,6 +90,10 @@ classdef LogGenerator_exported < matlab.apps.AppBase
         Log 
         WaitBar
         
+        Analysis_Length
+        Analysis_Median
+        Analysis_Ratios
+        Analysis_Selected
     end
     
     methods (Access = private)
@@ -159,7 +177,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                 X1 = app.X_startEditField.Value;
                 Y1 = app.Y_startEditField.Value+(app.LaserDiameterEditField.Value*(ScanPosition-1));
                 
-                if isequal(Mode,'Scan')
+                if isequal(Mode,'Scan (map)')
                     Sequence(Count).XY = [X1,Y1];
                     Sequence(Count).SpotSize = app.LaserDiameterEditField.Value;
                     Sequence(Count).ScanSpeed = app.LaserDiameterEditField_2.Value;
@@ -183,7 +201,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                         Sequence(Count).LaserState = 'On';
                 end
                 
-                if isequal(Mode,'Scan')
+                if isequal(Mode,'Scan (map)')
                     Sequence(Count).XY = [X1,Y1];
                     Sequence(Count).SpotSize = app.LaserDiameterEditField.Value;
                     Sequence(Count).ScanSpeed = app.LaserDiameterEditField_2.Value;
@@ -203,7 +221,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                         Sequence(Count).LaserState = 'On';
                 end
                 
-                if isequal(Mode,'Scan')
+                if isequal(Mode,'Scan (map)')
                     dt = app.DataFiles(1).dt*(Lims(2)-Lims(1));     % in seconds
                     
                     X2 = X1+Sequence(Count-1).ScanSpeed*dt;
@@ -224,7 +242,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                 Sequence(Count).TimePosition = Lims(2);
                 Sequence(Count).LaserState = 'Off';
                 
-                if isequal(Mode,'Scan')
+                if isequal(Mode,'Scan (map)')
                     Sequence(Count).XY = [X2,Y2];
                     Sequence(Count).SpotSize = app.LaserDiameterEditField.Value;
                     Sequence(Count).ScanSpeed = app.LaserDiameterEditField_2.Value;
@@ -275,6 +293,68 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             matlab.graphics.interaction.webmodes.toggleMode(app.Plot,'zoomout','off')
             
         end
+        
+        function AnalyseSignal(app)
+            
+            Nb = length(app.DataFiles);
+            
+            app.Analysis_Length = zeros(Nb,1);
+            app.Analysis_Median = zeros(Nb,size(app.DataFiles(1).DataCps,2)); 
+            
+            for i = 1:Nb
+                app.Analysis_Length(i) = size(app.DataFiles(i).DataCps,1);
+                for j = 1:size(app.Analysis_Median,2)
+                    Signal = app.DataFiles(i).DataCps(:,j);
+                    s = sort(Signal(:), 'descend');
+                    n = ceil(0.3 * numel(s));
+                    app.Analysis_Median(i,j) = median(s(1:n));
+                end
+            end
+            
+            X = app.Analysis_Median;
+            X(X <= 0) = NaN;                      % drop non-positive / below-detection
+            keep = all(isfinite(X), 1);           % keep only fully valid elements
+            L = log(X(:, keep));
+            CLR = L - mean(L, 2);                 % remove yield effect
+
+            [coeff, score] = pca(CLR);
+            F = score(:, 1:5);                    % 5 "super-ratios" for clustering
+            
+            % interpretable pair per component
+            idx = find(keep);
+            for k = 1:5
+                [~, hi] = max(coeff(:,k));
+                [~, lo] = min(coeff(:,k));
+                fprintf('PC%d ~ ratio of element %d to element %d\n', k, idx(hi), idx(lo));
+            end
+            
+            app.Analysis_Ratios = score(:, 1:5);
+            
+        end
+        
+        function FindSimilarFiles(app)
+            
+            SelectedFile = app.SelectedCells(1);
+            
+            if isequal(app.LengthCheckBox.Value,1)
+                app.Analysis_Selected = find(app.Analysis_Length(:) == app.Analysis_Length(SelectedFile));
+                
+            else
+                Z = app.Analysis_Ratios;
+                d = sqrt(sum((Z - Z(SelectedFile,:)).^2, 2));
+                d(SelectedFile) = 0;
+                
+                app.Analysis_Selected = find(d < app.ThresholdEditField.Value);
+            end
+            
+            if length(app.Analysis_Selected) > 1
+                app.SearchResultLabel.Text = [num2str(length(app.Analysis_Selected)),' Files selected'];
+                app.NewNameEditField.Enable = 'on';
+                app.AdvancedApplyFieldNameButton.Enable = 'on';
+                app.AdvancedApplyDropDownNameButton.Enable = 'on';
+                app.NewStandardDropDown.Enable = 'on';
+            end
+        end
     end
     
 
@@ -316,22 +396,32 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             app.ApplytoSameNameButton.Enable  = 'off';
             app.ApplytoSelectedButton.Enable  = 'off';
             
+            app.FindSimilarFilesButton.Enable  = 'off';
+            app.NewNameEditField.Enable  = 'off';
+            app.AdvancedApplyFieldNameButton.Enable  = 'off';
+            app.AdvancedApplyDropDownNameButton.Enable = 'off';
+            app.NewStandardDropDown.Enable = 'off';
+            
             app.XMapToolsApp = XMapToolsApp;
             app.AppConverter = AppConverter;
             app.DataFiles = DataFiles;
             
+            for i = 1:length(app.AppConverter.RefData_LAICPMS.FileNames)
+                StdFileNames{i} = app.AppConverter.RefData_LAICPMS.FileNames{i}(1:end-4);
+            end
+            app.NewStandardDropDown.Items = StdFileNames;
+            
             app.SelectedCells = [];
             app.SelectedCells_Table2 = [];
             
-            app.UITable.ColumnFormat = {'char',{'Scan','Spot'},'char'};
+            app.UITable.ColumnFormat = {'char',{'Scan (map)','Standard'},'char'};
             
             Data4Table = cell(length(app.DataFiles),3);
             
             for i = 1:length(app.DataFiles)
                 Data4Table{i,1} = app.DataFiles(i).FileName(1:end-4);
-                Data4Table{i,2} = 'Scan';
+                Data4Table{i,2} = 'Scan (map)';
             end
-            
             app.UITable.Data = Data4Table;
             
             NewFileName = EditFileNameApply(app,app.UITable.Data{1,1});
@@ -382,9 +472,12 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                     
                     app.AddtotableButton.Enable  = 'on';
                     app.ResetTableButton.Enable  = 'on';
+                    app.FindSimilarFilesButton.Enable  = 'on';
                     
                     tb = axtoolbar(app.Plot,{'pan','zoomin','zoomout','restoreview'});
                     disableDefaultInteractivity(app.Plot);
+                    
+                    
                     
                 end
             end
@@ -580,7 +673,7 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             
             for iFile = 1:size(TableData,1)
                 
-                if isequal(TableData{iFile,2},'Scan')
+                if isequal(TableData{iFile,2},'Scan (map)')
                     ScanPosition = ScanPosition + 1;
                 end
                 
@@ -693,6 +786,63 @@ classdef LogGenerator_exported < matlab.apps.AppBase
                 app.XMapToolsApp.Id_HelpTool.UpdateTextHelp('Module_LogGenerator.html');
             end
             
+        end
+
+        % Button pushed function: FindSimilarFilesButton
+        function FindSimilarFilesButtonPushed(app, event)
+            
+            AnalyseSignal(app);
+            
+            FindSimilarFiles(app);
+            
+        end
+
+        % Value changed function: LengthCheckBox
+        function LengthCheckBoxValueChanged(app, event)
+            if isequal(app.LengthCheckBox.Value,1)
+                app.LogRatiosCheckBox.Value = 0;
+            else
+                app.LogRatiosCheckBox.Value = 1;
+            end
+        end
+
+        % Value changed function: LogRatiosCheckBox
+        function LogRatiosCheckBoxValueChanged(app, event)
+            if isequal(app.LogRatiosCheckBox.Value,1)
+                app.LengthCheckBox.Value = 0;
+            else
+                app.LengthCheckBox.Value = 1;
+            end
+        end
+
+        % Button pushed function: AdvancedApplyFieldNameButton
+        function AdvancedApplyFieldNameButtonPushed(app, event)
+            
+            Answer = uiconfirm(app.LogGeneratorGUI, 'Select the type of analysis:', 'XMapTools', 'Options', {'Scan (map)','Standard'},'Icon','question');
+            
+            app.WaitBar = uiprogressdlg(app.LogGeneratorGUI,'Title','XMapTools');
+            app.WaitBar.Message = 'Applying the new name, please wait';
+            for i = 1:length(app.Analysis_Selected)
+                NewFileName = char(app.NewNameEditField.Value);
+                app.UITable.Data{app.Analysis_Selected(i),1} = NewFileName;
+                app.UITable.Data{app.Analysis_Selected(i),2} = char(Answer);
+                app.WaitBar.Value = i/length(app.Analysis_Selected);
+            end
+            close(app.WaitBar);
+            
+        end
+
+        % Button pushed function: AdvancedApplyDropDownNameButton
+        function AdvancedApplyDropDownNameButtonPushed(app, event)
+            app.WaitBar = uiprogressdlg(app.LogGeneratorGUI,'Title','XMapTools');
+            app.WaitBar.Message = 'Applying the new name, please wait';
+            for i = 1:length(app.Analysis_Selected)
+                NewFileName = char(app.NewStandardDropDown.Value);
+                app.UITable.Data{app.Analysis_Selected(i),1} = NewFileName;
+                app.UITable.Data{app.Analysis_Selected(i),2} = 'Standard';
+                app.WaitBar.Value = i/length(app.Analysis_Selected);
+            end
+            close(app.WaitBar);
         end
     end
 
@@ -864,6 +1014,108 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             app.FileNames_KeepOnlyLetters.Layout.Row = 4;
             app.FileNames_KeepOnlyLetters.Layout.Column = [1 4];
             app.FileNames_KeepOnlyLetters.Text = 'Keep only letters';
+
+            % Create AdvancedTab
+            app.AdvancedTab = uitab(app.TabGroup);
+            app.AdvancedTab.Title = 'Advanced';
+
+            % Create GridLayout7
+            app.GridLayout7 = uigridlayout(app.AdvancedTab);
+            app.GridLayout7.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout7.RowHeight = {'1x', '1x', '1x', '1x'};
+            app.GridLayout7.ColumnSpacing = 5;
+            app.GridLayout7.RowSpacing = 5;
+
+            % Create FindSimilarFilesButton
+            app.FindSimilarFilesButton = uibutton(app.GridLayout7, 'push');
+            app.FindSimilarFilesButton.ButtonPushedFcn = createCallbackFcn(app, @FindSimilarFilesButtonPushed, true);
+            app.FindSimilarFilesButton.Icon = 'XXX_center_round.png';
+            app.FindSimilarFilesButton.Layout.Row = 2;
+            app.FindSimilarFilesButton.Layout.Column = [1 5];
+            app.FindSimilarFilesButton.Text = 'Find Similar Files';
+
+            % Create NewNameEditFieldLabel
+            app.NewNameEditFieldLabel = uilabel(app.GridLayout7);
+            app.NewNameEditFieldLabel.HorizontalAlignment = 'right';
+            app.NewNameEditFieldLabel.Layout.Row = 3;
+            app.NewNameEditFieldLabel.Layout.Column = [1 3];
+            app.NewNameEditFieldLabel.Text = 'New Name';
+
+            % Create NewNameEditField
+            app.NewNameEditField = uieditfield(app.GridLayout7, 'text');
+            app.NewNameEditField.HorizontalAlignment = 'center';
+            app.NewNameEditField.Layout.Row = 3;
+            app.NewNameEditField.Layout.Column = [4 8];
+            app.NewNameEditField.Value = 'name';
+
+            % Create AdvancedApplyFieldNameButton
+            app.AdvancedApplyFieldNameButton = uibutton(app.GridLayout7, 'push');
+            app.AdvancedApplyFieldNameButton.ButtonPushedFcn = createCallbackFcn(app, @AdvancedApplyFieldNameButtonPushed, true);
+            app.AdvancedApplyFieldNameButton.Layout.Row = 3;
+            app.AdvancedApplyFieldNameButton.Layout.Column = [9 10];
+            app.AdvancedApplyFieldNameButton.Text = 'Apply';
+
+            % Create SearchResultLabel
+            app.SearchResultLabel = uilabel(app.GridLayout7);
+            app.SearchResultLabel.HorizontalAlignment = 'center';
+            app.SearchResultLabel.FontSize = 10;
+            app.SearchResultLabel.Layout.Row = 2;
+            app.SearchResultLabel.Layout.Column = [6 10];
+            app.SearchResultLabel.Text = 'No search yet';
+
+            % Create LengthCheckBox
+            app.LengthCheckBox = uicheckbox(app.GridLayout7);
+            app.LengthCheckBox.ValueChangedFcn = createCallbackFcn(app, @LengthCheckBoxValueChanged, true);
+            app.LengthCheckBox.Text = 'Length';
+            app.LengthCheckBox.FontSize = 10;
+            app.LengthCheckBox.Layout.Row = 1;
+            app.LengthCheckBox.Layout.Column = [1 2];
+
+            % Create LogRatiosCheckBox
+            app.LogRatiosCheckBox = uicheckbox(app.GridLayout7);
+            app.LogRatiosCheckBox.ValueChangedFcn = createCallbackFcn(app, @LogRatiosCheckBoxValueChanged, true);
+            app.LogRatiosCheckBox.Text = 'LogRatios';
+            app.LogRatiosCheckBox.FontSize = 10;
+            app.LogRatiosCheckBox.Layout.Row = 1;
+            app.LogRatiosCheckBox.Layout.Column = [3 5];
+            app.LogRatiosCheckBox.Value = true;
+
+            % Create ThresholdEditFieldLabel
+            app.ThresholdEditFieldLabel = uilabel(app.GridLayout7);
+            app.ThresholdEditFieldLabel.HorizontalAlignment = 'right';
+            app.ThresholdEditFieldLabel.FontSize = 10;
+            app.ThresholdEditFieldLabel.Layout.Row = 1;
+            app.ThresholdEditFieldLabel.Layout.Column = [6 7];
+            app.ThresholdEditFieldLabel.Text = 'Threshold';
+
+            % Create ThresholdEditField
+            app.ThresholdEditField = uieditfield(app.GridLayout7, 'numeric');
+            app.ThresholdEditField.Limits = [1e-09 Inf];
+            app.ThresholdEditField.ValueDisplayFormat = '%11.0g';
+            app.ThresholdEditField.HorizontalAlignment = 'center';
+            app.ThresholdEditField.FontSize = 10;
+            app.ThresholdEditField.Layout.Row = 1;
+            app.ThresholdEditField.Layout.Column = [8 9];
+            app.ThresholdEditField.Value = 2;
+
+            % Create AdvancedApplyDropDownNameButton
+            app.AdvancedApplyDropDownNameButton = uibutton(app.GridLayout7, 'push');
+            app.AdvancedApplyDropDownNameButton.ButtonPushedFcn = createCallbackFcn(app, @AdvancedApplyDropDownNameButtonPushed, true);
+            app.AdvancedApplyDropDownNameButton.Layout.Row = 4;
+            app.AdvancedApplyDropDownNameButton.Layout.Column = [9 10];
+            app.AdvancedApplyDropDownNameButton.Text = 'Apply';
+
+            % Create NewStandardDropDownLabel
+            app.NewStandardDropDownLabel = uilabel(app.GridLayout7);
+            app.NewStandardDropDownLabel.HorizontalAlignment = 'right';
+            app.NewStandardDropDownLabel.Layout.Row = 4;
+            app.NewStandardDropDownLabel.Layout.Column = [1 3];
+            app.NewStandardDropDownLabel.Text = 'New Standard';
+
+            % Create NewStandardDropDown
+            app.NewStandardDropDown = uidropdown(app.GridLayout7);
+            app.NewStandardDropDown.Layout.Row = 4;
+            app.NewStandardDropDown.Layout.Column = [4 8];
 
             % Create UITable
             app.UITable = uitable(app.GridLayout);
