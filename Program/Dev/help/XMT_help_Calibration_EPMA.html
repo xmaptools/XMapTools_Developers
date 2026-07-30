@@ -13,12 +13,13 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <BODY>
 <h1> Help > Tools > Calibration Tool for EPMA data </h1>    	
-<p><i>Help file version 11.01.2024 by M. Tedeschi & P. Lanari</i></p>
+<p><i>Help file version 30.07.2026 by P. Lanari & M. Tedeschi</i></p>
 <br \> 
 <hr>
 <p><b>Table of content</b><br \><br \>
 <a href="#Strategy">1. Strategy advantages and pitfalls</a><br \>
-<a href="#Description">2. Procedure description</a>: 
+<a href="#v4.6">2. Limit of detection (udpate in 4.6)</a><br \>
+<a href="#Description">3. Procedure description</a>: 
 <a href="#DisplayCalib">Displaying calibration curves</a> | 
 <a href="#AdjustCalib">Adjusting a calibration curve</a> | 
 <a href="#DisplayCalibGeneralFit">Displaying results of the general fit</a><br \>
@@ -45,6 +46,40 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <p>When you press <i>Apply Standardisation</i>, all maps are sent to XMapTools. </p>
 
 
+<h2><a name="v4.6"></a>Limit of detection (udpate in 4.6))</h2>
+
+<p>Since version 4.6, the Calibration module for EPMA estimates a limit of detection (LOD) for each element of each mask, and applies it as a filter to the calibrated maps.</p>
+
+<h3>Principle</h3>
+
+<p>For a given element and a given mask, the calibration relates the measured X-ray intensity to composition through a background intensity </i>I_back</i> and a slope <i>Slope</i> (counts per wt%). Both are obtained by fitting the spot measurements assigned to that mask with the pixel values.</p>
+
+<p>The smallest signal that can be distinguished from the background is set by the counting statistics of the background itself. X-ray counts follow a Poisson distribution, so the standard deviation of the net intensity at the detection limit is:</p>
+
+<center><p><i>Sigma_net</i> = sqrt(<i>f</i> * <i>I_back</i>)</p></center>
+
+<p>where <i>f</i> is a variance inflation factor that accounts for the way the background is obtained. XMapTools uses <i>f</i> = 1, which assumes that the fitted background is well constrained by the spot analyses and that its own uncertainty is negligible compared with the counting statistics during mapping.</p>
+
+<p>The detection limit is then expressed in wt% using the calibration slope:</p>
+
+<center><p><i>LOD</i> = <i>Sigma_net</i> / <i>Slope</i></p></center>
+
+<p>with <i>k</i> = 3, the usual IUPAC convention. A value of <i>k</i> = 3 corresponds to a one-sided false-positive rate of about 0.13% per pixel.</p>
+
+<h3>The filter</h3>
+
+<p>Every pixel of the calibrated map whose value falls below <i>LOD_wt</i> is set to zero. The filter is applied per pixel, per element and per mask, so a pixel may be filtered for one element and retained for another.</p>
+
+<h4>Effect on the maps</h4>
+
+<p>The figure 1 below compares a K<sub>2</sub>O map calibrated with the legacy routine of version 4.5 (left) and with the LOD filter of version 4.6 (right).</p>
+
+<center>
+<p><img src="./img/Calibration_EPMA_version4.2.png" width="700"></p>
+
+<p><i><b>Figure 1</b>: Comparison of calibration results with and without LOD filtering.</i> </p>
+</center>
+
 <h2><a name="Description"></a>Procedure description</h2>
 
 <p>The <i>Calibration Assistant for EPMA Data</i> opens when the <i>Calibrate</i> button in XMapTools is pressed.</p>
@@ -53,18 +88,18 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <center>
 <p><img src="./img/Calibration_EPMA.png" width="700"></p>
 
-<p><i><b>Figure 1</b>: Example calibration for a clinopyroxene-garnet amphibolite metapelite of the Brasília orogen (Brazil), published in <a href="#Biblio">Tedeschi et al. (2017)</a>. Note that the calibration curves for all minerals are displayed when the window pops up.</i> </p>
+<p><i><b>Figure 2</b>: Example calibration for a clinopyroxene-garnet amphibolite metapelite of the Brasília orogen (Brazil), published in <a href="#Biblio">Tedeschi et al. (2017)</a>. Note that the calibration curves for all minerals are displayed when the window pops up.</i> </p>
 </center>
 
 <h3><a name="DisplayCalib"></a>Displaying calibration curves</h3>
 
 <p>Use the tree menu on the left to navigate through the list of minerals and elements and to view calibration curves. </p>
 
-<p>When you select a mineral from the tree menu (Figure 1). A single plot showing the sum of elements/oxides (total wt%) is displayed. The plot in the middle shows all calibration curves, for all elements of the selected mineral. Some data is displayed in a table. </p>
+<p>When you select a mineral from the tree menu (Figure 2). A single plot showing the sum of elements/oxides (total wt%) is displayed. The plot in the middle shows all calibration curves, for all elements of the selected mineral. Some data is displayed in a table. </p>
 
 <ul>
 <li><b>El.</b> shows the element name (of the map), and the following labels: the sum of the median mineral composition considering all pixels (sum(wt%)) and the sum of the peak position (Peak(SumOx)).</li>
-<li><b>#(std)</b> indicates the number of internal standards (spot analyses) used to calibrate this phase (e.g. 42 spot analyses for amphibole in Figure 2). Some elements may have a lower number of internal standards due to outlier rejection.</li>
+<li><b>#(std)</b> indicates the number of internal standards (spot analyses) used to calibrate this phase (e.g. 42 spot analyses for amphibole in Figure 3). Some elements may have a lower number of internal standards due to outlier rejection.</li>
 <li><b>med(it)</b> shows the median intensity value for all pixels of the selected mineral for each element</li>
 <li><b>med(wt)_s</b> shows the median composition of all internal standard measurements (spot analyses) </li>
 <li><b>mode(wt)_m</b> shows the most common composition in the calibrated pixels. Note that the values of mode(SumOx) and Sum(wt) may be different, in which case the median is likely to be influenced by non-Gaussian signals and may not be comparable with the median of the spot analyses. However, the comparison of both columns can be used to detect potential calibration problems, which can be corrected using the manual adjustment (see below).</li>
@@ -77,17 +112,17 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <center>
 <p><img src="./img/Calibration_EPMA_2.png" width="700"></p>
 
-<p><i><b>Figure 2</b>: Example of calibration when a mineral is selected. All calibration curves for a given mineral are displayed. </i></p>
+<p><i><b>Figure 3</b>: Example of calibration when a mineral is selected. All calibration curves for a given mineral are displayed. </i></p>
 </center>
 
 <br />
-<p>To view a specific calibration curve (for a particular element), expand the menu by clicking on the small arrow to the left of the mineral name and select an element. The corresponding calibration curve is displayed together with the corresponding quantitative map (oxide wt-%) (Figure 3).</p> 
+<p>To view a specific calibration curve (for a particular element), expand the menu by clicking on the small arrow to the left of the mineral name and select an element. The corresponding calibration curve is displayed together with the corresponding quantitative map (oxide wt-%) (Figure 4).</p> 
 
 <br />
 <center>
 <p><img src="./img/Calibration_EPMA_3.png" width="700"></p>
 
-<p><i><b>Figure 3</b>: Example of the 'Calibration Assitant For EPMA Data' window when an element of a given mineral phase is selected. When an element is selected, the 'Fit (Manual)' button appears in the top left hand corner. The calibration curve and quantitative map for a given element will then be displayed.</i></p>
+<p><i><b>Figure 4</b>: Example of the 'Calibration Assitant For EPMA Data' window when an element of a given mineral phase is selected. When an element is selected, the 'Fit (Manual)' button appears in the top left hand corner. The calibration curve and quantitative map for a given element will then be displayed.</i></p>
 </center>
 
 
@@ -107,7 +142,7 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <h3><a name="DisplayCalibGeneralFit"></a>Displaying results of the general fit</h3>
 
-<p>Selecting <i>General Fit</i> (last option in the tree menu, Figure 3) will display a plot of the calibration curves for all elements. </p>
+<p>Selecting <i>General Fit</i> (last option in the tree menu, Figure 4) will display a plot of the calibration curves for all elements. </p>
 
 <p>It is not possible to adjust the calibration curves in the general fit. This fit is automatically performed first by the program and is no longer used once the calibration of each mineral has been achieved.
 
