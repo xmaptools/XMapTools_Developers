@@ -145,6 +145,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Calibrate_LOD_menu              matlab.ui.control.DropDown
         Calibrate_ApplyLODfilter        matlab.ui.control.Button
         LBCUncertaintyLabel             matlab.ui.control.Label
+        CalibrationVersionDropDown_EPMA  matlab.ui.control.DropDown
         FUNCTIONSTab                    matlab.ui.container.Tab
         GridLayout_ExternalFctTab       matlab.ui.container.GridLayout
         NORMALIZATIONSTRUCTURALFORMULALabel  matlab.ui.control.Label
@@ -337,8 +338,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot2                  matlab.ui.control.UIAxes
         Sampling_Plot1                  matlab.ui.control.UIAxes
+        Sampling_Plot2                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -362,8 +363,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map1                     matlab.ui.control.UIAxes
         StdAll_map2                     matlab.ui.control.UIAxes
+        StdAll_map1                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -553,6 +554,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         ExchangeSelectorId                  % added 4.4
         
         ExchangeClassification              % To communicate with the classification module (01.2024 – 4.4)
+        
+        CalibrationFunctionVersion          % Algorithm version for EPMA calibration module
         
     end
     
@@ -7875,12 +7878,14 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.SF_MineralList.Items = app.ExternalFunctions.ItemsSF;
             app.SF_FunctionList.Items = app.ExternalFunctions.Min(app.ExternalFunctions.IdxSF(1)).SF.Name;
             
-            UpdateGUI_Function_Other(app)
+            UpdateGUI_Function_Other(app);
             
             Developper_UnlockButtonPushed(app, 1);
             
             app.DataCursorMode = 0;
             ApplyCursorMode(app);
+            
+            app.CalibrationFunctionVersion = app.CalibrationVersionDropDown_EPMA.Value;
             
             %disp('Def files read'),toc
             % Configuration of the setup for compiled versions
@@ -8731,6 +8736,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     PlotMap_CreateDisplayMultiMap(app,SelectedNodes,SelectedAdditional);
                     return
                 end
+            elseif isequal(NodeData(1),8)
+                   return 
             end
             
             PlotMap_DisplaySelectedMap(app,SelectedNodes.NodeData,SelectedAdditional)
@@ -17413,6 +17420,12 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 app.Spotdata_NbEditField.Enable = 'off';
             end
         end
+
+        % Value changed function: CalibrationVersionDropDown_EPMA
+        function CalibrationVersionDropDown_EPMAValueChanged(app, event)
+            app.CalibrationFunctionVersion = app.CalibrationVersionDropDown_EPMA.Value;
+            
+        end
     end
 
     % Component initialization
@@ -18648,6 +18661,15 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.LBCUncertaintyLabel.Layout.Row = 4;
             app.LBCUncertaintyLabel.Layout.Column = [23 27];
             app.LBCUncertaintyLabel.Text = 'LBC Uncertainty';
+
+            % Create CalibrationVersionDropDown_EPMA
+            app.CalibrationVersionDropDown_EPMA = uidropdown(app.CalibrateGridLayout);
+            app.CalibrationVersionDropDown_EPMA.Items = {'Version 4.6', 'Legacy (4.5)'};
+            app.CalibrationVersionDropDown_EPMA.ValueChangedFcn = createCallbackFcn(app, @CalibrationVersionDropDown_EPMAValueChanged, true);
+            app.CalibrationVersionDropDown_EPMA.FontSize = 10;
+            app.CalibrationVersionDropDown_EPMA.Layout.Row = 3;
+            app.CalibrationVersionDropDown_EPMA.Layout.Column = [7 10];
+            app.CalibrationVersionDropDown_EPMA.Value = 'Version 4.6';
 
             % Create FUNCTIONSTab
             app.FUNCTIONSTab = uitab(app.TabButtonGroup);
@@ -20285,19 +20307,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot2
-            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot2.FontSize = 9;
-            app.Sampling_Plot2.Layout.Row = [12 19];
-            app.Sampling_Plot2.Layout.Column = [1 7];
-
             % Create Sampling_Plot1
             app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot1.FontSize = 9;
             app.Sampling_Plot1.Layout.Row = [3 10];
             app.Sampling_Plot1.Layout.Column = [1 7];
+
+            % Create Sampling_Plot2
+            app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot2.FontSize = 9;
+            app.Sampling_Plot2.Layout.Row = [12 19];
+            app.Sampling_Plot2.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20479,16 +20501,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map1
-            app.StdAll_map1 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map1, 'Element')
-            app.StdAll_map1.Toolbar.Visible = 'off';
-            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
-            app.StdAll_map1.FontSize = 9;
-            app.StdAll_map1.Box = 'on';
-            app.StdAll_map1.Layout.Row = [5 8];
-            app.StdAll_map1.Layout.Column = [1 2];
-
             % Create StdAll_map2
             app.StdAll_map2 = uiaxes(app.GridLayout11);
             title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
@@ -20498,6 +20510,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map2.Box = 'on';
             app.StdAll_map2.Layout.Row = [9 12];
             app.StdAll_map2.Layout.Column = [1 2];
+
+            % Create StdAll_map1
+            app.StdAll_map1 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map1, 'Element')
+            app.StdAll_map1.Toolbar.Visible = 'off';
+            app.StdAll_map1.PlotBoxAspectRatio = [1.38275862068966 1 1];
+            app.StdAll_map1.FontSize = 9;
+            app.StdAll_map1.Box = 'on';
+            app.StdAll_map1.Layout.Row = [5 8];
+            app.StdAll_map1.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);

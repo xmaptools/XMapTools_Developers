@@ -379,9 +379,7 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                             end
                         end
                         
-                        
-                        
-                        
+                       
                         % Outlier Rejection --------------------------------------
                         % Temporary for testing
                         Xout = [];
@@ -427,7 +425,6 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                             end
                             %keyboard
                         end
-                        
                         
                         %figure,
                         %errorbar(X,Y,E,'o'), hold on
@@ -538,11 +535,13 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                         X_med = median(app.PlotData.Mineral(i).El(j).X);
                         Y_mean = mean(app.PlotData.Mineral(i).El(j).Y);
                         Y_med = median(app.PlotData.Mineral(i).El(j).Y);
+                        Y_std = std(app.PlotData.Mineral(i).El(j).Y);
                     else
                         X_mean = 0;  % otherwise this fails when no standard is available for the first phase in the list...
                         X_med = 0;
                         Y_mean = 0;
                         Y_med = 0;
+                        Y_std = 0;
                     end
                     
                     if app.Debug
@@ -556,6 +555,7 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                             disp(['     median(X):    ',num2str(X_med)])
                             disp(['     mean(Y):      ',num2str(Y_mean)])
                             disp(['     median(Y):    ',num2str(Y_med)])
+                            disp(['     std(Y):       ',num2str(Y_std)])
                             disp([' '])
                     end
                     
@@ -646,7 +646,6 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                         
                     end
                     
-                    
                     % -----
                     % FINAL
                     
@@ -663,6 +662,69 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                 
             end
             
+        end
+        
+        
+        function FilterBelowDetectionLimit(app)
+            
+            if app.Debug
+                disp(' ')
+                disp(' ')
+                disp('***************************************************************************')
+                disp('***************************************************************************')
+                disp(' ')
+                disp('>> Filter Px below detection limit (4.6) started...')
+            end
+            
+            El2Find = app.Standards.ElMap(app.Fit.DataStdIdx);
+            MapNames = app.XMapToolsID.XMapToolsData.MapData.It.Names;
+            
+            [Yes,IdxMaps] = ismember(El2Find,MapNames);
+            
+            for i = 1:size(app.Calib.Back,1)
+            
+                if app.Debug
+                    disp(' '),disp(' ')
+                    disp(['  -----------------------------------------------------'])
+                    disp(['  Mineral: ',app.PlotData.Mineral(i).Name])
+                end
+                
+                for j = 1:size(app.Calib.Back,2)
+                    
+                    k = 3;                              % IUPAC detection limit
+                    f = 1;                              % variance inflation: 2 if background is measured,
+                                                        % 1 + Sigma_fit^2/I_back if the fit error is known,
+                                                        % 1 if the fitted background is treated as exact
+                    I_back = app.Calib.Back(i,j);
+                    
+                    Sigma_net = sqrt(f * I_back);
+                    
+                    LOD_It = I_back + k * Sigma_net; 
+                    
+                    LOD_wt = (LOD_It-app.Calib.Back(i,j))/app.Calib.Slope(i,j);
+                    % LOD_wt = k * Sigma_net / app.Calib.Slope(i,j);
+                    
+                    % Filter BDL to zero:
+                    MapOx = app.PlotData.Mineral(i).El(j).MapOx;
+                    PxBelowDetectionLimit = find(MapOx > 0 & MapOx < LOD_wt);
+                    app.PlotData.Mineral(i).El(j).MapOx(PxBelowDetectionLimit) = 0;
+                    
+                    if app.Debug
+                            disp(['    ##############'])
+                            disp(['     Element: ',char(app.PlotData.ElNames{j})])
+                            disp([' '])
+                            disp(['     LOD_It:        ',num2str(LOD_It)])
+                            disp(['     LOD_Wt%:       ',num2str(LOD_wt)])
+                            disp(['     ---'])
+                            disp(['     NbPixelBDL:    ',num2str(length(PxBelowDetectionLimit))])
+                            disp(['     FracPixelBDL:  ',num2str(length(PxBelowDetectionLimit)/length(find(MapOx > 0))*100)])
+                            disp([' '])
+                    end
+                    
+                    app.PlotData.Mineral(i).El(j).LOD_It = LOD_It;
+                    app.PlotData.Mineral(i).El(j).LOD_wt = LOD_wt;
+                end
+            end
         end
         
         
@@ -819,7 +881,10 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                 %plot(app.Plot,Xi,Yi-delta,'-k');
                 plot(app.Plot,[0,Xmax],polyval(app.PlotData.GenCalib(ElIdx).p,[0,Xmax]),'--b');
                 
-                legend(app.Plot,{'final','General'},'Location','northwest');
+                LOD_It = app.PlotData.Mineral(MinIdx).El(ElIdx).LOD_It;
+                plot(app.Plot,[0,Xmax],[LOD_It,LOD_It],'-g',"LineWidth",2);
+                
+                legend(app.Plot,{'final','General','LOD'},'Location','northwest');
 
                 %app.Plot.XLim(1) = 0;
                 %keyboard
@@ -927,52 +992,57 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                 %keyboard
                 app.PlotData.Mineral(i).SumOx = SumOx;
             end
+          
+            if isequal(app.XMapToolsApp.CalibrationFunctionVersion,'Version 4.6')
+                FilterBelowDetectionLimit(app);
+            end
             
             %PeakWtPer
             
-            [MaN_all,Z_Cat] = CalculateMaN(app,PeakWtPer,Ox4MaN,El4MaN);
+%             [MaN_all,Z_Cat] = CalculateMaN(app,PeakWtPer,Ox4MaN,El4MaN);
+%             
+%             % Save
+%             fid = fopen('last_k_data.txt','w');
+%             
+%             fprintf(fid,'%s\n','>1 (Elements)');
+%             for i = 1:length(El4MaN)-1
+%                 fprintf(fid,'%s\t',El4MaN{i});
+%             end
+%             fprintf(fid,'%s\n',El4MaN{end});
+%             
+%             fprintf(fid,'%s\n','>2 (Oxides)');
+%             for i = 1:length(Ox4MaN)-1
+%                 fprintf(fid,'%s\t',Ox4MaN{i});
+%             end
+%             fprintf(fid,'%s\n',Ox4MaN{end});
+%             
+%             fprintf(fid,'%s\n','>3 (element Z)');
+%             for i = 1:length(Z_Cat)-1
+%                 fprintf(fid,'%f\t',Z_Cat(i));
+%             end
+%             fprintf(fid,'%f\n',Z_Cat(end));
+%             
+%             fprintf(fid,'%s\n','>4 (Mineral Names)');
+%             for i = 1:length(MineralsNames4MaN)-1
+%                 fprintf(fid,'%s\t',MineralsNames4MaN{i});
+%             end
+%             fprintf(fid,'%s\n',MineralsNames4MaN{end});
+%             
+%             fprintf(fid,'%s\n','>5 (Mean Atomic Numbers)');
+%             for i = 1:length(MaN_all)-1
+%                 fprintf(fid,'%f\t',MaN_all(i));
+%             end
+%             fprintf(fid,'%f\n',MaN_all(end));
+%             
+%             fprintf(fid,'%s\n','>6 (k table: mineral/element)');
+%             for i = 1:size(app.Calib.k_final,1)
+%                 for j = 1:size(app.Calib.k_final,2)-1
+%                     fprintf(fid,'%f\t',app.Calib.k_final(i,j));
+%                 end
+%                 fprintf(fid,'%f\n',app.Calib.k_final(i,end));
+%             end
+%             fclose(fid);
             
-            % Save
-            fid = fopen('last_k_data.txt','w');
-            
-            fprintf(fid,'%s\n','>1 (Elements)');
-            for i = 1:length(El4MaN)-1
-                fprintf(fid,'%s\t',El4MaN{i});
-            end
-            fprintf(fid,'%s\n',El4MaN{end});
-            
-            fprintf(fid,'%s\n','>2 (Oxides)');
-            for i = 1:length(Ox4MaN)-1
-                fprintf(fid,'%s\t',Ox4MaN{i});
-            end
-            fprintf(fid,'%s\n',Ox4MaN{end});
-            
-            fprintf(fid,'%s\n','>3 (element Z)');
-            for i = 1:length(Z_Cat)-1
-                fprintf(fid,'%f\t',Z_Cat(i));
-            end
-            fprintf(fid,'%f\n',Z_Cat(end));
-            
-            fprintf(fid,'%s\n','>4 (Mineral Names)');
-            for i = 1:length(MineralsNames4MaN)-1
-                fprintf(fid,'%s\t',MineralsNames4MaN{i});
-            end
-            fprintf(fid,'%s\n',MineralsNames4MaN{end});
-            
-            fprintf(fid,'%s\n','>5 (Mean Atomic Numbers)');
-            for i = 1:length(MaN_all)-1
-                fprintf(fid,'%f\t',MaN_all(i));
-            end
-            fprintf(fid,'%f\n',MaN_all(end));
-            
-            fprintf(fid,'%s\n','>6 (k table: mineral/element)');
-            for i = 1:size(app.Calib.k_final,1)
-                for j = 1:size(app.Calib.k_final,2)-1
-                    fprintf(fid,'%f\t',app.Calib.k_final(i,j));
-                end
-                fprintf(fid,'%f\n',app.Calib.k_final(i,end));
-            end
-            fclose(fid);
         end
         
         function [MaN_all,Z_Cat] = CalculateMaN(app,PeakWtPer,Ox4MaN,El4MaN)
@@ -1155,12 +1225,12 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             Cell2Disp{end,1} = 'mode(SumOx)';
             Cell2Disp{end,5} = PeakSumOx;
             
-            app.UITable.Data = Cell2Disp;
+            app.UITable.Data = Cell2Disp; 
             app.UITable.Visible = 'on';
             
             drawnow
             
-            Width = app.UITable.Position(3);
+            Width = app.UITable.Position(3); 
             app.UITable.ColumnWidth = {0.10*Width,0.10*Width,0.145*Width,0.145*Width,0.135*Width,0.125*Width,0.125*Width,0.125*Width};
 
         end
