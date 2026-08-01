@@ -949,7 +949,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     
                     writetable(T,fullfile(Directory,[ProjectName,'.csv']));
                     
-                    close(app.WaitBar);close(app.WaitBar);
+                    close(app.WaitBar);
                     
                     uialert(app.DataExport,'The file has been saved in the folder /Exported-MinComp','XMapTools','Icon','success');
                     
