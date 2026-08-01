@@ -312,23 +312,24 @@ classdef LogGenerator_exported < matlab.apps.AppBase
             end
             
             X = app.Analysis_Median;
-            X(X <= 0) = NaN;                      % drop non-positive / below-detection
-            keep = all(isfinite(X), 1);           % keep only fully valid elements
+            X(X <= 0) = NaN;                        % drop non-positive / below-detection
+            keep = all(isfinite(X), 1);             % keep only fully valid elements
             L = log(X(:, keep));
-            CLR = L - mean(L, 2);                 % remove yield effect
+            CLR = L - mean(L, 2);                   % remove yield effect
 
             [coeff, score] = pca(CLR);
-            F = score(:, 1:5);                    % 5 "super-ratios" for clustering
+            
+            nComp = min(5, size(score,2));          % 5 or less "super-ratios" for clustering
             
             % interpretable pair per component
             idx = find(keep);
-            for k = 1:5
+            for k = 1:nComp
                 [~, hi] = max(coeff(:,k));
                 [~, lo] = min(coeff(:,k));
                 fprintf('PC%d ~ ratio of element %d to element %d\n', k, idx(hi), idx(lo));
             end
             
-            app.Analysis_Ratios = score(:, 1:5);
+            app.Analysis_Ratios = score(:, 1:nComp);
             
         end
         
