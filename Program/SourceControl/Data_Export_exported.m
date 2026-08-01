@@ -29,6 +29,9 @@ classdef Data_Export_exported < matlab.apps.AppBase
         ExcludezerosCheckBox         matlab.ui.control.CheckBox
         NumberCheckBox               matlab.ui.control.CheckBox
         NumberValue                  matlab.ui.control.NumericEditField
+        AllCheckBox                  matlab.ui.control.CheckBox
+        OutlierrejectionCheckBox     matlab.ui.control.CheckBox
+        MADCheckBox                  matlab.ui.control.CheckBox
         MetadataPanel                matlab.ui.container.Panel
         GridLayout5_2                matlab.ui.container.GridLayout
         SampleNameEditField          matlab.ui.control.EditField
@@ -150,9 +153,6 @@ classdef Data_Export_exported < matlab.apps.AppBase
         
         function GenerateCellFromSelectedSpotData(app)
             
-            app.WaitBar = uiprogressdlg(app.DataExport,'Title','XMapTools','Value',0);
-            app.WaitBar.Message = 'XMapTools is pulling out numbers for you, please wait';
-            
             if isequal(app.Mode_Merged_Button.Value,1)
                 Data_Sel = app.XMapToolsApp.XMapToolsData.MapData.Me;
                 ElemList = Data_Sel.Data(app.SecondaryDropDown.Value).ElNames;
@@ -216,7 +216,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                         XYCoordinates = SpotData.Dataset(AccessData(i,1)).XYCoordinates(AccessData(i,2),:);
                     end
                     
-                    % Sample the data: 
+                    % Sample the data:
                     PxData = zeros(size(XYCoordinates,1),1);
                     for k = 1:size(XYCoordinates,1)
                         PxData(k) = MapPxData(XYCoordinates(k,2),XYCoordinates(k,1));
@@ -274,10 +274,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             
         end
         
-        
-        
-        function GenerateCellFromSelectedDataIncludingSubmasks(app)
-            
+        function [MaskFile,Data_Sel,ElemList,PhaseList,MaskMap,IsSubMask,MaskIdx,SubMaskIdx] = PrepareExtraction(app)
             MaskFile = app.XMapToolsApp.XMapToolsData.MapData.MaskFile;
             
             if isequal(app.Mode_Merged_Button.Value,1)
@@ -341,6 +338,12 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     end
                 end
             end
+        end
+        
+        
+        function GenerateCellFromSelectedDataIncludingSubmasks(app)
+            
+            [MaskFile,Data_Sel,ElemList,PhaseList,MaskMap,IsSubMask,MaskIdx,SubMaskIdx] = PrepareExtraction(app);
             
             % Export of compositions:
             NbOutput = 0;
@@ -348,9 +351,17 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 NbOutput = NbOutput + 1;
                 Posmedian = NbOutput;
             end
+            if app.MADCheckBox.Value
+                NbOutput = NbOutput + 1;
+                PosMAD = NbOutput;
+            end
             if app.MeanCheckBox.Value
                 NbOutput = NbOutput + 1;
                 Posmean = NbOutput;
+            end
+            if app.StandarddeviationCheckBox.Value
+                NbOutput = NbOutput + 1;
+                PosStd = NbOutput;
             end
             if app.ModeCheckBox.Value
                 NbOutput = NbOutput + 1;
@@ -366,6 +377,9 @@ classdef Data_Export_exported < matlab.apps.AppBase
             if isequal(app.ExcludezerosCheckBox.Value,1)
                 NumberPixels = zeros(size(CellData));
                 NumberPixelsExcluded = zeros(size(CellData));
+            else
+                NumberPixels = zeros(size(CellData));
+                NumberPixelsExcluded = 0;
             end
             
             for i = 1:length(PhaseList)
@@ -393,11 +407,23 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     
                     PxData = Data_Sel.Data(app.SecondaryDropDown.Value).CData(j).Map(Idx);
                     
+                    % Zero filter
+                    NbPxTemp = 0;
+                    NbPxExTemp = 0;
                     if isequal(app.ExcludezerosCheckBox.Value,1)
                         NbPxTemp = length(PxData);
                         IdxSelected = find(PxData <= 1e-12);
                         PxData(IdxSelected) = [];
                         NbPxExTemp = length(IdxSelected);
+                    end
+                    % Outlier filter
+                    if isequal(app.OutlierrejectionCheckBox.Value,1)
+                        if isequal(NbPxTemp,0)
+                            NbPxTemp = length(PxData);
+                        end
+                        [xClean, keep] = sigma3iter(app,PxData);
+                        PxData = PxData(find(keep));
+                        NbPxExTemp = NbPxExTemp + length(find(keep == 0));
                     end
                     
                     if app.ModeCheckBox.Value
@@ -426,6 +452,18 @@ classdef Data_Export_exported < matlab.apps.AppBase
                             NumberPixelsExcluded(NbOutput*(i-1)+Posmedian,j) = NbPxExTemp;
                         end
                     end
+                    if app.MADCheckBox.Value
+                        if isequal(j,1)
+                            CellData{NbOutput*(i-1)+PosMAD,1} = PhaseList{i};
+                            CellData{NbOutput*(i-1)+PosMAD,2} = {'MAD(px)'};
+                        end
+                        CellData{NbOutput*(i-1)+PosMAD,j+2} = mad(PxData);
+                        
+                        if isequal(app.ExcludezerosCheckBox.Value,1)
+                            NumberPixels(NbOutput*(i-1)+PosMAD,j) = NbPxTemp;
+                            NumberPixelsExcluded(NbOutput*(i-1)+PosMAD,j) = NbPxExTemp;
+                        end
+                    end
                     
                     if app.MeanCheckBox.Value
                         if isequal(j,1)
@@ -439,7 +477,18 @@ classdef Data_Export_exported < matlab.apps.AppBase
                             NumberPixelsExcluded(NbOutput*(i-1)+Posmean,j) = NbPxExTemp;
                         end
                     end
-                    
+                    if app.StandarddeviationCheckBox.Value
+                        if isequal(j,1)
+                            CellData{NbOutput*(i-1)+PosStd,1} = PhaseList{i};
+                            CellData{NbOutput*(i-1)+PosStd,2} = {'Std(px)'};
+                        end
+                        CellData{NbOutput*(i-1)+PosStd,j+2} = std(PxData);
+                        
+                        if isequal(app.ExcludezerosCheckBox.Value,1)
+                            NumberPixels(NbOutput*(i-1)+PosStd,j) = NbPxTemp;
+                            NumberPixelsExcluded(NbOutput*(i-1)+PosStd,j) = NbPxExTemp;
+                        end
+                    end
                     if app.NumberCheckBox.Value
                         if isequal(j,1)
                             for n = 1:length(PosNumber)
@@ -457,6 +506,88 @@ classdef Data_Export_exported < matlab.apps.AppBase
             end
             
             Labels = [{'mineral'},{'analysis_type'},ElemList];
+            
+            AddExtraColumns(app,CellData,Labels,NumberPixelsExcluded,NumberPixels);
+            
+        end
+        
+        
+        function GenerateCellFromAllData(app)
+            
+            [MaskFile,Data_Sel,ElemList,PhaseList,MaskMap,IsSubMask,MaskIdx,SubMaskIdx] = PrepareExtraction(app);
+            
+            PhaseList = MaskFile.Masks(app.MaskFileDropDown.Value).Names(2:end); % Replace by the phase list without submasks
+            
+            PxIdx = find(app.BRC); % we only save the unfiltered pixels
+            
+            X = [1:size(MaskMap,2)];
+            Y = [1:size(MaskMap,1)];
+            
+            [XGrid,YGrid] = meshgrid(X, Y);
+            
+            NbElem = length(Data_Sel.Data(app.SecondaryDropDown.Value).CData);
+            
+            Data = zeros(size(PxIdx,1),NbElem);
+            
+            for i = 1:NbElem
+                Data(:,i) = Data_Sel.Data(app.SecondaryDropDown.Value).CData(i).Map(PxIdx);
+            end
+            
+            SumData = sum(Data,2);
+            
+            ElIdx = find(SumData == 0);
+            
+            Data(ElIdx,:) = [];
+            PxIdx(ElIdx) = [];
+            
+            NbOutput = length(PxIdx);
+            
+            CellData = cell(NbOutput,length(ElemList) + 5); % add mineral, submask, analysis_type, X & Y
+            
+            CountWaitBar = 0;
+            
+            for i = 1:NbOutput
+                
+                CountWaitBar = CountWaitBar+1;
+                if CountWaitBar > 100
+                    app.WaitBar.Value = i/NbOutput;
+                    CountWaitBar = 0;
+                end
+                
+                iPx = PxIdx(i);
+                MaskID = MaskMap(YGrid(iPx),XGrid(iPx));
+                
+                CellData{i,1} = PhaseList{MaskID};
+                
+                if ~isempty(MaskFile.Masks.SubMask(MaskID+1).Names)
+                    SubMaskID = MaskFile.Masks(app.MaskFileDropDown.Value).SubMask(MaskID+1).MaskSelMaskMap(YGrid(iPx),XGrid(iPx));
+                    CellData{i,2} = MaskFile.Masks(app.MaskFileDropDown.Value).SubMask(MaskID+1).Names{SubMaskID+1};
+                else
+                    CellData{i,2} = 'none';
+                end
+                
+                CellData{i,3} = 'pixel';
+                CellData{i,4} = XGrid(iPx);
+                CellData{i,5} = YGrid(iPx);
+                
+                CellData(i,6:end) = num2cell(Data(i,:));
+                
+%                 for j = 1:length(ElemList)
+%                     CellData{i,j+5} = Data_Sel.Data(app.SecondaryDropDown.Value).CData(j).Map(iPx);
+%                 end
+                
+            end
+            
+            Labels = [{'mineral'},{'submask'},{'analysis_type'},{'X'},{'Y'},ElemList];
+            
+            NumberPixelsExcluded = 0;
+            NumberPixels = 1;
+            
+            AddExtraColumns(app,CellData,Labels,NumberPixelsExcluded,NumberPixels);
+            
+        end
+        
+        function AddExtraColumns(app,CellData,Labels,NumberPixelsExcluded,NumberPixels)
             
             % Add columns for other selections
             if app.Include_SampleCheckBox.Value
@@ -498,17 +629,13 @@ classdef Data_Export_exported < matlab.apps.AppBase
                     end
                 end
                 CellData = [CellData(:,1:end),num2cell(FractionExcluded)];
-                Labels = [Labels,{'fraction_nul_px_percent'}];
+                Labels = [Labels,{'fraction_excluded_px_percent'}];
             end
             
             app.GeneratedDataCellFormat = CellData;
             app.GeneratedLabelCellFormat = Labels;
             
-            close(app.WaitBar)
-            
         end
-        
-        
         
         
         function CalculateBRC(app)
@@ -635,7 +762,18 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 
                 disp(['Mode was ',num2str(OriginalMode),' changed to ',num2str(ModeVal)])
             end
-            
+        end
+        
+        function [xClean, keep] = sigma3iter(app,x)
+            keep = ~isnan(x);
+            while true
+                mu = mean(x(keep));
+                sd = std(x(keep));
+                newKeep = keep & abs(x - mu) <= 3*sd;
+                if isequal(newKeep, keep), break; end
+                keep = newKeep;
+            end
+            xClean = x(keep);
         end
     end
     
@@ -680,7 +818,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 app.SpotData_MedianCheckBox.Enable = 'off';
             end
             
-            %app.DatasetDropDown.Items = 
+            %app.DatasetDropDown.Items =
             
             app.Mode_Merged_Button.Value = 1;
             update_export_source(app);
@@ -761,26 +899,41 @@ classdef Data_Export_exported < matlab.apps.AppBase
         % Button pushed function: GenerateSaveButton
         function GenerateSaveButtonPushed(app, event)
             
+            app.WaitBar = uiprogressdlg(app.DataExport,'Title','XMapTools','Value',0);
+            app.WaitBar.Message = 'XMapTools is pulling out numbers for you, please wait';
+            
             switch app.ExportFormatDropDown.Value
                 case 'ThermoFit'
                     uialert(app.DataExport,'The ThermoFit format is not yet available, stay tuned!','XMapTools');
                     app.ExportFormatDropDown.Value = 'MinPlot';
+                    close(app.WaitBar);
                     return
             end
             
             if isempty(app.SecondaryDropDown.Value)
                 uialert(app.DataExport,'No data selected in the drop-down menu','XMapTools');
+                close(app.WaitBar);
+                return
+            end
+            
+            if isequal(app.MedianCheckBox.Value,0) && isequal(app.MeanCheckBox.Value,0) && isequal(app.NumberCheckBox.Value,0) && isequal(app.AllCheckBox.Value,0)
+                uialert(app.DataExport,'No data selected in Export Map Data','XMapTools');
+                close(app.WaitBar);
                 return
             end
             
             if isequal(app.ExportMapDataCheckBox.Value,1)
-                GenerateCellFromSelectedDataIncludingSubmasks(app);
+                if isequal(app.AllCheckBox.Value,1)
+                    GenerateCellFromAllData(app);                           % Export all data
+                else
+                    GenerateCellFromSelectedDataIncludingSubmasks(app);     % Export map data
+                end
+                         
             else
-                GenerateCellFromSelectedSpotData(app);
+                GenerateCellFromSelectedSpotData(app);                      % Export spot data
             end
             
             T = cell2table(app.GeneratedDataCellFormat,'VariableNames',app.GeneratedLabelCellFormat);
-            
             
             [Success,Message,MessageID] = mkdir('Exported-MinComp');
             DateStr = char(datestr(now));
@@ -795,6 +948,8 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 case 'MinPlot'
                     
                     writetable(T,fullfile(Directory,[ProjectName,'.csv']));
+                    
+                    close(app.WaitBar);close(app.WaitBar);
                     
                     uialert(app.DataExport,'The file has been saved in the folder /Exported-MinComp','XMapTools','Icon','success');
                     
@@ -856,12 +1011,19 @@ classdef Data_Export_exported < matlab.apps.AppBase
             if isequal(app.IncludebothMaskSubMasksCheckBox.Value,1)
                 app.IncludeSubMasksCheckBox.Value = 1;
             end
+            if isequal(app.AllCheckBox.Value,1)
+                app.IncludebothMaskSubMasksCheckBox.Value = 0;
+                app.IncludeSubMasksCheckBox.Value = 0;
+            end
         end
 
         % Value changed function: IncludeSubMasksCheckBox
         function IncludeSubMasksCheckBoxValueChanged(app, event)
             if isequal(app.IncludeSubMasksCheckBox.Value,0)
                 app.IncludebothMaskSubMasksCheckBox.Value = 0;
+            end
+            if isequal(app.AllCheckBox.Value,1)
+                app.IncludeSubMasksCheckBox.Value = 0;
             end
         end
 
@@ -893,7 +1055,95 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
         % Value changed function: SpotData_MedianCheckBox
         function SpotData_MedianCheckBoxValueChanged(app, event)
-            app.SpotData_MedianCheckBox.Value = 1; % Force the option as there is no alternative option so far. 
+            app.SpotData_MedianCheckBox.Value = 1; % Force the option as there is no alternative option so far.
+        end
+
+        % Value changed function: AllCheckBox
+        function AllCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1)
+                app.NumberCheckBox.Value = 0;
+                app.MedianCheckBox.Value = 0;
+                app.MeanCheckBox.Value = 0;
+                app.ModeCheckBox.Value = 0;
+                app.OutlierrejectionCheckBox.Value = 0;
+                app.StandarddeviationCheckBox.Value = 0;
+                app.MADCheckBox.Value = 0;
+                app.IncludeSubMasksCheckBox.Value = 1;
+                app.IncludebothMaskSubMasksCheckBox.Value = 0;
+                app.ExcludezerosCheckBox.Value = 0;
+                
+                app.NumberCheckBox.Enable = 'off';
+                app.MedianCheckBox.Enable = 'off';
+                app.MeanCheckBox.Enable = 'off';
+                app.ModeCheckBox.Enable = 'off';
+                app.OutlierrejectionCheckBox.Enable = 'off';
+                app.StandarddeviationCheckBox.Enable = 'off';
+                app.MADCheckBox.Enable = 'off';
+                app.IncludeSubMasksCheckBox.Enable = 'off';
+                app.IncludebothMaskSubMasksCheckBox.Enable = 'off';
+                app.ExcludezerosCheckBox.Enable = 'off';
+                app.NumberValue.Enable = 'off';
+                
+            else
+                app.NumberCheckBox.Enable = 'on';
+                app.MedianCheckBox.Enable = 'on';
+                app.MeanCheckBox.Enable = 'on';
+                % app.ModeCheckBox.Enable = 'on';
+                app.OutlierrejectionCheckBox.Enable = 'on';
+                app.StandarddeviationCheckBox.Enable = 'on';
+                app.MADCheckBox.Enable = 'on';
+                app.IncludeSubMasksCheckBox.Enable = 'on';
+                app.IncludebothMaskSubMasksCheckBox.Enable = 'on';
+                app.ExcludezerosCheckBox.Enable = 'on';
+                app.NumberValue.Enable = 'on';
+            end
+        end
+
+        % Value changed function: MedianCheckBox
+        function MedianCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1)
+                app.MedianCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: MeanCheckBox
+        function MeanCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1)
+                app.MeanCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: NumberCheckBox
+        function NumberCheckBoxValueChanged(app, event)
+            if isequal(app.NumberCheckBox.Value,1)
+                app.AllCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: StandarddeviationCheckBox
+        function StandarddeviationCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1)
+                app.StandarddeviationCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: MADCheckBox
+        function MADCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1)
+                app.MADCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: OutlierrejectionCheckBox
+        function OutlierrejectionCheckBoxValueChanged(app, event)
+            if isequal(app.AllCheckBox.Value,1) 
+                app.OutlierrejectionCheckBox.Value = 0;
+            end
+        end
+
+        % Value changed function: ExcludezerosCheckBox
+        function ExcludezerosCheckBoxValueChanged(app, event)
+            
         end
     end
 
@@ -980,13 +1230,15 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create MeanCheckBox
             app.MeanCheckBox = uicheckbox(app.GridLayout5);
+            app.MeanCheckBox.ValueChangedFcn = createCallbackFcn(app, @MeanCheckBoxValueChanged, true);
             app.MeanCheckBox.Text = 'Mean';
             app.MeanCheckBox.FontSize = 11;
-            app.MeanCheckBox.Layout.Row = 3;
-            app.MeanCheckBox.Layout.Column = [2 3];
+            app.MeanCheckBox.Layout.Row = 2;
+            app.MeanCheckBox.Layout.Column = [4 5];
 
             % Create MedianCheckBox
             app.MedianCheckBox = uicheckbox(app.GridLayout5);
+            app.MedianCheckBox.ValueChangedFcn = createCallbackFcn(app, @MedianCheckBoxValueChanged, true);
             app.MedianCheckBox.Text = 'Median';
             app.MedianCheckBox.FontSize = 11;
             app.MedianCheckBox.Layout.Row = 2;
@@ -997,7 +1249,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.ModeCheckBox.Enable = 'off';
             app.ModeCheckBox.Text = 'Mode';
             app.ModeCheckBox.FontSize = 11;
-            app.ModeCheckBox.Layout.Row = 2;
+            app.ModeCheckBox.Layout.Row = 3;
             app.ModeCheckBox.Layout.Column = [4 5];
 
             % Create ExportDataLabel_2
@@ -1016,6 +1268,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create StandarddeviationCheckBox
             app.StandarddeviationCheckBox = uicheckbox(app.GridLayout5);
+            app.StandarddeviationCheckBox.ValueChangedFcn = createCallbackFcn(app, @StandarddeviationCheckBoxValueChanged, true);
             app.StandarddeviationCheckBox.Text = 'Standard deviation';
             app.StandarddeviationCheckBox.FontSize = 11;
             app.StandarddeviationCheckBox.Layout.Row = 5;
@@ -1097,13 +1350,15 @@ classdef Data_Export_exported < matlab.apps.AppBase
 
             % Create ExcludezerosCheckBox
             app.ExcludezerosCheckBox = uicheckbox(app.GridLayout5);
+            app.ExcludezerosCheckBox.ValueChangedFcn = createCallbackFcn(app, @ExcludezerosCheckBoxValueChanged, true);
             app.ExcludezerosCheckBox.Text = 'Exclude zeros';
             app.ExcludezerosCheckBox.FontSize = 11;
             app.ExcludezerosCheckBox.Layout.Row = 6;
-            app.ExcludezerosCheckBox.Layout.Column = [1 5];
+            app.ExcludezerosCheckBox.Layout.Column = [1 3];
 
             % Create NumberCheckBox
             app.NumberCheckBox = uicheckbox(app.GridLayout5);
+            app.NumberCheckBox.ValueChangedFcn = createCallbackFcn(app, @NumberCheckBoxValueChanged, true);
             app.NumberCheckBox.Text = 'Number';
             app.NumberCheckBox.FontSize = 11;
             app.NumberCheckBox.Layout.Row = 4;
@@ -1118,6 +1373,31 @@ classdef Data_Export_exported < matlab.apps.AppBase
             app.NumberValue.Layout.Row = 4;
             app.NumberValue.Layout.Column = 4;
             app.NumberValue.Value = 20;
+
+            % Create AllCheckBox
+            app.AllCheckBox = uicheckbox(app.GridLayout5);
+            app.AllCheckBox.ValueChangedFcn = createCallbackFcn(app, @AllCheckBoxValueChanged, true);
+            app.AllCheckBox.Text = 'All';
+            app.AllCheckBox.FontSize = 11;
+            app.AllCheckBox.Layout.Row = 5;
+            app.AllCheckBox.Layout.Column = [2 3];
+
+            % Create OutlierrejectionCheckBox
+            app.OutlierrejectionCheckBox = uicheckbox(app.GridLayout5);
+            app.OutlierrejectionCheckBox.ValueChangedFcn = createCallbackFcn(app, @OutlierrejectionCheckBoxValueChanged, true);
+            app.OutlierrejectionCheckBox.Tooltip = {'Apply an iterative 3s outlier rejection for each quantity (element in mask).'};
+            app.OutlierrejectionCheckBox.Text = 'Outlier rejection';
+            app.OutlierrejectionCheckBox.FontSize = 11;
+            app.OutlierrejectionCheckBox.Layout.Row = 6;
+            app.OutlierrejectionCheckBox.Layout.Column = [4 7];
+
+            % Create MADCheckBox
+            app.MADCheckBox = uicheckbox(app.GridLayout5);
+            app.MADCheckBox.ValueChangedFcn = createCallbackFcn(app, @MADCheckBoxValueChanged, true);
+            app.MADCheckBox.Text = 'MAD';
+            app.MADCheckBox.FontSize = 11;
+            app.MADCheckBox.Layout.Row = 6;
+            app.MADCheckBox.Layout.Column = [8 11];
 
             % Create MetadataPanel
             app.MetadataPanel = uipanel(app.GridLayout);

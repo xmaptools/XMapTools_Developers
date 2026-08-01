@@ -9,6 +9,8 @@ This release is a developer version that includes new features and bug fixes to 
   - Implement a limit of detection (LOD) calculation and filter in the Calibration module for EPMA. The LOD is estimated for each element and each mask from the fitted background intensity, and pixels whose intensity falls below the background plus 3 times the standard deviation of the net intensity are set to zero in the generated quanti maps. The standard deviation of the net intensity is derived from counting statistics on the background; because the background is obtained by fitting rather than measured directly, its own uncertainty is assumed to be negligible.
   - Add functionality to import a mask file or training set from an existing project. This feature is available via the File > Import from Project > … menu.
   - Implement a function to check and exclude standard spots outside the map area after moving them. Matthew Demmer and Stephen Centrella are thanked for this suggestion.
+  - Add a feature in the Export module to export all analyses. Julien Berger and Sophie Gouy are thanked for this suggestion.  
+  - Add an option in the Export module to export standard deviation (std) and/or median average deviations (MAD) along with average and/or mean values are being exported.
   
 - Performance improvements with large datasets: 
   - Implement an option in the Import tool to convert data to integer.
@@ -29,10 +31,8 @@ This release is a developer version that includes new features and bug fixes to 
   - Enhance the FIN2 file converter tool of the converter module by adding the .fin2 file extension.
   - Enhance the automated format selection of the converter module.  
 
-
 - Spot data: 
   - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes of different types cannot be mixed within a single dataset. 
-
 
 - Other:
   - Fix the standard spot data import function to remove labels for spots outside the map area. Matthew Demmer and Stephen Centrella are thanked for reporting this issue.
