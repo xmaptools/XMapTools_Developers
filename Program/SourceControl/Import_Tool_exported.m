@@ -464,7 +464,10 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             if isequal(app.ApplyafilterDropDown.Value,'Median')
                 NbMaps = length(app.ImportData);
-                MedianFilter = app.MedianFilterValueEditField.Value;
+                MedianFilter = max(3, round(app.MedianFilterValueEditField.Value));
+                if mod(MedianFilter,2) == 0
+                    MedianFilter = MedianFilter + 1;
+                end
                 for i = 1:NbMaps
                     app.ImportData(i).Data = medfilt2(app.ImportData(i).Data,[MedianFilter,MedianFilter]);
                     app.ImportData(i).DataCorr = medfilt2(app.ImportData(i).DataCorr,[MedianFilter,MedianFilter]);
@@ -1126,18 +1129,24 @@ classdef Import_Tool_exported < matlab.apps.AppBase
 
         % Value changed function: MaxEditField
         function MaxEditFieldValueChanged(app, event)
-            Min = app.MinEditField.Value;
-            Max = app.MaxEditField.Value;
-            caxis(app.PanelPlot.Children(1).Children(2),[Min,Max]);
-            caxis(app.PanelPlot.Children(1).Children(4),[Min,Max]);
+            if isempty(app.PanelPlot.Children)
+                return
+            end
+            minVal = app.MinEditField.Value;
+            maxVal = app.MaxEditField.Value;
+            caxis(app.PanelPlot.Children(1).Children(2),[minVal,maxVal]);
+            caxis(app.PanelPlot.Children(1).Children(4),[minVal,maxVal]);
         end
 
         % Value changed function: MinEditField
         function MinEditFieldValueChanged(app, event)
-            Min = app.MinEditField.Value;
-            Max = app.MaxEditField.Value;
-            caxis(app.PanelPlot.Children(1).Children(2),[Min,Max]);
-            caxis(app.PanelPlot.Children(1).Children(4),[Min,Max]);
+            if isempty(app.PanelPlot.Children)
+                return
+            end
+            minVal = app.MinEditField.Value;
+            maxVal = app.MaxEditField.Value;
+            caxis(app.PanelPlot.Children(1).Children(2),[minVal,maxVal]);
+            caxis(app.PanelPlot.Children(1).Children(4),[minVal,maxVal]);
         end
     end
 
