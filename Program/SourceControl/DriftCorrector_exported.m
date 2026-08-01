@@ -726,6 +726,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
                         app.CorrectionMapVq = load("last_correction_map.txt");
                     catch
                         uialert(app.DriftCorrectorGUI, 'Error, there is no last_correction_map.txt file available in the current working directory', 'XMapTools', 'Icon','Error');
+                        close(app.WaitBar);
                         return
                     end
                     
