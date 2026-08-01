@@ -46,13 +46,13 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <p>When you press <i>Apply Standardisation</i>, all maps are sent to XMapTools. </p>
 
 
-<h2><a name="v4.6"></a>Limit of detection (udpate in 4.6))</h2>
+<h2><a name="v4.6"></a>Limit of detection (update in 4.6)</h2>
 
 <p>Since version 4.6, the Calibration module for EPMA estimates a limit of detection (LOD) for each element of each mask, and applies it as a filter to the calibrated maps.</p>
 
 <h3>Principle</h3>
 
-<p>For a given element and a given mask, the calibration relates the measured X-ray intensity to composition through a background intensity </i>I_back</i> and a slope <i>Slope</i> (counts per wt%). Both are obtained by fitting the spot measurements assigned to that mask with the pixel values.</p>
+<p>For a given element and a given mask, the calibration relates the measured X-ray intensity to composition through a background intensity <i>I_back</i> and a slope <i>Slope</i> (counts per wt%). Both are obtained by fitting the spot measurements assigned to that mask with the pixel values.</p>
 
 <p>The smallest signal that can be distinguished from the background is set by the counting statistics of the background itself. X-ray counts follow a Poisson distribution, so the standard deviation of the net intensity at the detection limit is:</p>
 
@@ -62,9 +62,9 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <p>The detection limit is then expressed in wt% using the calibration slope:</p>
 
-<center><p><i>LOD</i> = <i>Sigma_net</i> / <i>Slope</i></p></center>
+<center><p><i>LOD</i> = <i>k</i> * <i>Sigma_net</i> / <i>Slope</i></p></center>
 
-<p>with <i>k</i> = 3, the usual IUPAC convention. A value of <i>k</i> = 3 corresponds to a one-sided false-positive rate of about 0.13% per pixel.</p>
+<p>With <i>k</i> = 3, the usual IUPAC convention. A value of <i>k</i> = 3 corresponds to a one-sided false-positive rate of about 0.13% per pixel.</p>
 
 <h3>The filter</h3>
 
