@@ -2,35 +2,37 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        DriftCorrectorGUI              matlab.ui.Figure
-        GridLayout                     matlab.ui.container.GridLayout
-        Image                          matlab.ui.control.Image
-        GridLayout2                    matlab.ui.container.GridLayout
-        AppyCorrection                 matlab.ui.control.Button
-        MaskSelectionOptionsPanel      matlab.ui.container.Panel
-        GridLayout3                    matlab.ui.container.GridLayout
-        DropDownMask                   matlab.ui.control.DropDown
-        MaskLabel                      matlab.ui.control.Label
-        FilterCheckBox                 matlab.ui.control.CheckBox
-        DropDownFilter                 matlab.ui.control.DropDown
-        CorrectionschemePanel          matlab.ui.container.Panel
-        GridLayout3_2                  matlab.ui.container.GridLayout
-        CorrectionLabel                matlab.ui.control.Label
-        DropDownCorrection             matlab.ui.control.DropDown
-        AddROIButton                   matlab.ui.control.Button
-        ApplyAutoButton                matlab.ui.control.StateButton
-        ResolutionValuePxInput         matlab.ui.control.NumericEditField
-        RespixelsLabel                 matlab.ui.control.Label
-        DisplaytheCorrectionMapButton  matlab.ui.control.Button
-        Image2                         matlab.ui.control.Image
-        AutoContrast_Button            matlab.ui.control.Button
-        MaxEditField                   matlab.ui.control.NumericEditField
-        MinEditField                   matlab.ui.control.NumericEditField
-        MinLabel                       matlab.ui.control.Label
-        MaxLabel                       matlab.ui.control.Label
-        UIAxes                         matlab.ui.control.UIAxes
-        UIAxes2                        matlab.ui.control.UIAxes
-        UIAxes3                        matlab.ui.control.UIAxes
+        DriftCorrectorGUI               matlab.ui.Figure
+        GridLayout                      matlab.ui.container.GridLayout
+        Image                           matlab.ui.control.Image
+        GridLayout2                     matlab.ui.container.GridLayout
+        AppyCorrection                  matlab.ui.control.Button
+        ApplytoAllMapsCheckBox          matlab.ui.control.CheckBox
+        SaveastxtfilesCheckBox          matlab.ui.control.CheckBox
+        MaskSelectionOptionsPanel       matlab.ui.container.Panel
+        GridLayout3                     matlab.ui.container.GridLayout
+        DropDownMask                    matlab.ui.control.DropDown
+        MaskLabel                       matlab.ui.control.Label
+        FilterCheckBox                  matlab.ui.control.CheckBox
+        DropDownFilter                  matlab.ui.control.DropDown
+        CorrectionschemePanel           matlab.ui.container.Panel
+        GridLayout3_2                   matlab.ui.container.GridLayout
+        CorrectionLabel                 matlab.ui.control.Label
+        DropDownCorrection              matlab.ui.control.DropDown
+        ApplyAutoButton                 matlab.ui.control.StateButton
+        DisplaytheCorrectionMapButton   matlab.ui.control.Button
+        ResolutionValuePxInput          matlab.ui.control.EditField
+        RespixelsLabel                  matlab.ui.control.Label
+        SaveCorrectionMapasaFileButton  matlab.ui.control.Button
+        Image2                          matlab.ui.control.Image
+        AutoContrast_Button             matlab.ui.control.Button
+        MaxEditField                    matlab.ui.control.NumericEditField
+        MinEditField                    matlab.ui.control.NumericEditField
+        MinLabel                        matlab.ui.control.Label
+        MaxLabel                        matlab.ui.control.Label
+        UIAxes                          matlab.ui.control.UIAxes
+        UIAxes2                         matlab.ui.control.UIAxes
+        UIAxes3                         matlab.ui.control.UIAxes
     end
 
     
@@ -42,16 +44,54 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
         Map
         
         
-        Data4Correction 
-        DataCorrected 
-        BRC 
+        Data4Correction
+        DataCorrected
+        BRC
         
         CorrectionMapVq
+        WaitBar % Description
     end
     
     methods (Access = private)
         
         function PlotFunction(app)
+            
+            cla(app.UIAxes3,'reset');
+            cla(app.UIAxes2,'reset');
+            
+            app.UIAxes3.Visible = 'off';
+            app.AutoContrast_Button.Visible = 'off';
+            app.Image2.Visible = 'off';
+            app.MaxLabel.Visible = 'off';
+            app.MinLabel.Visible = 'off';
+            app.MinEditField.Visible = 'off';
+            app.MaxEditField.Visible = 'off';
+            app.AutoContrast_Button.Visible = 'off';
+            app.UIAxes.Visible = 'off';
+            app.UIAxes2.Visible = 'off';
+            
+            if app.DropDownCorrection.Value > 0
+                app.CorrectionschemePanel.Visible = 'on';
+                app.UIAxes.Visible = 'on';
+                app.UIAxes3.Visible = 'on';
+                app.AutoContrast_Button.Visible = 'on';
+                app.Image2.Visible = 'on';
+                app.MaxLabel.Visible = 'on';
+                app.MinLabel.Visible = 'on';
+                app.MinEditField.Visible = 'on';
+                app.MaxEditField.Visible = 'on';
+                app.AutoContrast_Button.Visible = 'on';
+                app.UIAxes2.Visible = 'on';
+            end
+            
+            if isequal(app.DropDownCorrection.Value,1) 
+                app.UIAxes3.Visible = 'off';
+            elseif isequal(app.DropDownCorrection.Value,0)
+                app.UIAxes2.Visible = 'off';
+                app.UIAxes3.Visible = 'off';
+            else
+                app.UIAxes3.Visible = 'on';
+            end
             
             app.DisplaytheCorrectionMapButton.Visible = 'off';
             
@@ -73,19 +113,27 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             colorbar(app.UIAxes)
             colormap(app.UIAxes,app.XMapToolsApp.ColorMapValues)
             
-            % keyboard
-            
             if app.DropDownCorrection.Value && isequal(app.ApplyAutoButton.Value,1)
-                % We calculate a correction
-                app.Data4Correction = Data2Plot;
                 
-                ApplySelectedDataCorrection(app)
+                if app.DropDownCorrection.Value && isequal(app.DropDownMask.Value,0)
+                    
+                    % We calculate a correction for multiple phases
+                    ApplySelectedDataCorrectionMultiPhase(app);
+                    
+                else
+                    % We calculate a correction for a single phase
+                    app.Data4Correction = Data2Plot;
+                    ApplySelectedDataCorrection(app);
+                end
                 
             end
             
+            app.WaitBar = uiprogressdlg(app.DriftCorrectorGUI,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Final update of the plots';
+            
             if app.DropDownCorrection.Value
                 Corrected = app.DataCorrected;
-
+                
                 if ValueMask
                     UnselectedPx = find(app.Mask.MaskMap ~= ValueMask);
                     Corrected(UnselectedPx) = 0;
@@ -99,6 +147,9 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
                 axis(app.UIAxes2,'image')
                 colorbar(app.UIAxes2)
                 colormap(app.UIAxes2,app.XMapToolsApp.ColorMapValues)
+                
+                app.UIAxes2.XTick = [];
+                app.UIAxes2.YTick = [];
                 
                 app.DisplaytheCorrectionMapButton.Visible = 'on';
                 app.AppyCorrection.Enable = 'on';
@@ -117,6 +168,8 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             if app.DropDownCorrection.Value
                 caxis(app.UIAxes2,[app.MinEditField.Value,app.MaxEditField.Value]);
             end
+            
+            close(app.WaitBar)
             
         end
         
@@ -188,9 +241,11 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             
             Xray = app.Data4Correction;
             
-            if app.FilterCheckBox.Value
-                Xray = Xray .* app.BRC;
-            end
+            % Already applied before sending the data
+            %
+            %             if app.FilterCheckBox.Value
+            %                 Xray = Xray .* app.BRC;
+            %             end
             
             switch app.DropDownCorrection.Value
                 
@@ -227,15 +282,190 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
                     
                     app.DataCorrected = ApplyCorrection2Map(app,Vq,app.Map);
                     
+                case 2    % 1D (horizontal)
+                    
+                    [Profile,xc,yc,trend,trend4disp] = Interpolation1D(app, Xray, 'h');
+                    
+                    plot(app.UIAxes3,Profile,'.k')
+                    hold(app.UIAxes3,'on');
+                    
+                    plot(app.UIAxes3,xc,yc,'.r')
+                    
+                    plot(app.UIAxes3, trend4disp, '-b');
+                    hold(app.UIAxes3,'off');
+                    
+                    app.CorrectionMapVq = repmat(trend',[size(Xray,1),1]);
+                    app.DataCorrected = ApplyCorrection2Map(app,app.CorrectionMapVq,app.Map);
+                    
+                case 3    % 1D (vertical)
+                    
+                    [Profile,xc,yc,trend,trend4disp] = Interpolation1D(app, Xray, 'v');
+                    
+                    plot(app.UIAxes3,Profile,'.k')
+                    hold(app.UIAxes3,'on');
+                    
+                    plot(app.UIAxes3,xc,yc,'.r')
+                    
+                    plot(app.UIAxes3, trend4disp, '-b');
+                    hold(app.UIAxes3,'off');
+                    
+                    app.CorrectionMapVq = repmat(trend,[1,size(Xray,2)]);
+                    app.DataCorrected = ApplyCorrection2Map(app,app.CorrectionMapVq,app.Map);
+                    
+                    
             end
             
         end
+        
+        function ApplySelectedDataCorrectionMultiPhase(app)
+            
+            % Prepare the data
+            
+            AllData = app.Map;
+            AllData4Correction(1).Data = [];
+            
+            for i = 1:app.DropDownMask.ItemsData(end)
+                AllDataDuplicate = AllData;
+                
+                UnselectedPx = find(app.Mask.MaskMap ~= i);
+                AllDataDuplicate(UnselectedPx) = 0;
+                
+                if app.FilterCheckBox.Value
+                    AllDataDuplicate = AllDataDuplicate .* app.BRC;
+                end
+                
+                AllData4Correction(i).Data = AllDataDuplicate;
+                
+            end
+            
+            switch app.DropDownCorrection.Value
+                
+                case 2    % 1D (horizontal)
+                    MultiPhaseInterpolation(app,AllData4Correction,'h');
+                
+                case 3    % 1D (vertical)
+                    MultiPhaseInterpolation(app,AllData4Correction,'v');
+                    
+                case 4
+                    cla(app.UIAxes3,'reset')
+                    if ~isequal(app.CorrectionMapVq(1,1), mean(app.CorrectionMapVq(1,:)))
+                        plot(app.UIAxes3,app.CorrectionMapVq(1,:),'-r','LineWidth',2);
+                    else
+                        plot(app.UIAxes3,app.CorrectionMapVq(:,1),'-r','LineWidth',2);
+                    end
+                    app.DataCorrected = (1 ./ app.CorrectionMapVq) .* app.Map;
+            end
+            
+            
+        end
+        
+        
+        function MultiPhaseInterpolation(app,AllData4Correction,Direction)
+                
+                for i = 1:numel(AllData4Correction)
+                    switch Direction
+                        case 'h'
+                            [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'h');
+                            
+                        case 'v'
+                            [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'v');
+                    end
+                end
+                
+                % Normalisation to the median of the non-zero values
+                for i = 1:numel(AllData4Correction)
+                    MedianValue(i) = median(AllData4Correction(i).trend4disp(find(AllData4Correction(i).trend4disp)),'omitnan');
+                    AllData4Correction(i).trend4dispNORM = AllData4Correction(i).trend4disp ./ MedianValue(i);
+                end
+                
+                cla(app.UIAxes3,'reset');
+                hold(app.UIAxes3,'on');
+                DataPlotted = [];
+                Data4Interp = [];
+                for i = 1:numel(AllData4Correction)
+                    plot(app.UIAxes3, AllData4Correction(i).trend4dispNORM,'.k');
+                    DataPlotted = [DataPlotted;AllData4Correction(i).trend4dispNORM];
+                    Data4Interp = [Data4Interp,AllData4Correction(i).trend4dispNORM];
+                end
+                ylim(app.UIAxes3,[1-2*std(DataPlotted,'omitnan'),1+2*std(DataPlotted,'omitnan')])
+                
+                %% Weighted common drift profile from Data4Interp
+                [nPt, nEl] = size(Data4Interp);
+                X = (1:nPt)';
+                
+                % --- 0. Weights (one per element, e.g. median intensities) --------------
+                Wel = MedianValue(:)';
+                Wel = Wel / max(Wel);                % scale only, ratios are what matter
+                
+                Wmat = repmat(Wel, nPt, 1);
+                Wmat(isnan(Data4Interp)) = NaN;      % same mask as the data
+                
+                % --- 1. Segment limits --------------------------------------------------
+                Ref = fillmissing(median(Data4Interp,2,'omitnan'), 'linear', 'EndValues','nearest');
+                bp  = findchangepts(Ref, 'MaxNumChanges', 4, 'Statistic', 'mean');
+                seg = [1; bp(:); nPt+1];
+                segID = discretize(X, seg);
+                
+                % --- 2. Weighted robust moving estimate ---------------------------------
+                W      = 20;         % half-window in analysis points
+                MinW   = 3;          % min summed weight in the window
+                SigMin = 0.005;      % floor on the robust sigma
+                Drift  = nan(nPt,1);
+                
+                for i = 1:nPt
+                    in = abs(X - i) <= W & segID == segID(i);
+                    v  = Data4Interp(in,:);   w = Wmat(in,:);
+                    ok = ~isnan(v);
+                    v  = v(ok);               w = w(ok);
+                    if sum(w) < MinW, continue, end
+                    
+                    m = wmedian(app, v, w);                                  % weighted centre
+                    s = max(1.4826 * wmedian(app,abs(v - m), w), SigMin);   % weighted MAD
+                    keep = abs(v - m) <= 3*s;
+                    if sum(w(keep)) < MinW, keep = true(size(v)); end   % safety net
+                    
+                    Drift(i) = sum(w(keep) .* v(keep)) / sum(w(keep));  % weighted mean
+                end
+                
+                Drift = fillmissing(Drift, 'linear', 'EndValues', 'nearest');
+                % Drift = movmean(Drift, 5);
+                
+                plot(app.UIAxes3, Drift, 'r-', 'LineWidth', 2)
+                
+                hold(app.UIAxes3,'off');
+                
+                switch Direction
+                    case 'h'
+                        app.CorrectionMapVq = repmat(Drift',[size(app.Map,1),1]);
+                    case 'v'
+                        app.CorrectionMapVq = repmat(Drift,[1,size(app.Map,2)]);
+                end
+                
+                app.DataCorrected = (1 ./ app.CorrectionMapVq) .* app.Map;
+                
+                
+        end
+        
         
         function CalculateBRC(app)
             
             TheNbPx = 3;
             TheNbPxOnGarde = 80;
             
+            switch app.DropDownFilter.Value
+                case 'BRC (3,80)'
+                    TheNbPx = 3;
+                    TheNbPxOnGarde = 80;
+                case 'BRC (3,100)'
+                    TheNbPx = 3;
+                    TheNbPxOnGarde = 100;
+                case 'BRC (5,100)'
+                    TheNbPx = 5;
+                    TheNbPxOnGarde = 100;
+                case 'BRC (9,100)'
+                    TheNbPx = 9;
+                    TheNbPxOnGarde = 100;
+            end
             
             % Proceed to the correction
             TheLin = size(app.Mask.MaskMap,1);
@@ -304,6 +534,72 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             DataCorrected = DataCorrected - Delta;
             
         end
+        
+        
+        
+        function [Profile,xc,yc,trend,trend4disp] = Interpolation1D(app, Xray, Direction)
+            
+            Xray(find(Xray == 0)) = NaN;
+            
+            switch Direction
+                case 'h'
+                    Profile = median(Xray,1,"omitnan");
+                case 'v'
+                    Profile = median(Xray,2,"omitnan");
+            end
+            
+            x = (1:numel(Profile))';
+            y = Profile(:);
+            
+            invalidRaw = isnan(y);
+            validRaw = ~isnan(y);
+            x = x(validRaw);
+            y = y(validRaw);
+            
+            %% 1. Outlier rejection
+            mask = ~isoutlier(y);
+            xc = x(mask);
+            yc = y(mask);
+            
+            %% 2. Bin the data (robust median per bin) to suppress noise before fitting
+            binWidth = 10;
+            edges = min(xc):binWidth:max(xc)+binWidth;
+            binIdx = discretize(xc, edges);
+            
+            binCenters = edges(1:end-1) + binWidth/2;
+            binMedian = accumarray(binIdx, yc, [numel(binCenters) 1], @median, NaN);
+            binCount  = accumarray(binIdx, 1,  [numel(binCenters) 1], @sum, 0);
+            
+            validBin = ~isnan(binMedian) & binCount > 0;
+            bx = binCenters(validBin)';
+            by = binMedian(validBin);
+            bw = binCount(validBin);             % weight = how many points supported this bin
+            bw = bw / max(bw);
+            
+            %% 3. Fit smoothing spline on binned data
+            f = fit(bx, by, 'smoothingspline', 'Weights', bw, 'SmoothingParam', 0.99);
+            
+            trendAtBins = feval(f, bx);
+            
+            %% 4. Linear interp/extrap onto full profile length
+            xFull = (1:numel(Profile))';
+            trend = interp1(bx, trendAtBins, xFull, 'linear', 'extrap');
+            
+            trend4disp = trend;
+            trend4disp(invalidRaw) = NaN;
+            
+        end
+        
+        
+        function m = wmedian(app, v, w)
+            v = v(:);  w = w(:);
+            if isscalar(v), m = v; return, end
+            [v, ix] = sort(v);  w = w(ix);
+            c = (cumsum(w) - 0.5*w) / sum(w);
+            m = interp1(c, v, 0.5, 'linear', 'extrap');
+        end
+        
+        
     end
     
 
@@ -343,23 +639,41 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             
             app.AppyCorrection.Enable = 'off';
             
+            app.UIAxes3.Visible = 'off';
+            app.AutoContrast_Button.Visible = 'off';
+            app.Image2.Visible = 'off';
+            app.MaxLabel.Visible = 'off';
+            app.MinLabel.Visible = 'off';
+            app.MinEditField.Visible = 'off';
+            app.MaxEditField.Visible = 'off';
+            app.AutoContrast_Button.Visible = 'off';
+            app.UIAxes.Visible = 'off';
+            app.UIAxes2.Visible = 'off';
+            
             app.DropDownMask.Items = app.Mask.Names;
             app.DropDownMask.ItemsData = [0:length(app.Mask.Names)-1];
             
-            CalculateBRC(app);
+            app.DropDownCorrection.ItemsData = [0:length(app.DropDownCorrection.Items)-1];
             
-            PlotFunction(app);
+            CalculateBRC(app); 
             
             app.DriftCorrectorGUI.Visible = 'on';
             
+            PlotFunction(app);
+            
+            app.WaitBar = uiprogressdlg(app.DriftCorrectorGUI,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Starting the module';
+            
             DropDownCorrectionValueChanged(app);
+            
+            close(app.WaitBar)
             %keyboard
             
         end
 
         % Value changed function: DropDownMask
         function DropDownMaskValueChanged(app, event)
-            PlotFunction(app);
+            DropDownCorrectionValueChanged(app,1);
             
         end
 
@@ -369,15 +683,23 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             
         end
 
-        % Button pushed function: AddROIButton
-        function AddROIButtonPushed(app, event)
+        % Button pushed function: SaveCorrectionMapasaFileButton
+        function SaveCorrectionMapasaFileButtonPushed(app, event)
+            
+            CorrectionMapVq = app.CorrectionMapVq;
+            
+            save('last_correction_map.txt','CorrectionMapVq','-ascii');
+            
+            uialert(app.DriftCorrectorGUI, 'File successfully saved', 'XMapTools', 'Icon','success');
             
         end
 
         % Value changed function: DropDownCorrection
         function DropDownCorrectionValueChanged(app, event)
+            app.WaitBar = uiprogressdlg(app.DriftCorrectorGUI,'Title','XMapTools','Indeterminate','on');
+            app.WaitBar.Message = 'Applying the correction and updating the plots';
             
-            app.AddROIButton.Visible = 'off';
+            app.SaveCorrectionMapasaFileButton.Visible = 'off';
             app.ResolutionValuePxInput.Visible = 'off';
             app.RespixelsLabel.Visible = 'off';
             
@@ -386,15 +708,33 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
                     app.ResolutionValuePxInput.Visible = 'on';
                     app.RespixelsLabel.Visible = 'on';
                     
+                    switch app.DropDownMask.Value
+                        case 0
+                            uialert(app.DriftCorrectorGUI, 'This method is not available for multiphase. Use the mask dropdown menu to select a phase.', 'XMapTools', 'Icon','warning');
+                            close(app.WaitBar)
+                            return
+                    end
+                    
                 case 2
-                    app.AddROIButton.Visible = 'on';
+                    app.SaveCorrectionMapasaFileButton.Visible = 'on';
                     
                 case 3
-                    app.AddROIButton.Visible = 'on';
+                    app.SaveCorrectionMapasaFileButton.Visible = 'on';
+                    
+                case 4
+                    try
+                        app.CorrectionMapVq = load("last_correction_map.txt");
+                    catch
+                        uialert(app.DriftCorrectorGUI, 'Error, there is no last_correction_map.txt file available in the current working directory', 'XMapTools', 'Icon','Error');
+                        close(app.WaitBar);
+                        return
+                    end
+                    
             end
             
-            
             PlotFunction(app);
+            
+            close(app.WaitBar)
             
         end
 
@@ -420,6 +760,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
         % Value changed function: DropDownFilter
         function DropDownFilterValueChanged(app, event)
+            CalculateBRC(app);
             PlotFunction(app);
         end
 
@@ -432,7 +773,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             CorrectionMatrix = Value-app.CorrectionMapVq;
             CorrectionMatrixPer = CorrectionMatrix./app.CorrectionMapVq;
             
-            figure, 
+            figure,
             tiledlayout('flow')
             
             nexttile
@@ -446,21 +787,66 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             
         end
 
-        % Value changed function: ResolutionValuePxInput
+        % Callback function
         function ResolutionValuePxInputValueChanged(app, event)
             PlotFunction(app);
         end
 
         % Button pushed function: AppyCorrection
         function AppyCorrectionButtonPushed(app, event)
-            
-            % Apply the correction to the entire map:
-            
-            CorrectedMap = ApplyCorrection2Map(app, app.CorrectionMapVq, app.Map);
-            
-            app.XMapToolsApp.XMapToolsData.MapData.It.Data(app.MapID).Map = CorrectedMap;
+            if isequal(app.ApplytoAllMapsCheckBox.Value,0)
+                app.XMapToolsApp.XMapToolsData.MapData.It.Data(app.MapID).Map = app.DataCorrected;
+                
+                if isequal(app.SaveastxtfilesCheckBox.Value,1)
+                    [Success,Message,MessageID] = mkdir('Corrected-Maps');
+                    Map2Save = app.DataCorrected;
+                    Name = char(app.XMapToolsApp.XMapToolsData.MapData.It.Names{app.MapID});
+                        if length(Name) >= 5
+                            if isequal(Name(end-2:end),'EDS')
+                                Name = Name(1:end-3);
+                            end
+                        end
+                    save(fullfile(cd,'Corrected-Maps',[app.MapID,'.txt']),'Map2Save','-ascii');
+                end
+                
+            else
+                % Apply the correction to all maps
+                for i = 1:length(app.XMapToolsApp.XMapToolsData.MapData.It.Data)
+                    app.XMapToolsApp.XMapToolsData.MapData.It.Data(i).Map = (1 ./ app.CorrectionMapVq) .* app.XMapToolsApp.XMapToolsData.MapData.It.Data(i).Map;
+                end
+                
+                if isequal(app.SaveastxtfilesCheckBox.Value,1)
+                    app.WaitBar = uiprogressdlg(app.DriftCorrectorGUI,'Title','XMapTools');
+                    app.WaitBar.Message = 'Saving corrected maps';
+                    [Success,Message,MessageID] = mkdir('Corrected-Maps');
+                    for i = 1:length(app.XMapToolsApp.XMapToolsData.MapData.It.Data)
+                        Map2Save = app.XMapToolsApp.XMapToolsData.MapData.It.Data(i).Map;
+                        Name = char(app.XMapToolsApp.XMapToolsData.MapData.It.Names{i});
+                        if length(Name) >= 5
+                            if isequal(Name(end-2:end),'EDS')
+                                Name = Name(1:end-3);
+                            end
+                        end
+                        save(fullfile(cd,'Corrected-Maps',[Name,'.txt']),'Map2Save','-ascii');
+                        app.WaitBar.Value = i/length(app.XMapToolsApp.XMapToolsData.MapData.It.Data);
+                    end
+                    close(app.WaitBar)
+                end
+                
+%                 if ~isempty(app.XMapToolsApp.XMapToolsData.MapData.Ot.Names)
+%                     Answer = uiconfirm(app.DriftCorrectorGUI, 'Do you want to apply the corrections to the maps in Others?)', 'XMapTools', 'Options', {'Yes','No'});
+%                     if isequal('Answer','Yes')
+%                         for i = 1:length(app.XMapToolsApp.XMapToolsData.MapData.Ot.Data)
+%                             app.XMapToolsApp.XMapToolsData.MapData.Ot.Data(i).Map = (1 ./ app.CorrectionMapVq) .* app.XMapToolsApp.XMapToolsData.MapData.Ot.Data(i).Map;
+%                         end
+%                     end
+%                 end
+                
+            end
             
             close(app.DriftCorrectorGUI)
+            
+            
             
         end
     end
@@ -491,9 +877,9 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
             % Create GridLayout2
             app.GridLayout2 = uigridlayout(app.GridLayout);
-            app.GridLayout2.ColumnWidth = {'0.5x', '1x', '1x', '1x', '0.5x'};
-            app.GridLayout2.RowHeight = {'1x'};
-            app.GridLayout2.Padding = [10 25 10 25];
+            app.GridLayout2.ColumnWidth = {'1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x', '1x'};
+            app.GridLayout2.RowHeight = {'0.1x', '1x', '0.6x'};
+            app.GridLayout2.Padding = [10 5 10 5];
             app.GridLayout2.Layout.Row = [1 3];
             app.GridLayout2.Layout.Column = [26 35];
 
@@ -503,9 +889,23 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             app.AppyCorrection.Icon = '044-repeat.png';
             app.AppyCorrection.FontSize = 14;
             app.AppyCorrection.FontWeight = 'bold';
-            app.AppyCorrection.Layout.Row = 1;
-            app.AppyCorrection.Layout.Column = [2 4];
+            app.AppyCorrection.Layout.Row = 2;
+            app.AppyCorrection.Layout.Column = [2 9];
             app.AppyCorrection.Text = 'Apply Changes';
+
+            % Create ApplytoAllMapsCheckBox
+            app.ApplytoAllMapsCheckBox = uicheckbox(app.GridLayout2);
+            app.ApplytoAllMapsCheckBox.Text = 'Apply to All Maps';
+            app.ApplytoAllMapsCheckBox.FontSize = 11;
+            app.ApplytoAllMapsCheckBox.Layout.Row = 3;
+            app.ApplytoAllMapsCheckBox.Layout.Column = [2 5];
+
+            % Create SaveastxtfilesCheckBox
+            app.SaveastxtfilesCheckBox = uicheckbox(app.GridLayout2);
+            app.SaveastxtfilesCheckBox.Text = 'Save as txt files';
+            app.SaveastxtfilesCheckBox.FontSize = 11;
+            app.SaveastxtfilesCheckBox.Layout.Row = 3;
+            app.SaveastxtfilesCheckBox.Layout.Column = [6 9];
 
             % Create MaskSelectionOptionsPanel
             app.MaskSelectionOptionsPanel = uipanel(app.GridLayout);
@@ -545,15 +945,15 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             app.FilterCheckBox.Text = 'Filter';
             app.FilterCheckBox.Layout.Row = 2;
             app.FilterCheckBox.Layout.Column = [5 6];
+            app.FilterCheckBox.Value = true;
 
             % Create DropDownFilter
             app.DropDownFilter = uidropdown(app.GridLayout3);
-            app.DropDownFilter.Items = {'BRC (3,80)'};
-            app.DropDownFilter.ItemsData = 1;
+            app.DropDownFilter.Items = {'BRC (3,80)', 'BRC (3,100)', 'BRC (5,100)', 'BRC (9,100)'};
             app.DropDownFilter.ValueChangedFcn = createCallbackFcn(app, @DropDownFilterValueChanged, true);
             app.DropDownFilter.Layout.Row = 2;
             app.DropDownFilter.Layout.Column = [7 9];
-            app.DropDownFilter.Value = 1;
+            app.DropDownFilter.Value = 'BRC (3,80)';
 
             % Create CorrectionschemePanel
             app.CorrectionschemePanel = uipanel(app.GridLayout);
@@ -583,20 +983,12 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
             % Create DropDownCorrection
             app.DropDownCorrection = uidropdown(app.GridLayout3_2);
-            app.DropDownCorrection.Items = {'--- Select a correction method', 'Auto 2D', 'Auto 1D (horizontal)', 'Auto 1D (vertical)'};
-            app.DropDownCorrection.ItemsData = [0 1 2 3];
+            app.DropDownCorrection.Items = {'--- Select a correction method', 'Auto 2D', 'Auto 1D (horizontal)', 'Auto 1D (vertical)', 'Auto from file (last_correction_map.txt)'};
+            app.DropDownCorrection.ItemsData = {'0', '1', '2', '3', '4'};
             app.DropDownCorrection.ValueChangedFcn = createCallbackFcn(app, @DropDownCorrectionValueChanged, true);
             app.DropDownCorrection.Layout.Row = 2;
-            app.DropDownCorrection.Layout.Column = [1 7];
-            app.DropDownCorrection.Value = 0;
-
-            % Create AddROIButton
-            app.AddROIButton = uibutton(app.GridLayout3_2, 'push');
-            app.AddROIButton.ButtonPushedFcn = createCallbackFcn(app, @AddROIButtonPushed, true);
-            app.AddROIButton.FontWeight = 'bold';
-            app.AddROIButton.Layout.Row = 2;
-            app.AddROIButton.Layout.Column = [8 9];
-            app.AddROIButton.Text = 'Add ROI';
+            app.DropDownCorrection.Layout.Column = [1 6];
+            app.DropDownCorrection.Value = '0';
 
             % Create ApplyAutoButton
             app.ApplyAutoButton = uibutton(app.GridLayout3_2, 'state');
@@ -607,27 +999,6 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             app.ApplyAutoButton.Layout.Column = [14 16];
             app.ApplyAutoButton.Value = true;
 
-            % Create ResolutionValuePxInput
-            app.ResolutionValuePxInput = uieditfield(app.GridLayout3_2, 'numeric');
-            app.ResolutionValuePxInput.Limits = [2 1000];
-            app.ResolutionValuePxInput.RoundFractionalValues = 'on';
-            app.ResolutionValuePxInput.ValueDisplayFormat = '%.0f';
-            app.ResolutionValuePxInput.ValueChangedFcn = createCallbackFcn(app, @ResolutionValuePxInputValueChanged, true);
-            app.ResolutionValuePxInput.HorizontalAlignment = 'center';
-            app.ResolutionValuePxInput.Layout.Row = 2;
-            app.ResolutionValuePxInput.Layout.Column = [10 11];
-            app.ResolutionValuePxInput.Value = 50;
-
-            % Create RespixelsLabel
-            app.RespixelsLabel = uilabel(app.GridLayout3_2);
-            app.RespixelsLabel.HorizontalAlignment = 'center';
-            app.RespixelsLabel.VerticalAlignment = 'bottom';
-            app.RespixelsLabel.FontSize = 11;
-            app.RespixelsLabel.FontAngle = 'italic';
-            app.RespixelsLabel.Layout.Row = 1;
-            app.RespixelsLabel.Layout.Column = [10 11];
-            app.RespixelsLabel.Text = 'Res (pixels)';
-
             % Create DisplaytheCorrectionMapButton
             app.DisplaytheCorrectionMapButton = uibutton(app.GridLayout3_2, 'push');
             app.DisplaytheCorrectionMapButton.ButtonPushedFcn = createCallbackFcn(app, @DisplaytheCorrectionMapButtonPushed, true);
@@ -636,6 +1007,30 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             app.DisplaytheCorrectionMapButton.Layout.Row = 2;
             app.DisplaytheCorrectionMapButton.Layout.Column = [12 13];
             app.DisplaytheCorrectionMapButton.Text = {'Display the'; 'Correction Map'};
+
+            % Create ResolutionValuePxInput
+            app.ResolutionValuePxInput = uieditfield(app.GridLayout3_2, 'text');
+            app.ResolutionValuePxInput.HorizontalAlignment = 'center';
+            app.ResolutionValuePxInput.Layout.Row = 2;
+            app.ResolutionValuePxInput.Layout.Column = [7 8];
+            app.ResolutionValuePxInput.Value = '20';
+
+            % Create RespixelsLabel
+            app.RespixelsLabel = uilabel(app.GridLayout3_2);
+            app.RespixelsLabel.HorizontalAlignment = 'center';
+            app.RespixelsLabel.FontSize = 9;
+            app.RespixelsLabel.Layout.Row = 1;
+            app.RespixelsLabel.Layout.Column = [7 8];
+            app.RespixelsLabel.Text = 'Resolution (px)';
+
+            % Create SaveCorrectionMapasaFileButton
+            app.SaveCorrectionMapasaFileButton = uibutton(app.GridLayout3_2, 'push');
+            app.SaveCorrectionMapasaFileButton.ButtonPushedFcn = createCallbackFcn(app, @SaveCorrectionMapasaFileButtonPushed, true);
+            app.SaveCorrectionMapasaFileButton.FontSize = 9;
+            app.SaveCorrectionMapasaFileButton.FontWeight = 'bold';
+            app.SaveCorrectionMapasaFileButton.Layout.Row = 2;
+            app.SaveCorrectionMapasaFileButton.Layout.Column = [10 11];
+            app.SaveCorrectionMapasaFileButton.Text = {'Save Correction '; 'Map as a File'};
 
             % Create Image2
             app.Image2 = uiimage(app.GridLayout);
@@ -684,6 +1079,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
             % Create UIAxes
             app.UIAxes = uiaxes(app.GridLayout);
+            app.UIAxes.PlotBoxAspectRatio = [1.78723404255319 1 1];
             app.UIAxes.XTick = [];
             app.UIAxes.YTick = [];
             app.UIAxes.FontSize = 9;
@@ -693,6 +1089,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
             % Create UIAxes2
             app.UIAxes2 = uiaxes(app.GridLayout);
+            app.UIAxes2.PlotBoxAspectRatio = [1.78723404255319 1 1];
             app.UIAxes2.XTick = [];
             app.UIAxes2.YTick = [];
             app.UIAxes2.FontSize = 9;
@@ -702,6 +1099,7 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
 
             % Create UIAxes3
             app.UIAxes3 = uiaxes(app.GridLayout);
+            app.UIAxes3.PlotBoxAspectRatio = [4.43522267206478 1 1];
             app.UIAxes3.FontSize = 9;
             app.UIAxes3.Layout.Row = [7 15];
             app.UIAxes3.Layout.Column = [1 35];

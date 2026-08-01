@@ -4,25 +4,41 @@
 
 This release is a developer version that includes new features and bug fixes to the software. 
 
-
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
+  - Implement a limit of detection (LOD) calculation and filter in the Calibration module for EPMA. The LOD is estimated for each element and each mask from the fitted background intensity, and pixels whose intensity falls below the background plus 3 times the standard deviation of the net intensity are set to zero in the generated quanti maps. The standard deviation of the net intensity is derived from counting statistics on the background; because the background is obtained by fitting rather than measured directly, its own uncertainty is assumed to be negligible.
+  - Add functionality to import a mask file or training set from an existing project. This feature is available via the File > Import from Project > … menu.
+  - Implement a function to check and exclude standard spots outside the map area after moving them. Matthew Demmer and Stephen Centrella are thanked for this suggestion.
+  - Add a feature in the Export module to export all analyses. Julien Berger and Sophie Gouy are thanked for this suggestion.  
+  - Add an option in the Export module to export standard deviation (std) and/or median average deviations (MAD) along with average and/or mean values are being exported.
   
-  
+- Performance improvements with large datasets: 
+  - Implement an option in the Import tool to convert data to integer.
+  - Improve the data visualisation in the Import tool with linked zoom and compatibility to the new corrections.
+
+- Drift correction module for intensity data:
+  - Add a multi-mineral and multi-map drift correction that can be used to correct for intensity variations caused by fluctuations in beam current during mapping. This tool calculates the time-related drift for each mineral for a given major element (e.g., Si) and employs a weighted interpolation to recalculate the drift function. This feature is particularly effective when an element is not zoned in a significant portion of the minerals (e.g. Si in quart, garnet and plagioclase).
+  - Add 1D drift correction method for horizontal and vertical drift correction for single mineral as in XMapTools 3.
+  - Enhance the existing 1D drift correction methods by saving the most recent drift calculations. This feature enables the application of this correction to other elements.      
+  - Enhance the drift correction module by enabling the correction to be applied to all intensity maps and by saving the corrected maps in a folder named Corrected-Maps. 
+
 - LA-ICP-MS:
   - Add an option to the PRIP module that allows the intensity data (in cps) of each sweep to be plotted for a selected ROI. This can be used to assess the homogeneity of the selected sweeps. Note that these are raw data and have not been corrected for intensity drift.
-  - In the converter module, add the option to load multiple data files alongside a compatible log file. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected. 
-  - In the converter module, add a new mode for the laser log file (GeoStar PAbB) for analyses where pre-ablation is performed prior to the background measurement.  
-  - In the converter module, improve the laser ON/OFF visualisation plot by plotting both states in different colours (blue for on and red for off). This advanced plotting mode can be activated via the menu using the "Advanced laser ON/OFF visualisation" option.
-
+  - Improve the Log Generator module by adding a signal detector tool. Two modes are available: a similarity test based on PCA log-ratios for standard measurements and a signal length test to identify map scans. This tool is helpful for files lacking the material type in their filenames as it enables the grouping and renaming of standard and sample signals. 
+  - Add the option to load multiple data files alongside a compatible log file in the converter module. In this case, the multiple data files are merged into a single file and the software continues as if a single file had been selected. This approach won’t work if the synchronisation between the two instruments changes over time. 
+  - Add a new mode in the converter module for the laser log file (GeoStar PAbB) for analyses where pre-ablation is performed prior to the background measurement.  
+  - Enhance the laser ON/OFF visualisation plot of the converter module by plotting both states in different colours (blue for on and red for off). This advanced plotting mode can be activated via the menu using the "Advanced laser ON/OFF visualisation" option.
+  - Enhance the FIN2 file converter tool of the converter module by adding the .fin2 file extension.
+  - Enhance the automated format selection of the converter module.  
 
 - Spot data: 
   - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes of different types cannot be mixed within a single dataset. 
 
-
 - Other:
+  - Fix the standard spot data import function to remove labels for spots outside the map area. Matthew Demmer and Stephen Centrella are thanked for reporting this issue.
   - Fix an error that was preventing projects containing spot data from loading properly when spot data already existed in the current window. 
   - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
+  - Correct a typo in the Calibration module for EPMA data. Qian Zhang is thanked for identifying this error during a workshop. 
   - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
   - Other minor bug fixes.
 

@@ -98,9 +98,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         TimeShiftCorrData   % Data from the automated time shift correction
         Integrations
         Data4Plot       % Contain all data to be plotted in PlotDropDown
-        Start_Idx_Data4Plot_BackgroundCorrected % Description
-        RefData_LAICPMS % Description
-        PathStdFolder   % Description
+        Start_Idx_Data4Plot_BackgroundCorrected 
+        PathStdFolder   
         WaitBar         % Handle of the waitbar
         ContextMenu_Tree_Background
         ContextMenu_Tree_Standard
@@ -122,6 +121,8 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
         Log             % Data from the log file
         ExchangeFormator
         ExchangeSelector
+        
+        RefData_LAICPMS % Standard data
         
         Data            % Data clean
         
@@ -4869,19 +4870,21 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             
             app.WaitBar.Message = 'Copying the data files';
             
-            FormatSearch = '.FIN2';
+            FormatSearch = {'.FIN2','.fin2'};
             NewFormat = '.csv';
             List = dir(selpath);
             Files = [];
             Count = 0;
             for i = 1:length(List)
                 if isequal(List(i).isdir,0)
-                    if length(List(i).name) > length(FormatSearch)
-                        if isequal(List(i).name(end-length(FormatSearch)+1:end),FormatSearch)
-                            Count = Count + 1;
-                            Files(Count).original = fullfile(selpath,List(i).name);
-                            Files(Count).destination = fullfile(selpath,[List(i).name(1:end-length(FormatSearch)),NewFormat]);
-                            Files(Count).date = List(i).date;
+                    for j = 1:length(FormatSearch)
+                        if length(List(i).name) > length(FormatSearch{j})
+                            if isequal(List(i).name(end-length(FormatSearch{j})+1:end),FormatSearch{j})
+                                Count = Count + 1;
+                                Files(Count).original = fullfile(selpath,List(i).name);
+                                Files(Count).destination = fullfile(selpath,[List(i).name(1:end-length(FormatSearch{j})),NewFormat]);
+                                Files(Count).date = List(i).date;
+                            end
                         end
                     end
                 end
@@ -4921,6 +4924,14 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
                 app.TypeOfLogFileDropDown.Enable = 'on';
             else
                 app.TypeOfLogFileDropDown.Enable = 'off';
+            end
+        end
+
+        % Value changed function: TypeOfInstrumentDropDown
+        function TypeOfInstrumentDropDownValueChanged(app, event)
+            if isequal(app.TypeOfInstrumentDropDown.Value,'Thermo FIN2')
+                app.TypeOfFileDropDown.Value = 'Multiple-file';
+                app.LogfileCheckBox.Value = 0;
             end
         end
     end
@@ -5025,6 +5036,7 @@ classdef Converter_LAICPMS_exported < matlab.apps.AppBase
             % Create TypeOfInstrumentDropDown
             app.TypeOfInstrumentDropDown = uidropdown(app.GridLayout2);
             app.TypeOfInstrumentDropDown.Items = {'Agilent', 'Thermo CSV', 'Thermo FIN2', 'PerkinElmer'};
+            app.TypeOfInstrumentDropDown.ValueChangedFcn = createCallbackFcn(app, @TypeOfInstrumentDropDownValueChanged, true);
             app.TypeOfInstrumentDropDown.Layout.Row = 1;
             app.TypeOfInstrumentDropDown.Layout.Column = [5 7];
             app.TypeOfInstrumentDropDown.Value = 'Agilent';
