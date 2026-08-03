@@ -13,9 +13,11 @@ h2,h3,h4,h5 {margin-top: 2em; }
 
 <BODY>
 <h1> Help > Tools > Import Maps </h1>    	
-<p><i>Help file version 14.01.2024 by M. Tedeschi & P. Lanari</i></p>
+<p><i>Help file version 03.08.2026 by P. Lanari & M. Tedeschi</i></p>
 <br \> 
 <hr>
+
+<h2>General description</h2>
 
 <p>This help file contains a description of the <i>Import Tool</i>, which can be used to import maps, set the destination and make basic corrections. Closing the Import Tool will stop the import process (no data will be imported).</p> 
 
@@ -37,12 +39,38 @@ h2,h3,h4,h5 {margin-top: 2em; }
 <li><b>Action</b>: Keep or eliminate; drop down menu, can be edited.</li>
 </ul>
 
-<p>Settings such as the dwell time (as in XMapTools 3) can be changed in the <i>Corrections</i> section. </p>
+<p>Corrections such as the dwell time (as in XMapTools 3) can be changed in the <i>Corrections</i> section (see the corrections section below). </p>
 
 <p> Press <i>Import data</i> <img src="./img/SS_importdata.png" height="30"> to import the selected maps into XMapTools after the corrections have been applied.
 </p>
 
 <p>Intensity maps will be available in the <i>Intensity</i> category and other maps in the <i>Other</i> category. </p>
+
+<h2>Corrections</h2>
+
+<p><b>General corrections</b> can be applied to all imported maps. These include:</p>
+<ul>
+<li>Replace negative values (by zeros).</li>
+<li>Replace NaN (by zeros).</li>
+<li>Replace Inf & -Inf (by zeros).</li>
+</ul>
+
+ <p>A value of zero in XMapTools indicates no data is available. Therefore, it is advisable to replace negative values NaN and Inf with zeros.</p>
+
+ <p><b>Dead time correction for WDS maps (EPMA)</b> can be applied to correct for dead time effects in WDS maps. This correction is not applied to EDS maps as the intensity data are already corrected. The options include:</p>
+<ul>
+<li>Apply correction: to activate the dead time correction.</li>
+<li>Dwell time (ms): Set the dwell time value in miliseconds.</li>
+<li>Detector dead time (ns): Set the detector dead time value in nanoseconds, usually 300 ns for the gas counters used in WDS.</li>
+</ul>
+
+<p><b>Re-sampling & Orientation (LA-ICP-MS data from lolite only!)</b>. These options allow you to resample maps if non-square pixels are used as input data. This is usually the case for LA-ICP-MS maps generated with Iolite.  However, these corrections should not be applied to other data types as they will disrupt the map coordinate system and prevent calibration.</p>
+
+<p><b>Data Format & Filters for large datasets</b>. These options are suitable for large and noisy datasets, particularly EDS intensity data exceeding 5 million pixels per map. They include: </p>
+<ul>
+<li>Select a (data) format: Choose the appropriate data format between double (default), single, int16 and int8.</li>
+<li>Apply a filter: To reduce noise in large datasets, apply a median filter. The value should be an odd integer greater than or equal to 3.</li>
+</ul>
 
 
 <h2><a name="ElList"></a>List of compatible elements:</h2>

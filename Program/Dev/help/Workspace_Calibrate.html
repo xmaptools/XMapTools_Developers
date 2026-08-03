@@ -148,6 +148,7 @@ SiO2 MgO FeO Al2O3 X Y<br \>
 <ul>
 <li>Generate a density map</li>
 <li>Create a merged map (if not already available)</li>
+<li>Fractionate (remove pixels) using a ROI or for a mask and/or submask</li>
 <li>Select an area of interest to extract the local bulk composition</li>
 </ul>
 
@@ -171,6 +172,18 @@ SiO2 MgO FeO Al2O3 X Y<br \>
 
 <img src="./img/icon_windows.png" width="30"> The <i>Merge (Merge Quanti Data)</i> button is used to merge quantified maps. In the pop-up window select the quantified maps to be merged. Select 'Ok' to generate the merged maps, which will be saved in the Merged category.</p>
 
+
+<h4>Fractionate (remove pixels) using a ROI or for a mask and/or submask</h4>
+
+<p>Once a merged map is available, it is possible to remove some pixels that represent a fraction of their composition from the reactive bulk. This can be done on a duplicate Merged Map (select in the primary menu a Merged Map, then right click on its name and press <i>Duplicate</i>) in two ways:</p>
+
+<ul>
+    <li><b>Using a ROI</b>: To display the duplicated merged map, select any element/oxide of this dataset from the primary menu. Then in the menu, choose Edit > Map > Eliminate Pixels > Select ROI. You can select a region of interest (ROI) using Rectangle or Polygon. After selecting the ROI, you can eliminate pixels inside or outside the ROI by selecting Edit > Map > Eliminate Pixels > Eliminate Inside or Eliminate Outside.</li>
+</ul>
+
+<ul>
+    <li><b>Using a mask or a submask</b>: Click on the name of the duplicated merged map. Then right-click on it and select <i>Fractionate (using Maskfile)</i>. Select the masks and/or submasks to be eliminated in the list and press <i>Apply</i>.</li>
+</ul>
 
 <h4>Select ROI and calculate LBC</h4>
 

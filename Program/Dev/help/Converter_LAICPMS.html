@@ -68,11 +68,17 @@ The data processing steps are described below. The process is fast, so if someth
 <p>The import tools are located at the top of the interface (Figure 2). The following options can be selected:</p>
 
 <ul>
-<li><u>File format</u> (Mass spectrometer): current compatible file formats are Agilent, Thermo.  </li>
-<li><u>File type</u>: can be "single file" or "multiple files". The data from a measurement session can be contained in a single file or multiple files. Note that if multiple files are selected, it is recommended that you select the last file first and then hold maj while selecting the first file, not vice versa.</li>
+<li><u>File format</u> (Mass spectrometer): current compatible file formats are Agilent, Thermo CSV, Thermo FIN2 (* see note below), PerkinElmer.  </li>
+<li><u>File type</u>: can be "single file" or "multiple files" (** see note below). The data from a measurement session can be contained in a single file or multiple files.</li>
 <li><u>Laser log file</u>: "yes" if selected, otherwise "no". If no log file is available the Log Generator module will appear when the Load Datafiles button is pressed. Note that a log file cannot currently be used with multiple files.</li>
-<li><u>Analysis name format</u>: current compatible formats are "Name - ID" or "Name_ID"</li>
+<li><u>Laser type</u>: can be "GeoStar" or "GeoStar PAbB" where PAbB stand for "pre-ablation done before background measurement". This is a special mode for reading the GeoStar log files.</li>
+<li><u>Format</u>: file name format for automated detection of the analysis type. Several formats are available.</li>
 </ul>
+
+<p><b>Notes:</b></p>
+<p>* Before importing Thermo FIN2 files into XMapTools, they must be converted to CSV format. This can be achieved using the Convert FIN2 to CSV tool in the Tools menu.  Once converted, the FIN2 format should be used for data import while selecting the CSV files.</p>
+<p>** If you select multiple files, it is best to avoid using the log file option as synchronisation applies only to the first file. There are many tools implemented in the Log Generator Module to work with multiple files without a log file.</p>
+
 
 <br />
 <center>
@@ -110,7 +116,13 @@ The data processing steps are described below. The process is fast, so if someth
 <p>The first step is to set the <u>map settings</u>. You can set the start position (<i>X</i> and <i>Y</i>), but the default values [1,1] should work for most applications. The laser diameter must be set to obtain the correct pixel size in the generated maps. The scan speed must be defined to allow the spatial coordinates of each sweep to be calculated. An incorrect scan speed would result in a deformed map around the <i>X</i> dimension. 
 </p>
 
-<p>The second step is to adjust the file names using the tools in the File Names tab. The aim is to have identical file names for each type of measurement. In the example shown in Figure 5, the original file name is 493-STDGL3. The material name is STGDGL3 and therefore the name position is 2 when the string is split with a '-' delimiter. Adjust the format and if the example shown for the first name works, press the <i>Apply to all</i> button.</p>
+<p>The second step is to adjust the file names using the tools in the File Names tab. The aim is to have identical file names for each type of measurement. Two cases are possible:</p>
+<ul>
+    <li><b>Case 1</b>: The file name is already in the correct format (e.g. XX - MaterialName). In the example shown in Figure 5, the original file name is 493-STDGL3. The material name is STGDGL3 and therefore the name position is 2 when the string is split with a '-' delimiter. Adjust the format and if the example shown for the first name works, press the <i>Apply to all</i> button.</li>
+</ul>
+<ul>
+    <li><b>Case 2</b>: The file name needs to be changed to match the format of other files (Fig. 6). For example the original finle names are SebSMPABCXXX with XXX representing the file number in Figure 6. In this case, select the first standard file from the list, choose <i>LogRatios</i> in the <i>Advanced</i> tab and press <i>Find Similar Files</i>. Figure 6 shows that 20 similar files to SebSMPABC001 were found. Then select the standard name from the dropdown menu and press <i>Apply</i>. Figure 7, shows the same dataset with primary and secondary standards defined. For the map rasters, select <i>Length</i> and press <i>Find Similar Files</i>. Enter the name in the field cell and press <i>Apply</i> (Fig. 7).</li>
+</ul>
 
 <br />
 <center>
@@ -119,34 +131,48 @@ The data processing steps are described below. The process is fast, so if someth
 <p><i><b>Figure 5</b>: Customise file names in the Log Generator module. </i></p>.
 </center>
 
-<p>The third step is to select a filename from the table to display the signal (sum of the intensities). In the signal definition section you can use a ROI to select a part of the signal (e.g. between sweeps 13 and 93 in Figure 6). Here the sweep start value has been manually set to 1 and the type is background. Then, press <i>Add to table</i> to add the entry to the table (Fig. 6). Then a measurement can be added between the next sweep and the last sweep (2 to 258 in Fig. 7)
+<br />
+<center>
+<img src="./img/Converter_LAICPMS_LogGenerator_7a.png" width="800"> 
+
+<p><i><b>Figure 6</b>: Example of signal definition using the Advanced tools for identifying signals and renaming the files. </i></p>.
+</center>
+
+<br />
+<center>
+<img src="./img/Converter_LAICPMS_LogGenerator_7b.png" width="800">
+
+<p><i><b>Figure 7</b>: Example of signal definition using the Advanced tools for identifying signals and renaming the files (continued). </i></p>. 
+</center>
+
+<p>The third step is to select a filename from the table to display the signal (sum of the intensities). In the signal definition section you can use a ROI to select a part of the signal (e.g. between sweeps 13 and 93 in Figure 6). Here the sweep start value has been manually set to 1 and the type is background. Then, press <i>Add to table</i> to add the entry to the table (Fig. 8). Then a measurement can be added between the next sweep and the last sweep (2 to 258 in Fig. 9)
 </p>
 
 <br />
 <center>
 <img src="./img/Converter_LAICPMS_LogGenerator_3.png" width="800">
 
-<p><i><b>Figure 6</b>: Example of signal definition </i></p>.
+<p><i><b>Figure 8</b>: Example of signal definition </i></p>.
 </center>
 
 <br />
 <center>
 <img src="./img/Converter_LAICPMS_LogGenerator_4.png" width="800">
 
-<p><i><b>Figure 7</b>: Example of signal definition (continued) </i></p>.
+<p><i><b>Figure 9</b>: Example of signal definition (continued) </i></p>.
 </center>
 
-<p>The fourth step is to select the <i>Apply</i> tab and press the <i>Apply to Same Name</i> button. The signal definition will then be applied to the file names with the same name (Fig. 8). 
+<p>The fourth step is to select the <i>Apply</i> tab and press the <i>Apply to Same Name</i> button. The signal definition will then be applied to the file names with the same name (Fig. 10). 
 </p>
 
 <br />
 <center>
 <img src="./img/Converter_LAICPMS_LogGenerator_5.png" width="800">
 
-<p><i><b>Figure 8</b>: Example of signal definition (continued) </i></p>.
+<p><i><b>Figure 10</b>: Example of signal definition (continued) </i></p>.
 </center>
 
-<p>This operation must be repeated to apply the signal definitions to all measurements. Note that the number of sweeps for each type of signal (background/measurement) can be edited in the table (e.g. Sweep_End to 315 in the bottom right table in Fig. 9). </p>
+<p>This operation must be repeated to apply the signal definitions to all measurements. Note that the number of sweeps for each type of signal (background/measurement) can be edited in the table (e.g. Sweep_End to 315 in the bottom right table in Fig. 11). </p>
 
 <p>Finally, press the <i>GENERATEW LOG</i> button to apply the changes and return to the Converter module.</p>
 
@@ -154,15 +180,16 @@ The data processing steps are described below. The process is fast, so if someth
 <center>
 <img src="./img/Converter_LAICPMS_LogGenerator_6.png" width="800">
 
-<p><i><b>Figure 9</b>: Example of signal definition (continued) </i></p>.
+<p><i><b>Figure 11</b>: Example of signal definition (continued) </i></p>.
 </center>
+
 
 
 <h3><a name="Step2"></a>Step 2: Adjust time shift</h3> 
 
 <p>The value of the time shift can be adjusted to synchronise the data file with the log file. In the main figure, the total signal is plotted together with the laser on/off signals given in the log file (vertical red lines). </p>
 
-<p>The shift value is automatically adjusted by XMapTools when the data is imported. If necessary, adjust the value until both signals are synchronised (see example in Figure 3 below).</p>
+<p>The shift value is automatically adjusted by XMapTools when the data is imported. If necessary, adjust the value until both signals are synchronised (see example in Figure 12 below).</p>
 
 <p>It is possible to zoom in on the figure to adjust the display. Click on the Zoom In button or hover over the diagram and look for the Zoom In button in the Plot panel, which appears in the top right hand corner of the diagram. You can also pan the diagram by selecting the pan mode (hand button) in the diagram panel. Press the Reset button to reset the display. </p>
 
@@ -170,7 +197,7 @@ The data processing steps are described below. The process is fast, so if someth
 <center>
 <img src="./img/Converter_LAICPMS_TimeShift.png" width="700">
 
-<p><i><b>Figure 3</b>: Adjustment of the time shift between the data file and the log file. Case 1: The time shift value is 10 s and there is a mismatch between the laser on/off signals, shown as red vertical lines, and the total intensity variation (black curve). Case 2: The time shift value has been increased to 27.6 s, shifting the laser on/off signals forward. They are now perfectly aligned as shown in the inset. </i></p> 
+<p><i><b>Figure 12</b>: Adjustment of the time shift between the data file and the log file. Case 1: The time shift value is 10 s and there is a mismatch between the laser on/off signals, shown as red vertical lines, and the total intensity variation (black curve). Case 2: The time shift value has been increased to 27.6 s, shifting the laser on/off signals forward. They are now perfectly aligned as shown in the inset. </i></p> 
 </center>
 
 <h3><a name="Step3"></a>Step 3: Extract integrations & plot data</h3> 
@@ -212,7 +239,7 @@ The following categories are available in this tree menu:
 <li>Spline</li>
 </ul>
 
-<p>Due to the compositional variability of each material analysed (standard sample), an optimal background correction is usually obtained using a <b>step function</b> (Markmann et al. 2024). 
+<p>Due to the compositional variability of each material analysed (standard sample), an optimal background correction is usually obtained using a <b>step function</b> (Markmann et al. 2024; Fig. 13). 
 
 <p>Press the button <i>Apply</i> to apply the background correction. You cannot change the background correction once it has been applied. </p>
 
@@ -220,7 +247,7 @@ The following categories are available in this tree menu:
 <center>
 <img src="./img/Converter_LAICPMS_1.png" width="700">
 
-<p><i><b>Figure 4</b>: Converter For LA-ICPMS data after selecting the background intervals and applying a step function background correction. Pressing the Apply button would apply the correction. </i> </p>
+<p><i><b>Figure 13</b>: Converter For LA-ICPMS data after selecting the background intervals and applying a step function background correction. Pressing the Apply button would apply the correction. </i> </p>
 </center>
 
 <h3><a name="Step5"></a>Step 5: Select primary standard(s)</h3>
@@ -241,7 +268,7 @@ The following categories are available in this tree menu:
 <center>
 <img src="./img/Converter_LAICPMS_2.png" width="700">
 
-<p><i><b>Figure 5</b>: Converter For LA-ICPMS Data after selecting the primary standard and applying a polynomial fit. Pressing the button <b>Apply</b> would apply the correction. </i> </p>
+<p><i><b>Figure 14</b>: Converter For LA-ICPMS Data after selecting the primary standard and applying a polynomial fit. Pressing the button <b>Apply</b> would apply the correction. </i> </p>
 </center>
 
 
@@ -251,24 +278,24 @@ The following categories are available in this tree menu:
 
 <p>Use the <i>Int. Std</i> drop down menu to select an element to be used as a reference for calculating the composition of the secondary standard. This choice has no effect at this stage on the map calibration performed in XMapTools (another element can be used). But here it is possible to quickly check the calibration using the secondary standard for several elements used as internal standard.</p>
 
-<p>An example is shown in Figure 6 below.</p>
+<p>An example is shown in Figure 15 below.</p>
 
 <center>
 <img src="./img/Converter_LAICPMS_2b.png" width="700">
 
-<p><i><b>Figure 6</b>: Selection of a secondary standard and data quality check.</i></p>
+<p><i><b>Figure 15</b>: Selection of a secondary standard and data quality check.</i></p>
 </center>
 
 
-<p>The table in Figure 6 shows the average composition of the secondary material (integrated over all measurements) compared to the reference composition for all elements. The last column shows the difference between the measured and reference compositions expressed in %. </p>
+<p>The table in Figure 15 shows the average composition of the secondary material (integrated over all measurements) compared to the reference composition for all elements. The last column shows the difference between the measured and reference compositions expressed in %. </p>
 
-<p>The <i>Cal. Matrix</i> button generates a calibration matrix showing how the secondary standard matches the reference composition for each element selected as reference. An example is shown in Figure 7. </p>
+<p>The <i>Cal. Matrix</i> button generates a calibration matrix showing how the secondary standard matches the reference composition for each element selected as reference. An example is shown in Figure 16. </p>
 
 <p>Pressing the button <i>Apply</i> ends this step. </p>
 
 <center>
 <img src="./img/Converter_LAICPMS_6.png" width="700">
-<p><i><b>Figure 7</b>: Calibration matrix showing the percentage drift for each element (x-axis) as a function of the element used as internal standard (y-axis). A row therefore represents a calibration with a single element as internal standard.</i></p>
+<p><i><b>Figure 16</b>: Calibration matrix showing the percentage drift for each element (x-axis) as a function of the element used as internal standard (y-axis). A row therefore represents a calibration with a single element as internal standard.</i></p>
 </center>
 
 <h3><a name="Step7"></a>Step 7: Generate map files</h3>

@@ -46,12 +46,6 @@ This release is a developer version that includes new features and bug fixes to 
 
 
 
-
-
-
-
-
-
 ## XMapTools 4.5 (build 260210)
 
 This release is highly recommended for all users as it includes new features, performance and compatibility enhancements, bug fixes and stability improvements to the software.
