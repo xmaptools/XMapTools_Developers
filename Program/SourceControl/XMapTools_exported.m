@@ -7631,10 +7631,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             % You should have received a copy of the GNU General Public License
             % along with XMapTools. If not, see https://www.gnu.org/licenses.
             
-            % Attempt to help compilation on Windows (4.5 beta 1):
-            AddPath_help;
-            AddPath_help_img;
-            
             disp(' ')
             %disp(' ')
             %disp('XMapTools is starting...')
@@ -7670,7 +7666,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.6 beta 2 build 260801';
+            app.XMapTools_VER = 'XMapTools 4.6 beta 2 build 260803';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -10502,6 +10498,11 @@ classdef XMapTools_exported < matlab.apps.AppBase
                             disp('Data scaling: no scaling')
                     end
                     disp(' ')
+                end
+                
+                % Check data format and update 
+                if (isequal(app.Classify_PCA1CheckBox.Value,1) || isequal(app.Classify_PCA2CheckBox.Value,1)) && ~isa(Data,'double')
+                    Data = double(Data);
                 end
                 
                 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

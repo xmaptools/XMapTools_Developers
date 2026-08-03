@@ -304,6 +304,11 @@ classdef Data_Visualization_exported < matlab.apps.AppBase
                 Labels_Z = '';
             end
             
+            % All plot functions work with double type (4.6)
+            if ~isa(SelData_X,'double'); SelData_X = double(SelData_X); end
+            if ~isa(SelData_Y,'double'); SelData_Y = double(SelData_Y); end
+            if ~isa(SelData_Z,'double'); SelData_Z = double(SelData_Z); end
+            
             % Potential Mask...
             if app.DropDown_Masks_2.Value > 0
                 

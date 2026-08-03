@@ -1,6 +1,6 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.6 beta 1 (260516)
+## XMapTools 4.6 beta 2 (260803)
 
 This release is a developer version that includes new features and bug fixes to the software. 
 
@@ -12,9 +12,11 @@ This release is a developer version that includes new features and bug fixes to 
   - Add a feature in the Export module to export all analyses. Julien Berger and Sophie Gouy are thanked for this suggestion.  
   - Add an option in the Export module to export standard deviation (std) and/or median average deviations (MAD) along with average and/or mean values are being exported.
   
-- Performance improvements with large datasets: 
-  - Implement an option in the Import tool to convert data to integer.
-  - Improve the data visualisation in the Import tool with linked zoom and compatibility to the new corrections.
+- Data format and performance improvements with large datasets: 
+  - In the Import tool, add an option to convert default double data to single or integer. A different format is automatically proposed for datasets above 5 million pixels. For instance, consider a large SEM intensity dataset comprising 11 maps, each containing 50.8 million pixels with intensity data below 255 counts. Converting this data to Int8 significantly enhances performance by saving 3.9 gigabytes of usable RAM and reducing the project size by 47%. Please note that classification using PCA and calibration will necessitate a temporary conversion of the intensity data to double format. Consequently, calibrated maps will be stored in double format.   
+  - Add a median filter into the Import tool. This filter helps reduce noise in low-intensity datasets like SEM data.
+  - Improve the visualisation panel in the Import tool by adding linked zoom and ensuring compatibility with the new data format and median filter tools.
+  - Enhance the Data visualisation module and the classification functions to ensure compatibility with the new data formats.
 
 - Drift correction module for intensity data:
   - Add a multi-mineral and multi-map drift correction that can be used to correct for intensity variations caused by fluctuations in beam current during mapping. This tool calculates the time-related drift for each mineral for a given major element (e.g., Si) and employs a weighted interpolation to recalculate the drift function. This feature is particularly effective when an element is not zoned in a significant portion of the minerals (e.g. Si in quart, garnet and plagioclase).
@@ -41,12 +43,6 @@ This release is a developer version that includes new features and bug fixes to 
   - Correct a typo in the Calibration module for EPMA data. Qian Zhang is thanked for identifying this error during a workshop. 
   - Update the update checker with a 10-second timeout to handle cases where the server cannot be reached.
   - Other minor bug fixes.
-
-
-
-
-
-
 
 
 

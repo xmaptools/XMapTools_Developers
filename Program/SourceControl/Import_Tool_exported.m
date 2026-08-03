@@ -410,25 +410,25 @@ classdef Import_Tool_exported < matlab.apps.AppBase
             
             SuggestedFormat = '';
             
-            if NbPixels(1) > 3e6 && isequal(SelectedFormat,'Double')
+            if NbPixels(1) > 5e6 && isequal(SelectedFormat,'Double')
                 if isequal(sum(MinValue >= 0),length(MinValue)) && isequal(sum(MaxValue <= 255),length(MaxValue))
                     SuggestedFormat = 'INT8';
-                    MemorySaveMo = (MapSizeDouble-MapSizeInt8)*NbMaps/1e6;
+                    MemorySaveMo = round(sum((MapSizeDouble-MapSizeInt8))/1e6);
                     
                 elseif isequal(sum(MinValue >= 0),length(MinValue)) && isequal(sum(MaxValue <= 65535),length(MaxValue))
                     SuggestedFormat = 'INT16';
-                    MemorySaveMo = (MapSizeDouble-MapSizeInt16)*NbMaps/1e6;
+                    MemorySaveMo = round(sum((MapSizeDouble-MapSizeInt16))/1e6);
                 else
                     SuggestedFormat = 'Single';
-                    MemorySaveMo = (MapSizeDouble-MapSizeSingle)*NbMaps/1e6;
+                    MemorySaveMo = round(sum((MapSizeDouble-MapSizeSingle))/1e6);
                 end
             end
             
             if isempty(SuggestedFormat)
-                SuggestedFormat = app.SelectaformatDropDown.Value;
+                SuggestedFormat = app.SelectaformatDropDown.Value; 
                 selection = 'Yes';
-            else
-                msg = {['The recommended format for this dataset is ',SuggestedFormat],['This will save ',num2str(sum(MemorySaveMo)),' Mo for the selected maps'],['Do you want to switch to the format ',SuggestedFormat,'?']};
+            else 
+                msg = {['For this dataset of ',num2str(length(NbPixels)),' maps, each with ',num2str(NbPixels(1)/1e6),' million pixels, the recommended format is ',SuggestedFormat,'.'],['This will save ',num2str(sum(MemorySaveMo)),' megabytes for the chosen maps'],['Would you like to switch to ',SuggestedFormat,'?']};
                 title = 'XMapTools';
                 selection = uiconfirm(app.ImportToolXMapToolsUIFigure,msg,title,'Options',{'Yes','No','Cancel'},'DefaultOption',1,'CancelOption',3);
             end
