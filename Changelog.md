@@ -1,6 +1,6 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.6 beta 2 (260801)
+## XMapTools 4.6 beta 2 (260803)
 
 This release is a developer version that includes new features and bug fixes to the software. 
 
