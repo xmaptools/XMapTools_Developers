@@ -71,7 +71,8 @@ The data processing steps are described below. The process is fast, so if someth
 <li><u>File format</u> (Mass spectrometer): current compatible file formats are Agilent, Thermo CSV, Thermo FIN2 (* see note below), PerkinElmer.  </li>
 <li><u>File type</u>: can be "single file" or "multiple files" (** see note below). The data from a measurement session can be contained in a single file or multiple files.</li>
 <li><u>Laser log file</u>: "yes" if selected, otherwise "no". If no log file is available the Log Generator module will appear when the Load Datafiles button is pressed. Note that a log file cannot currently be used with multiple files.</li>
-<li><u>Laser type</u>: can be "GeoStar" or "GeoStar PAbB" where PAbB stands for "pre-ablation done before background measurement". This is a special mode for reading the GeoStar log files.</li>
+<li><u>Laser type</u>: can be "GeoStar" or "GeoStar PAbB" where PAbB stands for "pre-ablation done before background measurement". This is a special mode for reading the GeoStar log files.</li>
+
 <li><u>Format</u>: file name format for automated detection of the analysis type. Several formats are available.</li>
 </ul>
 
@@ -120,7 +121,7 @@ The data processing steps are described below. The process is fast, so if someth
 <ul>
     <li><b>Case 1</b>: The file name is already in the correct format (e.g. XX - MaterialName). In the example shown in Figure 5, the original file name is 493-STDGL3. The material name is STGDGL3 and therefore the name position is 2 when the string is split with a '-' delimiter. Adjust the format and if the example shown for the first name works, press the <i>Apply to all</i> button.</li>
 </ul>
-<ul>
+    <li><b>Case 2</b>: The file name needs to be changed to match the format of other files (Fig. 6). For example the original file names are SebSMPABCXXX with XXX representing the file number in Figure 6. In this case, select the first standard file from the list, choose <i>LogRatios</i> in the <i>Advanced</i> tab and press <i>Find Similar Files</i>. Figure 6 shows that 20 similar files to SebSMPABC001 were found. Then select the standard name from the dropdown menu and press <i>Apply</i>. Figure 7, shows the same dataset with primary and secondary standards defined. For the map rasters, select <i>Length</i> and press <i>Find Similar Files</i>. Enter the name in the field cell and press <i>Apply</i> (Fig. 7).</li>
     <li><b>Case 2</b>: The file name needs to be changed to match the format of other files (Fig. 6). For example the original finle names are SebSMPABCXXX with XXX representing the file number in Figure 6. In this case, select the first standard file from the list, choose <i>LogRatios</i> in the <i>Advanced</i> tab and press <i>Find Similar Files</i>. Figure 6 shows that 20 similar files to SebSMPABC001 were found. Then select the standard name from the dropdown menu and press <i>Apply</i>. Figure 7, shows the same dataset with primary and secondary standards defined. For the map rasters, select <i>Length</i> and press <i>Find Similar Files</i>. Enter the name in the field cell and press <i>Apply</i> (Fig. 7).</li>
 </ul>
 
