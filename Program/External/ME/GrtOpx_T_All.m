@@ -18,12 +18,13 @@ function [OutputData,OutputVariables] = GrtOpx_T_All(InputData,InputVariables,Ad
 % 12 Oxygen-basis for Garnet
 % 6 Oxygen-basis for Orthopyroxene
 %
-% J. Laughton - Last update 07.01.2022  
+% J. Laughton & P. Lanari - Last update 04.08.2026 
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_MG78','T_D80','T_R83','T_H84','T_LG84','T_SB84','T_P85','T_LG88','T_AP89','T_PL90','T_B91'};
 
-P_kbar = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
 
 %% Garnet general structural formula (12 oxygen)
 InputData_Mean_Grt = InputData(1).Mean;

@@ -35,7 +35,7 @@ function [Functions] = Core_Function_Indexing()
 % because this is how the mineral names are indexed! 
 %
 %
-% Last change PL 15.11.2021
+% Last change PL 04.08.2026
 
 Functions.Mineral = '';
 
@@ -88,8 +88,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Amp (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Amphibole_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar','Xab','Xan'};
-Functions.Min(Min).TB.Details(Fct).Def = [15,0.85,0.12];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa','Xab','Xan'};
+Functions.Min(Min).TB.Details(Fct).Def = [1.5,0.85,0.12];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -129,8 +129,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Bt (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Biotite_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).TB.Details(Fct).Def = [7];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).TB.Details(Fct).Def = [0.7];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -141,8 +141,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Bt (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtBt_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Bt'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 
@@ -203,8 +203,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Chl (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtChl_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Chl'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 
@@ -287,8 +287,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Cpx (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtCpx_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Cpx'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [20];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [2.0];
 
 
 
@@ -319,8 +319,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Crd (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtCrd_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Crd'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 
@@ -430,29 +430,29 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Bt (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtBt_T_All'; 
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Bt'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Chl (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtChl_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Chl'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Cpx (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtCpx_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Cpx'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [20];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [2.0];
 
 Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Crd (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtCrd_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Crd'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Hbl (all calibrations)';
@@ -472,15 +472,15 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Opx (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtOpx_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Opx'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Ph (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtPh_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Ph'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 %% ILMENITE
@@ -561,8 +561,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Ol (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Olivine_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).TB.Details(Fct).Def = [20];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).TB.Details(Fct).Def = [2.0];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -598,8 +598,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Opx (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtOpx_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Opx'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 
@@ -620,8 +620,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Qz (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Quartz_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar','aTiO2'};
-Functions.Min(Min).TB.Details(Fct).Def = [5,1];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa','aTiO2'};
+Functions.Min(Min).TB.Details(Fct).Def = [0.5,1];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -651,8 +651,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Rt (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Rutile_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar','aSiO2'};
-Functions.Min(Min).TB.Details(Fct).Def = [5,1];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa','aSiO2'};
+Functions.Min(Min).TB.Details(Fct).Def = [0.5,1];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -750,8 +750,8 @@ Functions.Min(Min).TB = [];
 Fct = length(Functions.Min(Min).TB)+1;
 Functions.Min(Min).TB.Name{Fct} = 'T.Ttn (all calibrations)';
 Functions.Min(Min).TB.FileName{Fct} = 'Titanite_T_All';
-Functions.Min(Min).TB.Details(Fct).AddVar = {'P_kbar','aTiO2','aSiO2'};
-Functions.Min(Min).TB.Details(Fct).Def = [5,1,1];
+Functions.Min(Min).TB.Details(Fct).AddVar = {'P_GPa','aTiO2','aSiO2'};
+Functions.Min(Min).TB.Details(Fct).Def = [0.5,1,1];
 
 % -------------------------------------------------------------------------
 % Multi-equilibrium thermobarometry
@@ -794,8 +794,8 @@ Fct = length(Functions.Min(Min).ME.Names)+1;
 Functions.Min(Min).ME.Names{Fct} = 'T.Grt-Ph (all calibrations)';
 Functions.Min(Min).ME.FileName{Fct} = 'GrtPh_T_All';
 Functions.Min(Min).ME.Details(Fct).Min = {'Grt','Ph'};
-Functions.Min(Min).ME.Details(Fct).AddVar = {'P_kbar'};
-Functions.Min(Min).ME.Details(Fct).Def = [5];
+Functions.Min(Min).ME.Details(Fct).AddVar = {'P_GPa'};
+Functions.Min(Min).ME.Details(Fct).Def = [0.5];
 
 
 

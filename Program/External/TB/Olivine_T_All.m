@@ -8,14 +8,15 @@ function [OutputData,OutputVariables] = Olivine_T_All(InputData,InputVariables,A
 %
 % 4 Oxygen-basis 
 %
-% R. Tamblyn & P. Lanari - Last update 30.10.2025
+% R. Tamblyn & P. Lanari - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_SC13','T_B17','Al_mg_g','XMg'};
 
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
-P_kbar = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
 
 % General structural formula function for 4 oxygen
 WhereMin = find(sum(InputData,2) > 70);
