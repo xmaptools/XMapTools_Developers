@@ -37,6 +37,7 @@ This release is a developer version that includes new features and bug fixes to 
   - Add a polygon as a new type of spot data. Instead of X–Y positions with rectangular sampling of pixels, it is possible to create a dataset of ROI polygon shapes. The Spot Data module has been updated to allow the importing and displaying of external data. Note that shapes of different types cannot be mixed within a single dataset. 
 
 - Other:
+  - Correct errors in the following functions: Quartz_T_All, Rutile_T_All, Titanite_T_All and Zircon_T_All. These functions failed to transfer the correct values from some of the additional input variables. The temperatures calculated using these functions were likely incorrect. 
   - Fix the standard spot data import function to remove labels for spots outside the map area. Matthew Demmer and Stephen Centrella are thanked for reporting this issue.
   - Fix an error that was preventing projects containing spot data from loading properly when spot data already existed in the current window. 
   - Fix a minor issue in the Converter module for LA-ICP-MS data, where it was not possible to deactivate the 'Skip Date/Time Format Confirmation' option in the menu. 
