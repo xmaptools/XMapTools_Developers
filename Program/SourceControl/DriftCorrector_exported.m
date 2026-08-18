@@ -361,91 +361,91 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
         
         
         function MultiPhaseInterpolation(app,AllData4Correction,Direction)
-                
-                for i = 1:numel(AllData4Correction)
-                    switch Direction
-                        case 'h'
-                            [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'h');
-                            
-                        case 'v'
-                            [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'v');
-                    end
-                end
-                
-                % Normalisation to the median of the non-zero values
-                for i = 1:numel(AllData4Correction)
-                    MedianValue(i) = median(AllData4Correction(i).trend4disp(find(AllData4Correction(i).trend4disp)),'omitnan');
-                    AllData4Correction(i).trend4dispNORM = AllData4Correction(i).trend4disp ./ MedianValue(i);
-                end
-                
-                cla(app.UIAxes3,'reset');
-                hold(app.UIAxes3,'on');
-                DataPlotted = [];
-                Data4Interp = [];
-                for i = 1:numel(AllData4Correction)
-                    plot(app.UIAxes3, AllData4Correction(i).trend4dispNORM,'.k');
-                    DataPlotted = [DataPlotted;AllData4Correction(i).trend4dispNORM];
-                    Data4Interp = [Data4Interp,AllData4Correction(i).trend4dispNORM];
-                end
-                ylim(app.UIAxes3,[1-2*std(DataPlotted,'omitnan'),1+2*std(DataPlotted,'omitnan')])
-                
-                %% Weighted common drift profile from Data4Interp
-                [nPt, nEl] = size(Data4Interp);
-                X = (1:nPt)';
-                
-                % --- 0. Weights (one per element, e.g. median intensities) --------------
-                Wel = MedianValue(:)';
-                Wel = Wel / max(Wel);                % scale only, ratios are what matter
-                
-                Wmat = repmat(Wel, nPt, 1);
-                Wmat(isnan(Data4Interp)) = NaN;      % same mask as the data
-                
-                % --- 1. Segment limits --------------------------------------------------
-                Ref = fillmissing(median(Data4Interp,2,'omitnan'), 'linear', 'EndValues','nearest');
-                bp  = findchangepts(Ref, 'MaxNumChanges', 4, 'Statistic', 'mean');
-                seg = [1; bp(:); nPt+1];
-                segID = discretize(X, seg);
-                
-                % --- 2. Weighted robust moving estimate ---------------------------------
-                W      = 20;         % half-window in analysis points
-                MinW   = 3;          % min summed weight in the window
-                SigMin = 0.005;      % floor on the robust sigma
-                Drift  = nan(nPt,1);
-                
-                for i = 1:nPt
-                    in = abs(X - i) <= W & segID == segID(i);
-                    v  = Data4Interp(in,:);   w = Wmat(in,:);
-                    ok = ~isnan(v);
-                    v  = v(ok);               w = w(ok);
-                    if sum(w) < MinW, continue, end
-                    
-                    m = wmedian(app, v, w);                                  % weighted centre
-                    s = max(1.4826 * wmedian(app,abs(v - m), w), SigMin);   % weighted MAD
-                    keep = abs(v - m) <= 3*s;
-                    if sum(w(keep)) < MinW, keep = true(size(v)); end   % safety net
-                    
-                    Drift(i) = sum(w(keep) .* v(keep)) / sum(w(keep));  % weighted mean
-                end
-                
-                Drift = fillmissing(Drift, 'linear', 'EndValues', 'nearest');
-                % Drift = movmean(Drift, 5);
-                
-                plot(app.UIAxes3, Drift, 'r-', 'LineWidth', 2)
-                
-                hold(app.UIAxes3,'off');
-                
+
+            for i = 1:numel(AllData4Correction)
                 switch Direction
                     case 'h'
-                        app.CorrectionMapVq = repmat(Drift',[size(app.Map,1),1]);
+                        [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'h');
+                        
                     case 'v'
-                        app.CorrectionMapVq = repmat(Drift,[1,size(app.Map,2)]);
+                        [AllData4Correction(i).Profile, AllData4Correction(i).xc, AllData4Correction(i).yc, AllData4Correction(i).trend, AllData4Correction(i).trend4disp] = Interpolation1D(app, AllData4Correction(i).Data, 'v');
                 end
+            end
+            
+            % Normalisation to the median of the non-zero values
+            for i = 1:numel(AllData4Correction)
+                MedianValue(i) = median(AllData4Correction(i).trend4disp(find(AllData4Correction(i).trend4disp)),'omitnan');
+                AllData4Correction(i).trend4dispNORM = AllData4Correction(i).trend4disp ./ MedianValue(i);
+            end
+            
+            cla(app.UIAxes3,'reset');
+            hold(app.UIAxes3,'on');
+            DataPlotted = [];
+            Data4Interp = [];
+            for i = 1:numel(AllData4Correction)
+                plot(app.UIAxes3, AllData4Correction(i).trend4dispNORM,'.k');
+                DataPlotted = [DataPlotted;AllData4Correction(i).trend4dispNORM];
+                Data4Interp = [Data4Interp,AllData4Correction(i).trend4dispNORM];
+            end
+            ylim(app.UIAxes3,[1-2*std(DataPlotted,'omitnan'),1+2*std(DataPlotted,'omitnan')])
+            
+            %% Weighted common drift profile from Data4Interp
+            [nPt, nEl] = size(Data4Interp);
+            X = (1:nPt)';
+            
+            % --- 0. Weights (one per element, e.g. median intensities) --------------
+            Wel = MedianValue(:)';
+            Wel = Wel / max(Wel);                % scale only, ratios are what matter
+            
+            Wmat = repmat(Wel, nPt, 1);
+            Wmat(isnan(Data4Interp)) = NaN;      % same mask as the data
+            
+            % --- 1. Segment limits --------------------------------------------------
+            Ref = fillmissing(median(Data4Interp,2,'omitnan'), 'linear', 'EndValues','nearest');
+            bp  = findChangePointsMean(Ref, 4);
+            seg = [1; bp(:); nPt+1];
+            segID = discretize(X, seg);
+            
+            % --- 2. Weighted robust moving estimate ---------------------------------
+            W      = 20;         % half-window in analysis points
+            MinW   = 3;          % min summed weight in the window
+            SigMin = 0.005;      % floor on the robust sigma
+            Drift  = nan(nPt,1);
+            
+            for i = 1:nPt
+                in = abs(X - i) <= W & segID == segID(i);
+                v  = Data4Interp(in,:);   w = Wmat(in,:);
+                ok = ~isnan(v);
+                v  = v(ok);               w = w(ok);
+                if sum(w) < MinW, continue, end
                 
-                app.DataCorrected = (1 ./ app.CorrectionMapVq) .* app.Map;
+                m = wmedian(app, v, w);                                  % weighted centre
+                s = max(1.4826 * wmedian(app,abs(v - m), w), SigMin);   % weighted MAD
+                keep = abs(v - m) <= 3*s;
+                if sum(w(keep)) < MinW, keep = true(size(v)); end   % safety net
                 
-                
+                Drift(i) = sum(w(keep) .* v(keep)) / sum(w(keep));  % weighted mean
+            end
+            
+            Drift = fillmissing(Drift, 'linear', 'EndValues', 'nearest');
+            % Drift = movmean(Drift, 5);
+            
+            plot(app.UIAxes3, Drift, 'r-', 'LineWidth', 2)
+            
+            hold(app.UIAxes3,'off');
+            
+            switch Direction
+                case 'h'
+                    app.CorrectionMapVq = repmat(Drift',[size(app.Map,1),1]);
+                case 'v'
+                    app.CorrectionMapVq = repmat(Drift,[1,size(app.Map,2)]);
+            end
+            
+            app.DataCorrected = (1 ./ app.CorrectionMapVq) .* app.Map;
+            
+            
         end
-        
+   
         
         function CalculateBRC(app)
             
@@ -535,61 +535,45 @@ classdef DriftCorrector_exported < matlab.apps.AppBase
             
         end
         
-        
-        
         function [Profile,xc,yc,trend,trend4disp] = Interpolation1D(app, Xray, Direction)
-            
+ 
             Xray(find(Xray == 0)) = NaN;
-            
             switch Direction
                 case 'h'
                     Profile = median(Xray,1,"omitnan");
                 case 'v'
                     Profile = median(Xray,2,"omitnan");
             end
-            
             x = (1:numel(Profile))';
             y = Profile(:);
-            
             invalidRaw = isnan(y);
             validRaw = ~isnan(y);
             x = x(validRaw);
             y = y(validRaw);
-            
             %% 1. Outlier rejection
             mask = ~isoutlier(y);
             xc = x(mask);
             yc = y(mask);
-            
             %% 2. Bin the data (robust median per bin) to suppress noise before fitting
             binWidth = 10;
             edges = min(xc):binWidth:max(xc)+binWidth;
             binIdx = discretize(xc, edges);
-            
             binCenters = edges(1:end-1) + binWidth/2;
             binMedian = accumarray(binIdx, yc, [numel(binCenters) 1], @median, NaN);
-            binCount  = accumarray(binIdx, 1,  [numel(binCenters) 1], @sum, 0);
-            
+            binCount = accumarray(binIdx, 1, [numel(binCenters) 1], @sum, 0);
             validBin = ~isnan(binMedian) & binCount > 0;
             bx = binCenters(validBin)';
             by = binMedian(validBin);
-            bw = binCount(validBin);             % weight = how many points supported this bin
+            bw = binCount(validBin); % weight = how many points supported this bin
             bw = bw / max(bw);
-            
-            %% 3. Fit smoothing spline on binned data
-            f = fit(bx, by, 'smoothingspline', 'Weights', bw, 'SmoothingParam', 0.99);
-            
-            trendAtBins = feval(f, bx);
-            
+            %% 3. Fit smoothing spline on binned data (no toolbox)
+            trendAtBins = cubicSmoothingSpline(bx, by, bw, 0.99);
             %% 4. Linear interp/extrap onto full profile length
             xFull = (1:numel(Profile))';
             trend = interp1(bx, trendAtBins, xFull, 'linear', 'extrap');
-            
             trend4disp = trend;
             trend4disp(invalidRaw) = NaN;
-            
-        end
-        
+        end        
         
         function m = wmedian(app, v, w)
             v = v(:);  w = w(:);
