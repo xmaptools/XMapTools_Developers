@@ -3131,7 +3131,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function UpdateLiveHistogram(app,Data2PlotNonZero,DataMinHist,DataMaxHist,DataMin,DataMax)
             % DataMinHist and DataMaxHist must be double!
             
-            [N,EDGES] = histcounts(Data2PlotNonZero);
+            [N,EDGES] = histcounts(cast(Data2PlotNonZero, 'like', app.EditField_LiveMin.Value));
             [Val,PosMax] = max(N);
             dPos = (EDGES(2)-EDGES(1)); %/2;
             PosMainPeak = EDGES(PosMax)+dPos;
