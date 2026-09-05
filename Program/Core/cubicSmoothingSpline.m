@@ -37,7 +37,7 @@ for i = 1:n-2
 end
  
 lambda = (1 - p) / p;
-Winv = diag(1 ./ w);
+Winv = spdiags(1 ./ w, 0, n, n);
  
 gamma = (R + lambda * (Q' * Winv * Q)) \ (Q' * y);
 g = y - lambda * Winv * Q * gamma;
