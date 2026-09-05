@@ -6,7 +6,7 @@ function [OutputData,OutputVariables] = Zircon_T_All(InputData,InputVariables,Ad
 %       - T_W06     Watson et al. (2006)
 %       - T_FW07    Ferry & Watson (2007), CMP 154:429–437
 %  
-% J. Laughton & P. Lanari - Last update 21.09.2021
+% J. Laughton & P. Lanari - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_W06','T_FW07','Ti_ppm'};
@@ -14,7 +14,7 @@ OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 %% Input
 aTiO2 = AddParameters.Values(1);
-aSiO2 = AddParameters.Values(1);
+aSiO2 = AddParameters.Values(2);
 
 Idx = find(InputData(:,1) > 0);
 TiO2 = InputData(Idx,1);

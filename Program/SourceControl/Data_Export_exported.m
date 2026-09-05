@@ -559,7 +559,7 @@ classdef Data_Export_exported < matlab.apps.AppBase
                 
                 CellData{i,1} = PhaseList{MaskID};
                 
-                if ~isempty(MaskFile.Masks.SubMask(MaskID+1).Names)
+                if ~isempty(MaskFile.Masks(app.MaskFileDropDown.Value).SubMask(MaskID+1).Names)
                     SubMaskID = MaskFile.Masks(app.MaskFileDropDown.Value).SubMask(MaskID+1).MaskSelMaskMap(YGrid(iPx),XGrid(iPx));
                     CellData{i,2} = MaskFile.Masks(app.MaskFileDropDown.Value).SubMask(MaskID+1).Names{SubMaskID+1};
                 else

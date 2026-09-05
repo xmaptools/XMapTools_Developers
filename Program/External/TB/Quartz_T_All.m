@@ -12,15 +12,17 @@ function [OutputData,OutputVariables] = Quartz_T_All(InputData,InputVariables,Ad
 % List of input variables:
 %       - TiO2 (wt%)
 %
-% P. Lanari, J. Laughton & Regiane Andrade Fumes - Last update 24.03.2023
+% P. Lanari, J. Laughton & Regiane Andrade Fumes - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_WW06','T_T10','T_HA12','T_O22','Ti_ppm'};
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 %% Input
-P_kbar = AddParameters.Values(1);
-aTiO2 = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
+
+aTiO2 = AddParameters.Values(2);
 
 Idx = find(InputData(:,1) > 0);
 TiO2 = InputData(Idx,1);

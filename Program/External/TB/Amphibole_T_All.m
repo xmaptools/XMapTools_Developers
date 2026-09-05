@@ -9,16 +9,18 @@ function [OutputData,OutputVariables] = Amphibole_T_All(InputData,InputVariables
 %
 % 23 Oxgen-basis 
 % 
-% P. Lanari & J. Laughton - Last update 07.05.2025
+% P. Lanari & J. Laughton - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_HB94','T_HB94q','T_L21'};
 
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
-P = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
 Xab = AddParameters.Values(2);
 Xan = AddParameters.Values(3);
+
+P_kbar = P_GPa * 10;
 
 % General structural formula function for 23 oxY_calibAgen
 WhereMin = find(sum(InputData,2) > 50);
@@ -63,7 +65,7 @@ T_HB94q = zeros(size(Si));
 
 for i = 1:length(T_HB94)
     % Calib A (with Qz)
-    leHaut = -76.95 + 0.79*P + Y_calibA + 39.4*XNa_A(i) + 22.4*XK_A(i) + (41.5 - 2.89*P)*XAl_M2(i);
+    leHaut = -76.95 + 0.79*P_kbar + Y_calibA + 39.4*XNa_A(i) + 22.4*XK_A(i) + (41.5 - 2.89*P_kbar)*XAl_M2(i);
     K = (27.*XV_A(i).*XSi_T1(i).*Xab)./(256.*XNa_A(i).*XAl_T1(i));
 
     Temp = leHaut./( - 0.0650 - R .* log(K)) - 273.15;
@@ -73,7 +75,7 @@ for i = 1:length(T_HB94)
     end 
     
     % Calib B (no Qz)
-    leHaut = 78.44 + Y_CalibB - 33.6*(XNa_M4(i)) - (66.8 - 2.92*P)*(XAl_M2(i))+78.5*(XAl_T1(i)) + 9.4*XNa_A(i); 
+    leHaut = 78.44 + Y_CalibB - 33.6*(XNa_M4(i)) - (66.8 - 2.92*P_kbar)*(XAl_M2(i))+78.5*(XAl_T1(i)) + 9.4*XNa_A(i); 
     K = (27*XNa_M4(i)*XSi_T1(i)*Xan)/(64*XCa_M4(i)*XAl_T1(i)*Xab);
     
     Temp = leHaut/(0.0721 - R * log(K)) - 273.15;

@@ -338,8 +338,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Sampling_SelectStripeButton     matlab.ui.control.Button
         Sampling_ExportButton           matlab.ui.control.Button
         Sampling_ResetButton            matlab.ui.control.Button
-        Sampling_Plot1                  matlab.ui.control.UIAxes
         Sampling_Plot2                  matlab.ui.control.UIAxes
+        Sampling_Plot1                  matlab.ui.control.UIAxes
         StandardsTab                    matlab.ui.container.Tab
         GridLayout9_3                   matlab.ui.container.GridLayout
         SubTabStandard                  matlab.ui.container.TabGroup
@@ -363,8 +363,8 @@ classdef XMapTools_exported < matlab.apps.AppBase
         Std_Shift_Y                     matlab.ui.control.NumericEditField
         StdAll_Synchronize              matlab.ui.control.Button
         StdAll_profil                   matlab.ui.control.UIAxes
-        StdAll_map2                     matlab.ui.control.UIAxes
         StdAll_map1                     matlab.ui.control.UIAxes
+        StdAll_map2                     matlab.ui.control.UIAxes
         SpotDataTab                     matlab.ui.container.Tab
         GridLayout9_5                   matlab.ui.container.GridLayout
         SubTabSpotData                  matlab.ui.container.TabGroup
@@ -3131,7 +3131,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         function UpdateLiveHistogram(app,Data2PlotNonZero,DataMinHist,DataMaxHist,DataMin,DataMax)
             % DataMinHist and DataMaxHist must be double!
             
-            [N,EDGES] = histcounts(Data2PlotNonZero);
+            [N,EDGES] = histcounts(cast(Data2PlotNonZero, 'like', app.EditField_LiveMin.Value));
             [Val,PosMax] = max(N);
             dPos = (EDGES(2)-EDGES(1)); %/2;
             PosMainPeak = EDGES(PosMax)+dPos;
@@ -4440,9 +4440,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
             IdxPx = find(Pixels2Eliminate);
             % Eliminate data
             for i = 1:length(app.XMapToolsData.MapData.Me.Data(Pos).CData)
-                app.XMapToolsData.MapData.Me.Data(Pos).CData(i).Map(IdxPx) = zeros(size(IdxPx)); 
+                app.XMapToolsData.MapData.Me.Data(Pos).CData(i).Map(IdxPx) = zeros(size(IdxPx));
             end
-                
+            
             TreeData_MainSelectionChanged(app, 1);
             
             app.SaveRequired = 1;
@@ -7666,7 +7666,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.Options_resolutionLabel.Text = ['Resolution: ',num2str(app.XMapTools_Position.Live(1)),'x',num2str(app.XMapTools_Position.Live(2)),' (',num2str(app.XMapTools_Position.Original(1)),'x',num2str(app.XMapTools_Position.Original(2)),')'];
             
-            app.XMapTools_VER = 'XMapTools 4.6 beta 2 build 260803';
+            app.XMapTools_VER = 'XMapTools 4.6 beta 3 build 260905';
             app.XMapTools_version.Text = app.XMapTools_VER;
             %disp('Version set'),toc
             % Check for Updates ------------------------------------------
@@ -7684,7 +7684,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
             
             app.UPDATEAVAILABLELabel.Visible = 'off';
             app.UpdateNowButton.Visible = 'off';
-
+            
             if flag && ~isempty(release_signature)
                 
                 xmaptools_signature = str2num(xmaptools_signature);
@@ -8734,7 +8734,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     return
                 end
             elseif isequal(NodeData(1),8)
-                   return 
+                return
             end
             
             PlotMap_DisplaySelectedMap(app,SelectedNodes.NodeData,SelectedAdditional)
@@ -10500,7 +10500,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     disp(' ')
                 end
                 
-                % Check data format and update 
+                % Check data format and update
                 if (isequal(app.Classify_PCA1CheckBox.Value,1) || isequal(app.Classify_PCA2CheckBox.Value,1)) && ~isa(Data,'double')
                     Data = double(Data);
                 end
@@ -10697,7 +10697,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     
                 end
                 
-                % To deal with the new data formats: 
+                % To deal with the new data formats:
                 
                 app.WaitBar = uiprogressdlg(gcbf,'Title','XMapTools','Indeterminate','on');
                 app.WaitBar.Message = 'Finishing pre-classification tasks';
@@ -11169,9 +11169,9 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 TrainSetListConf = matlab.lang.makeUniqueStrings(TrainSetList);
                 
                 if SubMasking
-%                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
+                    %                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
                 else
-                     confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
+                    confusionchart(NormValues,TrainSetListConf, 'Title','Confusion Chart (Test dataset)');
                 end
                 
                 Accuracy = length(find(DataTest_Class == Predicted_TestSet))/length(DataTest_Class);
@@ -12187,20 +12187,20 @@ classdef XMapTools_exported < matlab.apps.AppBase
             for i = 1:length(TrainingSet.Names)
                 
                 app.XMapToolsData.TrainingSet.Names{Pos+i} = TrainingSet.Names{i};
-                try 
+                try
                     app.XMapToolsData.TrainingSet.Types(Pos+i) = TrainingSet.Types(i);
                 catch
-                    app.XMapToolsData.TrainingSet.Types(Pos+i) = 1; 
+                    app.XMapToolsData.TrainingSet.Types(Pos+i) = 1;
                 end
-                try 
+                try
                     app.XMapToolsData.TrainingSet.MaskSignature(Pos+i) = TrainingSet.MaskSignature(i);
                 catch
-                    app.XMapToolsData.TrainingSet.MaskSignature(Pos+i) = 0; 
+                    app.XMapToolsData.TrainingSet.MaskSignature(Pos+i) = 0;
                 end
-                try 
+                try
                     app.XMapToolsData.TrainingSet.MaskNode(Pos+i) = TrainingSet.MaskNode(i);
                 catch
-                    app.XMapToolsData.TrainingSet.MaskNode(Pos+i) = 0; 
+                    app.XMapToolsData.TrainingSet.MaskNode(Pos+i) = 0;
                 end
                 app.XMapToolsData.TrainingSet.Nb(Pos+i) = TrainingSet.Nb(i);
                 app.XMapToolsData.TrainingSet.Data(Pos+i) = TrainingSet.Data(i);
@@ -12262,7 +12262,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
                 
                 Pos = length(app.XMapToolsData.MapData.MaskFile.Names) + 1;
                 
-                try 
+                try
                     app.XMapToolsData.MapData.MaskFile.Masks(Pos) = MapData.MaskFile.Masks(Sel);
                 catch
                     uialert(app.XMapTools_GUI,'This mask file is not compatible with this version of XMapTools','XMapTools','Icon','error');
@@ -13742,10 +13742,10 @@ classdef XMapTools_exported < matlab.apps.AppBase
                     Directory4Map = [MosaicDirectory,'/',DIR(i).name];
                     
                     MAPFILES = dir([Directory4Map,'/*.txt']);
-                    if isempty(MAPFILES)
-                        MAPFILES = dir([Directory4Map,'/*.csv']);
-                    end
                     NamesTemp = {MAPFILES.name};
+                    
+                    MAPFILES = dir([Directory4Map,'/*.csv']);
+                    NamesTemp = [NamesTemp,{MAPFILES.name}];
                     
                     Index = zeros(size(NamesTemp));
                     
@@ -16826,7 +16826,7 @@ classdef XMapTools_exported < matlab.apps.AppBase
         % Menu selected function: DriftCorrectionMenu
         function DriftCorrectionMenuSelected(app, event)
             
-           
+            
             NodeData = app.TreeData_Main.SelectedNodes.NodeData;
             
             NoSelectedMaskFile = 0;
@@ -20309,19 +20309,19 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.Sampling_ResetButton.Layout.Column = 7;
             app.Sampling_ResetButton.Text = '';
 
-            % Create Sampling_Plot1
-            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
-            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
-            app.Sampling_Plot1.FontSize = 9;
-            app.Sampling_Plot1.Layout.Row = [3 10];
-            app.Sampling_Plot1.Layout.Column = [1 7];
-
             % Create Sampling_Plot2
             app.Sampling_Plot2 = uiaxes(app.GridLayout9_2);
             app.Sampling_Plot2.PlotBoxAspectRatio = [1.02534562211982 1 1];
             app.Sampling_Plot2.FontSize = 9;
             app.Sampling_Plot2.Layout.Row = [12 19];
             app.Sampling_Plot2.Layout.Column = [1 7];
+
+            % Create Sampling_Plot1
+            app.Sampling_Plot1 = uiaxes(app.GridLayout9_2);
+            app.Sampling_Plot1.PlotBoxAspectRatio = [1.02534562211982 1 1];
+            app.Sampling_Plot1.FontSize = 9;
+            app.Sampling_Plot1.Layout.Row = [3 10];
+            app.Sampling_Plot1.Layout.Column = [1 7];
 
             % Create StandardsTab
             app.StandardsTab = uitab(app.TabGroup);
@@ -20503,16 +20503,6 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_profil.Layout.Row = [1 3];
             app.StdAll_profil.Layout.Column = [1 2];
 
-            % Create StdAll_map2
-            app.StdAll_map2 = uiaxes(app.GridLayout11);
-            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
-            app.StdAll_map2.Toolbar.Visible = 'off';
-            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
-            app.StdAll_map2.FontSize = 9;
-            app.StdAll_map2.Box = 'on';
-            app.StdAll_map2.Layout.Row = [9 12];
-            app.StdAll_map2.Layout.Column = [1 2];
-
             % Create StdAll_map1
             app.StdAll_map1 = uiaxes(app.GridLayout11);
             title(app.StdAll_map1, 'Element')
@@ -20522,6 +20512,16 @@ classdef XMapTools_exported < matlab.apps.AppBase
             app.StdAll_map1.Box = 'on';
             app.StdAll_map1.Layout.Row = [5 8];
             app.StdAll_map1.Layout.Column = [1 2];
+
+            % Create StdAll_map2
+            app.StdAll_map2 = uiaxes(app.GridLayout11);
+            title(app.StdAll_map2, 'sqrt(sum(corrcoef^2))')
+            app.StdAll_map2.Toolbar.Visible = 'off';
+            app.StdAll_map2.PlotBoxAspectRatio = [1.39236111111111 1 1];
+            app.StdAll_map2.FontSize = 9;
+            app.StdAll_map2.Box = 'on';
+            app.StdAll_map2.Layout.Row = [9 12];
+            app.StdAll_map2.Layout.Column = [1 2];
 
             % Create SpotDataTab
             app.SpotDataTab = uitab(app.TabGroup);

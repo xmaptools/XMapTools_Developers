@@ -11,12 +11,13 @@ function [OutputData,OutputVariables] = GrtPh_T_All(InputData,InputVariables,Add
 % 12 Oxygen-basis for Garnet
 % 11 Oxygen-basis for Phengite
 %
-% J. Laughton - Last update 07.01.2022  
+% J. Laughton - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_KR78','T_GH82a','T_GH82b','T_GH82c','T_HF88','T_W02a','T_W02b'};
 
-P_kbar = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
 
 %% Garnet general structural formula (12 oxygen)
 InputData_Mean_Grt = InputData(1).Mean;

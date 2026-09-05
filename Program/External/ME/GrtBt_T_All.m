@@ -18,13 +18,14 @@ function [OutputData,OutputVariables] = GrtBt_T_All(InputData,InputVariables,Add
 % 12 Oxygen-basis for Garnet
 % 11 Oxygen-basis for Biotite
 %
-% J. Laughton & P. Lanari - Last update 02.09.2021 
+% J. Laughton & P. Lanari - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_HL77','T_GA77','T_T76','T_FS78','T_HS82','T_PL83a','T_PL83b',...
     'T_GS84','T_IM85a','T_IM85b','T_P85','T_D91','T_B92a','T_B92b'};
 
-P_kbar = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
  
 %% Garnet general structural formula (12 oxygen)
 InputData_Mean_Grt = InputData(1).Mean;

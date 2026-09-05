@@ -5,16 +5,18 @@ function [OutputData,OutputVariables] = Titanite_T_All(InputData,InputVariables,
 % List of output variables:
 %       - T_H08   Hayden et al. (2008)
 %
-% J. Laughton & P. Lanari - Last update 21.09.2021
+% J. Laughton & P. Lanari - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_H08','Zr_ppm'};
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 %% Input
-P_kbar = AddParameters.Values(1);
-aTiO2 = AddParameters.Values(1);
-aSiO2 = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
+
+aTiO2 = AddParameters.Values(2);
+aSiO2 = AddParameters.Values(3);
 
 Idx = find(InputData(:,1) > 0);
 ZrO2 = InputData(Idx,1);

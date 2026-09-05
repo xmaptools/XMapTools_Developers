@@ -12,15 +12,17 @@ function [OutputData,OutputVariables] = Rutile_T_All(InputData,InputVariables,Ad
 %       - T_T07     Tomkins et al. (2007)
 %       - T_K20     Kohn (2020)
 %  
-% P. Lanari, J. Laughton & C. Martin - Last update 30.05.2022
+% P. Lanari, J. Laughton & C. Martin - Last update 04.08.2026
 % Find out more at https://xmaptools.ch
 
 OutputVariables = {'T_Z04','T_W06','T_FW07','T_T07a','T_T07b','T_T07c','T_K20a','T_K20b','Zr_ppm'};
 OutputData = zeros(size(InputData,1),length(OutputVariables));
 
 %% Input
-P_kbar = AddParameters.Values(1);
-aSiO2 = AddParameters.Values(1);
+P_GPa = AddParameters.Values(1);
+P_kbar = P_GPa * 10;
+
+aSiO2 = AddParameters.Values(2);
 
 P_bar = P_kbar*1e3;
 
