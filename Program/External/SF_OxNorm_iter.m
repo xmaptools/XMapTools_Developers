@@ -54,14 +54,14 @@ TheSum = sum((AtomicPer .* NumO) ./ Num,2);
 initial_Ox_corr_guess = 0.01;
 
 % define solver options
-options = optimset('Display', 'none');
+% options = optimset('Display', 'none');
 
 Ox_corr = zeros(size(TheSum)); % Initialize vector for results
 for i = 1:length(Ox_corr)
     % Solve for each element separately
-    Ox_corr(i) = fsolve(@(Ox_corr_guess) ...
+    Ox_corr(i) = myfsolve(@(Ox_corr_guess) ...
         Ox_guess_diff(AtomicPer(i,:), TheSum(i), OxBasis, Ox_corr_guess, NbElem, corr_element_idx, corr_element_factor), ...
-        initial_Ox_corr_guess, options);
+        initial_Ox_corr_guess); %, options);
 end
 
 % RefOx = repmat(TheSum/(OxBasis+Ox_corr),1,NbElem);
