@@ -54,15 +54,17 @@ if n < 4
 end
 
 cs  = cumsum(y);
-tot = cs(end);
-totalRSS = sum((y - mean(y)).^2);
+css = cumsum(y.^2);
+tot  = cs(end);
+tot2 = css(end);
+totalRSS = tot2 - (tot.^2)/n;
 
 bestRSS = Inf;
 splitIdx = 1;
 for i = 2:(n-2)
-    m1 = cs(i) / i;
-    m2 = (tot - cs(i)) / (n - i);
-    rss = sum((y(1:i) - m1).^2) + sum((y(i+1:end) - m2).^2);
+    s1  = cs(i);      s2  = tot - s1;
+    ss1 = css(i);     ss2 = tot2 - ss1;
+    rss = (ss1 - (s1.^2)/i) + (ss2 - (s2.^2)/(n - i));
     if rss < bestRSS
         bestRSS = rss;
         splitIdx = i;
