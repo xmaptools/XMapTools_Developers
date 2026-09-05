@@ -1,12 +1,13 @@
 # CHANGELOG for XMapTools developer
 
-## XMapTools 4.6 beta 2 (260803)
+## XMapTools 4.6 beta 3 (260905)
 
 This release is a developer version that includes new features and bug fixes to the software. 
 
 - General: 
   - Add a tool that fractionates (eliminates) pixels from masks or submasks in a given merged map dataset. This new feature enables the removal of grain interiors from merged maps in order to calculate a reactive bulk composition. This can be used on duplicate merged maps. 
   - Implement a limit of detection (LOD) calculation and filter in the Calibration module for EPMA. The LOD is estimated for each element and each mask from the fitted background intensity, and pixels whose intensity falls below the background plus 3 times the standard deviation of the net intensity are set to zero in the generated quanti maps. The standard deviation of the net intensity is derived from counting statistics on the background; because the background is obtained by fitting rather than measured directly, its own uncertainty is assumed to be negligible.
+  - Add a feature to automatically set the slope of the calibration curve in the Calibration for EPMA module by clicking on the figure. Additionally, add a feature to reset the manual calibration to previous values. 
   - Add functionality to import a mask file or training set from an existing project. This feature is available via the File > Import from Project > … menu.
   - Implement a function to check and exclude standard spots outside the map area after moving them. Matthew Demmer and Stephen Centrella are thanked for this suggestion.
   - Add a feature in the Export module to export all analyses. Julien Berger and Sophie Gouy are thanked for this suggestion.  

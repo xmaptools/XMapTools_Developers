@@ -21,11 +21,13 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
         SlopeManual                     matlab.ui.control.NumericEditField
         BackgroundManualLabel           matlab.ui.control.Label
         BackgroundManual                matlab.ui.control.NumericEditField
+        ResetButton                     matlab.ui.control.Button
+        SetslopeButton                  matlab.ui.control.Button
         LegendElistheelementLabel       matlab.ui.control.Label
         TextArea                        matlab.ui.control.TextArea
-        Plot                            matlab.ui.control.UIAxes
-        Map_Total                       matlab.ui.control.UIAxes
         Map_Spec                        matlab.ui.control.UIAxes
+        Map_Total                       matlab.ui.control.UIAxes
+        Plot                            matlab.ui.control.UIAxes
     end
 
     
@@ -37,6 +39,11 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
         Calib
         
         PlotData 
+        
+        Backup_Slope
+        Backup_Back
+        
+        IsPicking
         
         Debug
         XMapToolsApp
@@ -1374,7 +1381,6 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             
         end
         
-        
     end
     
 
@@ -1409,6 +1415,9 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.BackgroundManual.Visible = 'off';
             app.BackgroundManualLabel.Visible = 'off';
             
+            app.SetslopeButton.Visible = 'off';
+            app.ResetButton.Visible = 'off';
+            
             % Debug mode
             app.Debug = 1;
             if app.Debug
@@ -1432,6 +1441,8 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             
             % (2) Import spot analyses
             app.Standards = app.XMapToolsID.XMapToolsData.Standards;
+            
+            app.IsPicking = false;  
             
             FitAll(app);
             
@@ -1485,6 +1496,9 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.SlopeManualLabel.Visible = 'off';
             app.BackgroundManual.Visible = 'off';
             app.BackgroundManualLabel.Visible = 'off';
+            
+            app.SetslopeButton.Visible = 'off';
+            app.ResetButton.Visible = 'off';
             
             PlotAll(app);
             
@@ -1636,12 +1650,17 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.BackgroundManual.Visible = 'on';
             app.BackgroundManualLabel.Visible = 'on';
             
+            app.SetslopeButton.Visible = 'on';
+            
             NodeData = app.Tree.SelectedNodes.NodeData;
             MinIdx = NodeData(1);
             ElIdx = NodeData(2); 
             
             app.SlopeManual.Value = app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(1);
             app.BackgroundManual.Value = app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(2);
+            
+            app.Backup_Slope = app.SlopeManual.Value;
+            app.Backup_Back = app.BackgroundManual.Value;
             
         end
 
@@ -1660,6 +1679,12 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             CalculateMaps(app);
             PlotAll(app);
             
+            if ~isequal(app.Backup_Slope,app.SlopeManual.Value) || ~isequal(app.Backup_Back,app.BackgroundManual.Value)
+                app.ResetButton.Visible = 'on';
+            else
+                app.ResetButton.Visible = 'off';
+            end
+            
         end
 
         % Button pushed function: Button_help
@@ -1671,6 +1696,68 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
                 app.XMapToolsApp.Id_HelpTool.UpdateTextHelp('XMT_help_Calibration_EPMA.html');
             end
             
+        end
+
+        % Button pushed function: SetslopeButton
+        function SetslopeButtonPushed(app, event)
+           app.IsPicking = true;  
+           app.XMapToolsGlobalStandardization.Pointer = 'crosshair';
+        end
+
+        % Button pushed function: ResetButton
+        function ResetButtonPushed(app, event)
+            
+            NodeData = app.Tree.SelectedNodes.NodeData;
+            MinIdx = NodeData(1);
+            ElIdx = NodeData(2); 
+            
+            app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(1) = app.Backup_Slope;
+            app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(2) = app.Backup_Back;
+            
+            app.SlopeManual.Value = app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(1);
+            app.BackgroundManual.Value = app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(2);
+            
+            app.Calib.Slope(MinIdx,ElIdx) = app.SlopeManual.Value;
+            app.Calib.Back(MinIdx,ElIdx) = app.BackgroundManual.Value;
+            
+            CalculateMaps(app);
+            PlotAll(app);
+            
+        end
+
+        % Window button down function: 
+        % XMapToolsGlobalStandardization
+        function XMapToolsGlobalStandardizationWindowButtonDown(app, event)
+            if app.IsPicking
+                pt = app.Plot.CurrentPoint;
+                x = pt(1,1);
+                y = pt(1,2);
+                
+                ClickedSlope = (y-app.BackgroundManual.Value)/(x-0);
+                
+                app.IsPicking = false;  
+                
+                NodeData = app.Tree.SelectedNodes.NodeData;
+                MinIdx = NodeData(1);
+                ElIdx = NodeData(2);
+                
+                app.PlotData.Mineral(MinIdx).El(ElIdx).p_final(1) = ClickedSlope;
+                
+                app.SlopeManual.Value = ClickedSlope;
+                
+                app.Calib.Slope(MinIdx,ElIdx) = app.SlopeManual.Value;
+                
+                CalculateMaps(app);
+                PlotAll(app);
+                
+                if ~isequal(app.Backup_Slope,app.SlopeManual.Value) || ~isequal(app.Backup_Back,app.BackgroundManual.Value)
+                    app.ResetButton.Visible = 'on';
+                else
+                    app.ResetButton.Visible = 'off';
+                end
+                
+                app.XMapToolsGlobalStandardization.Pointer = 'arrow';
+            end
         end
     end
 
@@ -1685,6 +1772,7 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.XMapToolsGlobalStandardization.Position = [100 100 1237 763];
             app.XMapToolsGlobalStandardization.Name = 'Calibration Assistant For EPMA Data – XMapTools';
             app.XMapToolsGlobalStandardization.CloseRequestFcn = createCallbackFcn(app, @XMapToolsGlobalStandardizationCloseRequest, true);
+            app.XMapToolsGlobalStandardization.WindowButtonDownFcn = createCallbackFcn(app, @XMapToolsGlobalStandardizationWindowButtonDown, true);
 
             % Create GridLayout
             app.GridLayout = uigridlayout(app.XMapToolsGlobalStandardization);
@@ -1821,6 +1909,20 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.BackgroundManual.Layout.Row = 1;
             app.BackgroundManual.Layout.Column = 5;
 
+            % Create ResetButton
+            app.ResetButton = uibutton(app.GridLayout5, 'push');
+            app.ResetButton.ButtonPushedFcn = createCallbackFcn(app, @ResetButtonPushed, true);
+            app.ResetButton.Layout.Row = 1;
+            app.ResetButton.Layout.Column = 3;
+            app.ResetButton.Text = 'Reset';
+
+            % Create SetslopeButton
+            app.SetslopeButton = uibutton(app.GridLayout5, 'push');
+            app.SetslopeButton.ButtonPushedFcn = createCallbackFcn(app, @SetslopeButtonPushed, true);
+            app.SetslopeButton.Layout.Row = 1;
+            app.SetslopeButton.Layout.Column = 9;
+            app.SetslopeButton.Text = 'Set slope';
+
             % Create LegendElistheelementLabel
             app.LegendElistheelementLabel = uilabel(app.GridLayout);
             app.LegendElistheelementLabel.VerticalAlignment = 'top';
@@ -1836,14 +1938,13 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.TextArea.Layout.Column = [8 13];
             app.TextArea.Value = {'-----------------------------------------------------------------------------'; '                       Check calibration table description'; '-----------------------------------------------------------------------------'; '  - El.                      element'; '  - #(std)                 number of internal standards (spot analyses)'; '  - med(it)               median value of intensity for all pixels'; '  - med(wt)_s         median composition all internal standards'; '  - mode(wt)_m      most frequent composition in calibrated pixels'; '  - k-factor             value of the k factor'; '  - slope                 slope of the calibration curve'; '  - back                  intercept of the calibration curve = background'; '  - sum(wt)             sum of the column'; '  - mode(SumOx)   most frequent sum of the calibrated pixels'; ''};
 
-            % Create Plot
-            app.Plot = uiaxes(app.GridLayout);
-            xlabel(app.Plot, 'wt.%')
-            ylabel(app.Plot, 'Intensity')
-            app.Plot.PlotBoxAspectRatio = [1.39208633093525 1 1];
-            app.Plot.Box = 'on';
-            app.Plot.Layout.Row = [3 8];
-            app.Plot.Layout.Column = [3 7];
+            % Create Map_Spec
+            app.Map_Spec = uiaxes(app.GridLayout);
+            app.Map_Spec.XTick = [];
+            app.Map_Spec.YTick = [];
+            app.Map_Spec.Box = 'on';
+            app.Map_Spec.Layout.Row = [9 12];
+            app.Map_Spec.Layout.Column = [1 3];
 
             % Create Map_Total
             app.Map_Total = uiaxes(app.GridLayout);
@@ -1853,13 +1954,14 @@ classdef Calibration_EPMA_exported < matlab.apps.AppBase
             app.Map_Total.Layout.Row = [9 12];
             app.Map_Total.Layout.Column = [4 6];
 
-            % Create Map_Spec
-            app.Map_Spec = uiaxes(app.GridLayout);
-            app.Map_Spec.XTick = [];
-            app.Map_Spec.YTick = [];
-            app.Map_Spec.Box = 'on';
-            app.Map_Spec.Layout.Row = [9 12];
-            app.Map_Spec.Layout.Column = [1 3];
+            % Create Plot
+            app.Plot = uiaxes(app.GridLayout);
+            xlabel(app.Plot, 'wt.%')
+            ylabel(app.Plot, 'Intensity')
+            app.Plot.PlotBoxAspectRatio = [1.39208633093525 1 1];
+            app.Plot.Box = 'on';
+            app.Plot.Layout.Row = [3 8];
+            app.Plot.Layout.Column = [3 7];
 
             % Show the figure after all components are created
             app.XMapToolsGlobalStandardization.Visible = 'on';
